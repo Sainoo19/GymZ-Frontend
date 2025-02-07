@@ -2,8 +2,9 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import SideBar from "../../components/admin/layout/SideBar";
 import Dashboard from "./dashboard";
-import Order from "./order";
-import Payment from "./payment";
+import Order from "../admin/orders/order";
+import UpdateOrderForm from "../admin/orders/ordersDetail";
+import Payment from "../admin/payments/payment";
 import Product from "./product";
 import User from "./user";
 import Employee from "./employee";
@@ -21,6 +22,7 @@ const AppAdmin = () => {
                     <Routes>
                         <Route path="/" element={<Dashboard />} />
                         <Route path="/orders" element={<Order />} />
+                        <Route path="/orders/:id" element={<UpdateOrderForm />} />
                         <Route path="/payments" element={<Payment />} />
                         <Route path="/products" element={<Product />} />
                         <Route path="/users" element={<User />} />
