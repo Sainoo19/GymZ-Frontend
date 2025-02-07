@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Table from '../../../components/admin/Table';
+import DeleteOrderModal from './ordersDelete';
 
 const Order = () => {
     const [columns] = useState([
@@ -14,6 +15,8 @@ const Order = () => {
     ]);
 
     const [data, setData] = useState([]);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedOrderId, setSelectedOrderId] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -37,20 +40,44 @@ const Order = () => {
         navigate(`/orders/${id}`);
     };
 
-    const handleDelete = (id) => {
-        // Implement delete functionality here
-        console.log('Delete order with ID:', id);
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:3000/orders/delete/${id}`);
+            setData(data.filter(order => order._id !== id));
+            setIsDeleteModalOpen(false);
+        } catch (error) {
+            console.error('Error deleting order:', error);
+        }
+    };
+
+    const openDeleteModal = (id) => {
+        setSelectedOrderId(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const closeDeleteModal = () => {
+        setIsDeleteModalOpen(false);
+        setSelectedOrderId(null);
     };
 
     return (
         <div className="mt-4">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">Tất Cả Đơn Hàng</h1>
-                <button className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all">
+                <button
+                    className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
+                    onClick={() => navigate('/orders/create')}
+                >
                     Thêm Đơn Hàng
                 </button>
             </div>
-            <Table columns={columns} data={data} onEdit={handleEdit} onDelete={handleDelete} />
+            <Table columns={columns} data={data} onEdit={handleEdit} onDelete={openDeleteModal} />
+            <DeleteOrderModal
+                isOpen={isDeleteModalOpen}
+                onClose={closeDeleteModal}
+                onDelete={handleDelete}
+                orderId={selectedOrderId}
+            />
         </div>
     );
 };
