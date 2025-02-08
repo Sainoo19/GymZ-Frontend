@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PictureFile from "../../../assets/images/pictureFile.png";
-
-
+import firebase from "firebase/compat/app";
+import "firebase/compat/storage"
 
 
 export function FileDrop() {
@@ -9,6 +9,7 @@ export function FileDrop() {
   const [files, setFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
   const [completed, setCompleted] = useState({});
+  const [ImgUrl, setImgURL] = useState("");
 
   const handleDragOver = (event) => {
     event.preventDefault();
@@ -42,7 +43,30 @@ export function FileDrop() {
   const removeFile = (index) => {
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
-
+  const handleFileUpload = async (event) => {
+    const selectedFile = event.target.files[0];
+    if (!selectedFile) {
+      console.log("No file selected");
+      return;
+    }
+  
+    try {
+      const storageRef = firebase.storage().ref();
+      const fileRef = storageRef.child(selectedFile.name);
+  
+      // Tải lên file và chờ hoàn thành
+      const snapshot = await fileRef.put(selectedFile);
+  
+      // Lấy URL sau khi tải xong
+      const downloadURL = await snapshot.ref.getDownloadURL();
+      
+      console.log("File uploaded successfully:", downloadURL);
+      setImgURL(downloadURL);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
+  
   const simulateUpload = (files) => {
     files.forEach((file) => {
       setUploadProgress((prevProgress) => ({
@@ -148,6 +172,12 @@ export function FileDrop() {
             )}
           </div>
         ))}
+      </div>
+
+
+
+      <div>
+        <input type="file" onChange={handleFileUpload}></input>
       </div>
     </div>
   );
