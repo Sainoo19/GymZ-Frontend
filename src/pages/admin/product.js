@@ -1,5 +1,6 @@
 import React from 'react';
 import Table from '../../components/admin/Table';
+import Pagination from '../../components/admin//layout/Pagination';
 
 const Product = () => {
     const columns = [
@@ -58,6 +59,7 @@ const Product = () => {
         <div>
 
             <Table columns={columns} data={data} />
+            <Pagination totalPages={10} currentPage={1} onPageChange={(page) => console.log(page)} />
         </div>
     );
 };
