@@ -52,7 +52,7 @@ export function FileDrop() {
   
     try {
       const storageRef = firebase.storage().ref();
-      const fileRef = storageRef.child(selectedFile.name);
+      const fileRef = storageRef.child(`product/${selectedFile.name}`); // Lưu vào folder "product"
   
       // Tải lên file và chờ hoàn thành
       const snapshot = await fileRef.put(selectedFile);
