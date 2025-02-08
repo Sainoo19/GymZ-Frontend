@@ -19,7 +19,7 @@ const ProductDetail = () => {
 
   return (
     <div className="bg-background_admin ">
-      <h2 className="m-6 block text-xl font-semibold">Thêm sản phẩm</h2>
+      <h2 className=" p-6 block text-xl font-semibold">Thêm sản phẩm</h2>
       <div className=" w-full flex justify-center items-center ">
         <div className="w-11/12 rounded-2xl bg-white mb-16">
           <div className="flex justify-center">

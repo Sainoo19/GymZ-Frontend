@@ -12,6 +12,7 @@ module.exports = {
         text_color_primary: '#000000',
         accent: '#657786', // Màu xám nhạt
         customGreen: '#00FF00', // Màu xanh lá tùy chỉnh
+        background_admin: '#E7E7E3'// màu xám nhạt
       },
       fontFamily: {
         kanit: ['Kanit', 'sans-serif'],

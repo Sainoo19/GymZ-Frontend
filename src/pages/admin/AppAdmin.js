@@ -17,7 +17,7 @@ const AppAdmin = () => {
                 <div className="w-1/5">
                     <SideBar />
                 </div>
-                <div className="w-4/5 p-4">
+                <div className="w-4/5">
                     <Header />
                     <Routes>
                         <Route path="/" element={<Dashboard />} />
