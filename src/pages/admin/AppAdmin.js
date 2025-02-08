@@ -6,7 +6,7 @@ import Order from "../admin/orders/order";
 import UpdateOrderForm from "../admin/orders/ordersDetail";
 import Payment from "../admin/payments/payment";
 import Product from "./product";
-import User from "./user";
+import User from "../admin/users/user";
 import Employee from "./employee";
 import Header from "../../components/admin/layout/Header";
 
