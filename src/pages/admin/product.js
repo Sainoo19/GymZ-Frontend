@@ -1,6 +1,6 @@
 import React from 'react';
 import Table from '../../components/admin/Table';
-
+import ProductDetail from "../../components/admin/product/ProductDetail"
 const Product = () => {
     const columns = [
 
@@ -57,7 +57,10 @@ const Product = () => {
     return (
         <div>
 
-            <Table columns={columns} data={data} />
+            {/* <Table columns={columns} data={data} /> */}
+            {/* chỉnh lại sau  */}
+            <ProductDetail></ProductDetail>
+
         </div>
     );
 };
