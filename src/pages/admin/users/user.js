@@ -6,19 +6,19 @@ import Swal from "sweetalert2";
 import { Warning } from 'postcss';
 
 const User = () => {
+        const columns = [
+            { field: '_id', label: 'USER ID' },
+            { field: 'name', label: 'NAME' },
+            { field: 'address', label: 'ADDRESS'},
+            { field: 'createdAt', label: 'CREATED AT' },
+            { field: 'updatedAt', label: 'UPDATED AT' },
+            { field: 'status', label: 'STATUS' },
+    ];
+
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-
-    const columns = [
-        { field: '_id', label: 'USER ID' },
-        { field: 'name', label: 'NAME' },
-        { field: 'address', label: 'ADDRESS'},
-        { field: 'createdAt', label: 'CREATED AT' },
-        { field: 'updatedAt', label: 'UPDATED AT' },
-        { field: 'status', label: 'STATUS' },
-    ];
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -43,6 +43,7 @@ const User = () => {
     }, []);
     
     const handleEdit = (id) => {
+        console.log("Navigating to:", `/users/${id}`);
         navigate(`/users/${id}`);
     };
 
