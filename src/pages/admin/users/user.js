@@ -80,10 +80,14 @@ const User = () => {
         <div className="mt-4">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">Tất cả khách hàng</h1>
-                <button className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all">
+                <button 
+                    onClick = {() => navigate('/users/create')}
+                    className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
+                >
                     Thêm khách hàng
                 </button>
             </div>
+
             {/* Hiển thị trạng thái loading hoặc lỗi */}
             {loading ? (
                 <p>Đang tải dữ liệu...</p>
