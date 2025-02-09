@@ -7,8 +7,10 @@ import UpdateOrderForm from "../admin/orders/ordersDetail";
 import Payment from "../admin/payments/payment";
 import Product from "./product";
 import User from "./user";
-import Employee from "./employee";
+import Employee from "./employees/employee";
 import Header from "../../components/admin/layout/Header";
+import CreateEmployee from "./employees/createEmployee";
+import UpdateEmployeeForm from "./employees/employeesDetail";
 
 const AppAdmin = () => {
     return (
@@ -27,7 +29,8 @@ const AppAdmin = () => {
                         <Route path="/products" element={<Product />} />
                         <Route path="/users" element={<User />} />
                         <Route path="/employees" element={<Employee />} />
-
+                        <Route path="/employees/create" element={<CreateEmployee />} />
+                        <Route path="/employees/:id" element={<UpdateEmployeeForm />} />
                         {/* Add more routes as needed */}
                     </Routes>
                 </div>
