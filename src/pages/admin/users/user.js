@@ -4,48 +4,66 @@ import Table from '../../../components/admin/Table';
 import { useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2";
 import { Warning } from 'postcss';
+import { Search } from 'lucide-react';
+import Pagination from '../../../components/admin/layout/Pagination';
 
 const User = () => {
-        const columns = [
-            { field: '_id', label: 'USER ID' },
-            { field: 'name', label: 'NAME' },
-            { field: 'address', label: 'ADDRESS'},
-            { field: 'createdAt', label: 'CREATED AT' },
-            { field: 'updatedAt', label: 'UPDATED AT' },
-            { field: 'status', label: 'STATUS' },
-    ];
+    const [columns] = useState ([
+        { field: '_id', label: 'USER ID' },
+        { field: 'name', label: 'NAME' },
+        { field: 'address', label: 'ADDRESS'},
+        { field: 'createdAt', label: 'CREATED AT' },
+        { field: 'updatedAt', label: 'UPDATED AT' },
+        { field: 'status', label: 'STATUS' },
+    ]);
 
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [search, setSearch] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/users/all');
-                console.log('Fetched Data:', response.data);
-    
-                // Kiểm tra xem response.data.data có tồn tại và có phải là mảng không
-                if (Array.isArray(response.data.data)) {
-                    setUsers(response.data.data);
-                } else {
-                    setUsers([]); // Đảm bảo set giá trị mặc định là mảng
-                    console.error("API response does not contain an array:", response.data);
+                const response = await axios.get('http://localhost:3000/users/all', {
+                    params: {
+                        page: currentPage,
+                        limit: 3,
+                        search,
+                    }
+                });
+                if (response.data.status === 'success') {
+                    setUsers(response.data.data.users);
+                    setTotalPages(response.data.metadata.totalPages);
+                } else{
+                    console.error('API response error:', response.data.message);
                 }
             } catch (error) {
-                setError(error.message);
+                setError('Error fetching data:', error);
             } finally {
                 setLoading(false);
             }
         };
         fetchUsers();
-    }, []);
-    
+    }, [currentPage, search]);
+
     const handleEdit = (id) => {
         console.log("Navigating to:", `/users/${id}`);
         navigate(`/users/${id}`);
     };
+
+    const handlePageChange = (page) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
+
+    const handleSearchChange = (e) => {
+        setSearch(e.target.value);
+    }
 
     const handleDelete = async (id) => {
         Swal.fire({
@@ -91,21 +109,22 @@ const User = () => {
             {/* Hiển thị trạng thái loading hoặc lỗi */}
             {loading ? (
                 <p>Đang tải dữ liệu...</p>
-            ) : error ? (
-                <p className="text-red-500">Lỗi: {error}</p>
-            ) : (
-                <Table columns={columns} 
-                data={users.map(user => ({
-                    ...user,
-                    address: user.address
-                        ? `${user.address.street}, ${user.address.city}, ${user.address.country}`
-                        : 'N/A'
-                }))}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                />
-            )
+                ) : error ? (
+                    <p className="text-red-500">Lỗi: {error}</p>
+                ) : (
+                    <Table columns={columns} 
+                    data={users.map(user => ({
+                        ...user,
+                        address: user.address
+                            ? `${user.address.street}, ${user.address.city}, ${user.address.country}`
+                            : 'N/A'
+                    }))}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    />
+                )
             }
+            <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
         </div>
     );
 };
