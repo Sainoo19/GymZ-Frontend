@@ -1,5 +1,9 @@
 import { useRef, useEffect, useState } from "react";
 import { FileDrop } from "./FileDrop";
+import axios from "axios";
+import { TypeProduct } from "./TypeProduct";
+
+const API_BASE_URL = "http://localhost:3000/products";
 
 const loaiHang = ["Thực phẩm chức năng", "Whey", "Giày", "Quần áo"];
 const ProductDetail = () => {
@@ -32,6 +36,7 @@ const ProductDetail = () => {
                   type="text"
                   placeholder="Nhập tên sản phẩm"
                   className="border-2  border-gray-600 rounded-lg p-1 w-11/12 focus:outline-none focus:ring-2 focus:ring-primary "
+                  // value={productData.}
                 ></input>
                 <p className="font-semibold text-base mt-6 mb-3">Miêu tả</p>
                 <textarea
@@ -65,45 +70,9 @@ const ProductDetail = () => {
                   placeholder="Nhập tên thương hiệu"
                   className="border-2 text-sm border-gray-600 rounded-lg p-1 w-11/12 focus:outline-none focus:ring-2 focus:ring-primary "
                 ></input>
+<div className="w-11/12 border-dashed border-t-2 border-primary mt-5"></div>
 
-                <div className="flex justify-between w-11/12 ">
-                  <div className=" w-1/2">
-                    <p className="font-semibold text-base mt-6 mb-3">Mã hàng</p>
-                    <input
-                      type="text"
-                      placeholder="#xxxxx"
-                      className="border-2  text-sm border-gray-600 rounded-lg p-1 w-11/12 focus:outline-none focus:ring-2 focus:ring-primary "
-                    ></input>
-                  </div>
-                  <div className=" w-1/2">
-                    <p className="font-semibold text-base mt-6 mb-3">
-                      Số lượng hàng tồn kho
-                    </p>
-                    <input
-                      type="text"
-                      placeholder="Nhập tên sản phẩm"
-                      className="border-2  text-sm border-gray-600 rounded-lg p-1 w-full focus:outline-none focus:ring-2 focus:ring-primary "
-                    ></input>
-                  </div>
-                </div>
-                <div className="flex justify-between w-11/12 ">
-                  <div className=" w-1/2">
-                    <p className="font-semibold text-base mt-6 mb-3">Giá gốc</p>
-                    <input
-                      type="text"
-                      placeholder="VND"
-                      className="border-2  text-sm border-gray-600 rounded-lg p-1 w-11/12 focus:outline-none focus:ring-2 focus:ring-primary "
-                    ></input>
-                  </div>
-                  <div className=" w-1/2">
-                    <p className="font-semibold text-base mt-6 mb-3">Giá bán</p>
-                    <input
-                      type="text"
-                      placeholder="VND"
-                      className="border-2  text-sm border-gray-600 rounded-lg p-1 w-full focus:outline-none focus:ring-2 focus:ring-primary "
-                    ></input>
-                  </div>
-                </div>
+                <TypeProduct />
               </div>
             </div>
 
