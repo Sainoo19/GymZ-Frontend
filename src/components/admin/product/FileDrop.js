@@ -1,10 +1,10 @@
 import { useState } from "react";
 import PictureFile from "../../../assets/images/pictureFile.png";
 import firebase from "firebase/compat/app";
-import "firebase/compat/storage"
+import "firebase/compat/storage";
+import { v4 as uuidv } from "uuid";
 
-
-export function FileDrop() {
+export function FileDrop({ setImages }) {
   const [isOver, setIsOver] = useState(false);
   const [files, setFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
@@ -34,39 +34,36 @@ export function FileDrop() {
     document.getElementById("fileInput").click();
   };
 
-  const handleFileChange = (event) => {
-    const selectedFiles = Array.from(event.target.files);
-    setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
-    simulateUpload(selectedFiles);
-  };
-
-  const removeFile = (index) => {
-    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-  };
   const handleFileUpload = async (event) => {
-    const selectedFile = event.target.files[0];
-    if (!selectedFile) {
+    const selectedFiles = Array.from(event.target.files);
+    if (selectedFiles.length === 0) {
       console.log("No file selected");
       return;
     }
-  
+
+    // Cập nhật danh sách file & hiển thị tiến trình tải lên UI
+    setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
+    simulateUpload(selectedFiles);
+
     try {
       const storageRef = firebase.storage().ref();
-      const fileRef = storageRef.child(`product/${selectedFile.name}`); // Lưu vào folder "product"
-  
-      // Tải lên file và chờ hoàn thành
-      const snapshot = await fileRef.put(selectedFile);
-  
-      // Lấy URL sau khi tải xong
-      const downloadURL = await snapshot.ref.getDownloadURL();
-      
-      console.log("File uploaded successfully:", downloadURL);
-      setImgURL(downloadURL);
+      const uploadedUrls = [];
+
+      for (const file of selectedFiles) {
+        const uniqueFileName = generateUniqueFileName(file.name);
+        const fileRef = storageRef.child(`product/${uniqueFileName}`);
+        const snapshot = await fileRef.put(file);
+        const downloadURL = await snapshot.ref.getDownloadURL();
+        uploadedUrls.push(downloadURL);
+      }
+
+      setImgURL((prevUrls) => [...prevUrls, ...uploadedUrls]);
+      setImages((prevUrls) => [...prevUrls, ...uploadedUrls]);       console.log("All files uploaded successfully:", uploadedUrls);
     } catch (error) {
-      console.error("Error uploading file:", error);
+      console.error("Error uploading files:", error);
     }
   };
-  
+
   const simulateUpload = (files) => {
     files.forEach((file) => {
       setUploadProgress((prevProgress) => ({
@@ -102,7 +99,34 @@ export function FileDrop() {
       }, 300);
     });
   };
+  const deleteFileFromFirebase = async (fileName) => {
+    try {
+      const storageRef = firebase.storage().ref();
+      const fileRef = storageRef.child(`product/${fileName}`);
 
+      await fileRef.delete(); // Xóa file trên Firebase
+      console.log(`Deleted file: ${fileName}`);
+    } catch (error) {
+      console.error("Error deleting file:", error);
+    }
+  };
+
+  const removeFileOnFirebase = async (index) => {
+    const fileToRemove = files[index];
+
+    if (!fileToRemove) return;
+
+    await deleteFileFromFirebase(fileToRemove.name);
+
+    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+    setImgURL((prevUrls) => prevUrls.filter((_, i) => i !== index));
+  };
+
+  const generateUniqueFileName = (originalName) => {
+    const fileExtension = originalName.split(".").pop(); //lấy đuôi file
+    const uniqueName = `${uuidv()}_${Date.now()}.${fileExtension}`;
+    return uniqueName;
+  };
   return (
     <div className="flex flex-col items-center">
       <div
@@ -121,7 +145,7 @@ export function FileDrop() {
           multiple
           accept="image/*"
           className="hidden "
-          onChange={handleFileChange}
+          onChange={handleFileUpload}
         />
         <div className="mt-3">
           {files.length === 0 ? (
@@ -156,7 +180,7 @@ export function FileDrop() {
               />
               <p className="text-xs ml-4 break-all ">{file.name}</p>
               <button
-                onClick={() => removeFile(index)}
+                onClick={() => removeFileOnFirebase(index)}
                 className="ml-auto text-red-500 hover:text-red-700 text-lg font-bold px-2"
               >
                 ×
@@ -172,12 +196,6 @@ export function FileDrop() {
             )}
           </div>
         ))}
-      </div>
-
-
-
-      <div>
-        <input type="file" onChange={handleFileUpload}></input>
       </div>
     </div>
   );

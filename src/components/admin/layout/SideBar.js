@@ -18,10 +18,10 @@ const SideBar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
 
     return (
-        <div className="flex h-screen">
+        <div className="flex min-h-screen">
             {/* Desktop Sidebar */}
-            <nav className="bg-primary w-full h-full lg:block hidden justify-items-center">
-                <div className="pt-7">
+            <nav className="bg-primary w-full min-h-screen lg:block hidden justify-items-center">
+            <div className="pt-7">
                     <MyIcon className="block w-40 h-20 mx-auto" />
                 </div>
                 {navItems.map((item, index) => (
