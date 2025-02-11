@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { FileDrop } from "./FileDrop";
 import axios from "axios";
 import { TypeProduct } from "./TypeProduct";
+import { v4 as uuidv4 } from "uuid"; 
 
 const API_BASE_URL = "http://localhost:3000/products";
 
@@ -41,36 +42,46 @@ const ProductDetail = () => {
       ...prev,
       variants: [
         ...prev.variants,
-        { type: "", stock: 0, originalPrice: 0, salePrice: 0 },
+        { type: "", stock: 0, originalPrice: 0, salePrice: 0,theme:"" },
       ],
     }));
   };
 
   const handleAddProduct = async () => {
     try {
-      if (images.length === 0) {
-        alert("Vui lòng tải lên ít nhất một hình ảnh!");
-        return;
-      }
-  
-      const productData = {
-        name,
-        description,
-        category: selectedCategory,
-        brand,
-        variations,
-        images, // Lưu danh sách ảnh vào database
-      };
-  
-      const response = await axios.post(`${API_BASE_URL}/create`, productData);
-  
-      console.log("Thêm sản phẩm thành công:", response.data);
-      alert("Sản phẩm đã được thêm!");
+        if (images.length === 0) {
+            alert("Vui lòng tải lên ít nhất một hình ảnh!");
+            return;
+        }
+
+        const formattedVariations = variations.map(v => ({
+            category: v.category,
+            theme: v.theme,
+            stock: Number(v.stock) || 0,
+            originalPrice: Number(v.originalPrice) || 0,
+            salePrice: Number(v.salePrice) || 0,
+        }));
+
+        const newProduct = {
+            _id: uuidv4(), // Tạo ID duy nhất
+            name,
+            description,
+            category: selectedCategory,
+            brand,
+            variations: formattedVariations,
+            images,
+            status: "active"
+        };
+
+        const response = await axios.post(`${API_BASE_URL}/create`, newProduct);
+        console.log("Thêm sản phẩm thành công:", response.data);
+        alert("Sản phẩm đã được thêm!");
+
     } catch (error) {
-      console.error("Lỗi khi thêm sản phẩm:", error);
-      alert("Thêm sản phẩm thất bại!");
+        console.error("Lỗi khi thêm sản phẩm:", error);
+        alert("Thêm sản phẩm thất bại!");
     }
-  };
+};
   
 
   return (

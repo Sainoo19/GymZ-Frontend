@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from "react";
 
 export function TypeProduct({setVariations}) {
   const [items, setItems] = useState([
-    { category: "", stock: "", originalPrice: "", salePrice: "" },
+    { category: "", stock: "", originalPrice: "", salePrice: "",theme:"" },
   ]);
 
   useEffect(() =>{
@@ -21,6 +21,7 @@ export function TypeProduct({setVariations}) {
         stock: "",
         originalPrice: "",
         salePrice: "",
+        theme:""
       },
     ]);
   };
@@ -43,10 +44,25 @@ export function TypeProduct({setVariations}) {
     <div className="justify-center">
       {items.map((item, index) => (
         <div key={item.id}>
+          <div className="w-11/12">
+          <p className="font-semibold text-base mt-6 mb-3">
+                Thuộc tính {index + 1}
+              </p>
+              <input
+                type="text"
+                placeholder="Màu sắc, hương vị, ..."
+                value={item.theme}
+                onChange={(e) => handleAddItem(index, "theme", e.target.value)}
+
+                className="border-2  text-sm border-gray-600 rounded-lg p-1 w-full focus:outline-none focus:ring-2 focus:ring-primary "
+              ></input>
+            </div>
+           
           <div className="flex justify-between w-11/12 ">
+          
             <div className=" w-1/2">
               <p className="font-semibold text-base mt-6 mb-3">
-                Loại hàng {index + 1}
+                Loại hàng 
               </p>
               <input
                 type="text"
