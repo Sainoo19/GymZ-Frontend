@@ -41,9 +41,7 @@ export function FileDrop({ setImages }) {
       return;
     }
 
-    // Cập nhật danh sách file & hiển thị tiến trình tải lên UI
     setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
-    simulateUpload(selectedFiles);
 
     try {
       const storageRef = firebase.storage().ref();
@@ -52,13 +50,46 @@ export function FileDrop({ setImages }) {
       for (const file of selectedFiles) {
         const uniqueFileName = generateUniqueFileName(file.name);
         const fileRef = storageRef.child(`product/${uniqueFileName}`);
-        const snapshot = await fileRef.put(file);
-        const downloadURL = await snapshot.ref.getDownloadURL();
-        uploadedUrls.push(downloadURL);
-      }
 
-      setImgURL((prevUrls) => [...prevUrls, ...uploadedUrls]);
-      setImages((prevUrls) => [...prevUrls, ...uploadedUrls]);       console.log("All files uploaded successfully:", uploadedUrls);
+        const uploadTask = fileRef.put(file);
+
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadProgress((prevProgress) => ({
+              ...prevProgress,
+              [file.name]: progress,
+            }));
+          },
+          (error) => {
+            console.error("Error uploading file:", error);
+          },
+          async () => {
+            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+            uploadedUrls.push(downloadURL);
+
+            // Cập nhật trạng thái hoàn thành
+            setCompleted((prevCompleted) => ({
+              ...prevCompleted,
+              [file.name]: true,
+            }));
+
+            // Ẩn thanh tiến trình
+            setUploadProgress((prevProgress) => {
+              const updatedProgress = { ...prevProgress };
+              delete updatedProgress[file.name];
+              return updatedProgress;
+            });
+
+            setImgURL((prevUrls) => [...prevUrls, downloadURL]);
+            setImages((prevUrls) => [...prevUrls, downloadURL]);
+
+            console.log("Uploaded:", file.name, downloadURL);
+          }
+        );
+      }
     } catch (error) {
       console.error("Error uploading files:", error);
     }
