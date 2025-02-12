@@ -3,6 +3,9 @@ import PictureFile from "../../../assets/images/pictureFile.png";
 import firebase from "firebase/compat/app";
 import "firebase/compat/storage";
 import { v4 as uuidv } from "uuid";
+import Cropper from "react-cropper";
+import "cropperjs/dist/cropper.css";
+
 
 export function FileDrop({ setImages }) {
   const [isOver, setIsOver] = useState(false);
