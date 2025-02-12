@@ -9,6 +9,7 @@ import Product from "./product";
 import User from "./user";
 import Employee from "./employee";
 import Header from "../../components/admin/layout/Header";
+import AddProduct from "../admin/products/addproduct"; 
 
 const AppAdmin = () => {
     return (
@@ -27,6 +28,7 @@ const AppAdmin = () => {
                         <Route path="/products" element={<Product />} />
                         <Route path="/users" element={<User />} />
                         <Route path="/employees" element={<Employee />} />
+                        <Route path="/addproducts" element={<AddProduct />} /> 
 
                         {/* Add more routes as needed */}
                     </Routes>

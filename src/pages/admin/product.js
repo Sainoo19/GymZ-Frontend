@@ -1,68 +1,182 @@
-import React from 'react';
-import Table from '../../components/admin/Table';
-import ProductDetail from "../../components/admin/product/ProductDetail"
-const Product = () => {
-    const columns = [
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { ArrowUp, MoreHorizontal } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-        { field: 'name', label: 'NAME' },
-        { field: 'description', label: 'DESCRIPTION' },
-        { field: 'category_id', label: 'CATEGORY ID' },
-        { field: 'price', label: 'PRICE' },
-        { field: 'stock', label: 'STOCK' },
-        { field: 'images', label: 'IMAGES' },
-        { field: 'createdAt', label: 'CREATED AT' },
-        { field: 'updatedAt', label: 'UPDATED AT' },
-        { field: 'status', label: 'STATUS' },
-    ];
+const ProductCard = () => {
+  const [products, setProducts] = useState([]);
+  const [minMaxPrices, setMinMaxPrices] = useState({});
+  const [stocks, setStocks] = useState({}); // Thêm state lưu trữ stock
+  const [isMenuVisible, setMenuVisible] = useState(null);
+  const navigate = useNavigate();
 
-    const data = [
-        {
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/products/all/nopagination", {
+          headers: { "Cache-Control": "no-cache" },
+        });
+        setProducts(response.data.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy sản phẩm:", error);
+      }
+    };
 
-            name: "Product 1",
-            description: "Description for product 1",
-            category_id: "cat001",
-            price: 100,
-            stock: 50,
-            images: ["image1.jpg", "image2.jpg"],
-            createdAt: "2024-01-06T01:32:00",
-            updatedAt: "2024-01-06T01:32:00",
-            status: "Published",
-        },
-        {
+    const fetchMinMaxPrices = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/products/minmaxprice", {
+          headers: { "Cache-Control": "no-cache" },
+        });
+        const priceMap = response.data.data.reduce((acc, item) => {
+          acc[item.productId] = { min: item.minSalePrice, max: item.maxSalePrice };
+          return acc;
+        }, {});
+        setMinMaxPrices(priceMap);
+      } catch (error) {
+        console.error("Lỗi khi lấy giá min-max:", error);
+      }
+    };
 
-            name: "Product 2",
-            description: "Description for product 2",
-            category_id: "cat002",
-            price: 200,
-            stock: 30,
-            images: ["image3.jpg", "image4.jpg"],
-            createdAt: "2024-01-07T15:06:00",
-            updatedAt: "2024-01-07T15:06:00",
-            status: "Processing",
-        },
-        {
+    fetchProducts();
+    fetchMinMaxPrices();
+  }, []);
 
-            name: "Product 3",
-            description: "Description for product 3",
-            category_id: "cat003",
-            price: 150,
-            stock: 20,
-            images: ["image5.jpg", "image6.jpg"],
-            createdAt: "2024-06-12T09:33:00",
-            updatedAt: "2024-06-12T09:33:00",
-            status: "Published",
-        },
-    ];
+  useEffect(() => {
+    // Chỉ fetch stock khi đã có sản phẩm
+    if (products.length === 0) return;
 
-    return (
-        <div>
+    const fetchStocks = async () => {
+      try {
+        const stockData = {};
+        for (const product of products) {
+          const response = await axios.get(`http://localhost:3000/products/stock/${product._id}`);
+          stockData[product._id] = response.data.totalStock;
+        }
+        setStocks(stockData);
+      } catch (error) {
+        console.error("Lỗi khi lấy stock sản phẩm:", error);
+      }
+    };
 
-            {/* <Table columns={columns} data={data} /> */}
-            {/* chỉnh lại sau  */}
-            <ProductDetail></ProductDetail>
+    fetchStocks();
+  }, [products]);
 
-        </div>
-    );
+  const handleMenuClick = (productId) => {
+    setMenuVisible(isMenuVisible === productId ? null : productId);
+  };
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (!event.target.closest(".menu-container")) {
+        setMenuVisible(null);
+      }
+    };
+    document.addEventListener("click", handleOutsideClick);
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+    };
+  }, []);
+
+  const handleDeleteProduct = async (productId) => {
+    if (window.confirm("Bạn có chắc chắn muốn xoá sản phẩm này?")) {
+      try {
+        await axios.delete(`http://localhost:3000/products/delete/${productId}`);
+        setProducts((prevProducts) => prevProducts.filter((product) => product._id !== productId));
+      } catch (error) {
+        console.error("Lỗi khi xoá sản phẩm:", error);
+      }
+    }
+  };
+
+  return (
+    <div className="mt-5 flex flex-col items-center">
+
+      <button className="bg-primary px-6 py-4 block rounded-lg" 
+              onClick={() => navigate("/addproducts")} // Điều hướng khi nhấn nút
+
+     >
+       
+        Thêm sản phẩm</button>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full px-4">
+        {products.length > 0 ? (
+          products.map((product) => {
+            const priceData = minMaxPrices[product._id];
+            const stock = stocks[product._id] ?? "Đang tải...";
+
+            // Nếu có API minmaxprice, ưu tiên hiển thị từ API
+            let priceText = priceData
+              ? `${priceData.min.toLocaleString()}đ - ${priceData.max.toLocaleString()}đ`
+              : "N/A";
+
+            // Nếu API minmaxprice chưa có dữ liệu, fallback về variations
+            if (!priceData && product.variations?.length > 0) {
+              const prices = product.variations.map((v) => v.salePrice);
+              priceText = `${Math.min(...prices).toLocaleString()}đ - ${Math.max(...prices).toLocaleString()}đ`;
+            }
+
+            return (
+              <div key={product._id} className="p-4 rounded-2xl shadow-md bg-white relative flex flex-col min-h-[320px] justify-between">
+                <div className="absolute top-2 right-2 cursor-pointer">
+                  <MoreHorizontal
+                    size={20}
+                    className="text-gray-500 hover:text-gray-700"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleMenuClick(product._id);
+                    }}
+                  />
+                </div>
+
+                {isMenuVisible === product._id && (
+                  <div className="absolute top-10 right-2 bg-white shadow-md rounded-md w-40 z-10 menu-container">
+                    <ul className="text-sm text-gray-700">
+                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Chỉnh sửa</li>
+                      <li className="px-4 py-2 hover:bg-red-100 text-red-600 cursor-pointer" onClick={() => handleDeleteProduct(product._id)}>
+                        Xóa
+                      </li>
+                    </ul>
+                  </div>
+                )}
+
+                <div className="flex items-start gap-4">
+                  <img src={product.images[0] || "/whey.png"} alt={product.name} className="w-20 h-20 object-cover rounded-md" />
+                  <div className="flex flex-col justify-between h-full flex-grow">
+                    <p className="font-semibold text-[30px]">{product.name}</p>
+                    <p className="font-bold text-lg mt-2 mb-5">{priceText}</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 border-t pt-3 space-y-2 border rounded-lg p-3 bg-gray-50">
+                  <div className="flex justify-between text-sm items-center">
+                    <span className="font-base">Bán</span>
+                    <div className="flex items-center gap-1 text-gray-700">
+                      <ArrowUp size={14} className="text-yellow-500" />
+                      <span>{product.status}</span>
+                    </div>
+                  </div>
+                  <div className="border-t border-gray-300 my-2"></div>
+                  <div className="flex items-center text-sm w-full gap-2">
+                    <span className="text-sm font-base whitespace-nowrap">Sản phẩm còn</span>
+                    <div className="flex-1 flex items-center gap-2">
+                      <div className="w-full bg-gray-200 rounded-full h-2 relative">
+                        <div
+                          className="bg-yellow-500 h-2 rounded-full"
+                          style={{ width: stock !== "Đang tải..." ? `${(stock / 100) * 100}%` : "0%" }}
+                        ></div>
+                      </div>
+                      <span className="text-sm font-base text-right w-10">{stock}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <p className="text-gray-500">Không có sản phẩm nào.</p>
+        )}
+      </div>
+    </div>
+  );
 };
 
-export default Product;
+export default ProductCard;
