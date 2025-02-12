@@ -9,6 +9,7 @@ import Pagination from '../../../components/admin/layout/Pagination';
 const Employee = () => {
     const [columns] = useState([
         { field: '_id', label: 'ID' },
+        { field: 'avatar', label: 'AVATAR' },
         { field: 'email', label: 'EMAIL' },
         { field: 'password', label: 'PASSWORD' },
         { field: 'phone', label: 'PHONE' },
@@ -22,7 +23,7 @@ const Employee = () => {
     ]);
 
 
-
+    const [branches, setBranches] = useState([]);
     const [data, setData] = useState([]);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
@@ -38,6 +39,7 @@ const Employee = () => {
     const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
     const navigate = useNavigate();
 
+    
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -58,6 +60,7 @@ const Employee = () => {
                         hiredAt: new Date(employee.hiredAt).toLocaleDateString(),
                         createdAt: new Date(employee.createdAt).toLocaleDateString(),
                         updatedAt: new Date(employee.updatedAt).toLocaleDateString(),
+                        avatarURL: getAvatarURL(employee.avatar),
                     }));
                     setData(formattedData);
                     setTotalPages(response.data.metadata.totalPages);
@@ -68,7 +71,17 @@ const Employee = () => {
                 console.error('Error fetching data:', error);
             }
         };
+
+        const fetchBranches = async () => {
+            try {
+              const response = await axios.get("http://localhost:3000/branches/all/nopagination"); // 🔹 Thay URL_API bằng API thực tế
+              setBranches(response.data.data); // 🔹 Cập nhật danh sách chi nhánh
+            } catch (error) {
+              console.error("Lỗi khi lấy danh sách chi nhánh:", error);
+            }
+          };
     
+        fetchBranches();
         fetchData();
     }, [currentPage, search, filters]);
     
@@ -137,7 +150,23 @@ const Employee = () => {
         setIsFilterModalOpen(false);
     };
 
+    const getAvatarURL = (fileName) => {
+        if (!fileName) return "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"; // Avatar mặc định nếu không có ảnh
+        return `https://firebasestorage.googleapis.com/v0/b/gymz-image.firebasestorage.app/o/employee%2F${encodeURIComponent(fileName)}?alt=media&token=b6198647-fb1c-4852-a628-9a6c5882f7a7`;
+    };
 
+    const formattedData = data.map((item) => ({
+        ...item,
+        avatar: (
+            <img 
+                src={getAvatarURL(item.avatar)} 
+                alt="Avatar"
+                className="w-10 h-10 rounded-full object-cover"
+            />
+        )
+    }));
+
+  
     return (
         <div className="mt-4">
         <div className="flex justify-between items-center mb-4">
@@ -164,8 +193,10 @@ const Employee = () => {
                 </button>
             </div>
         </div>
-            <Table columns={columns} data={data} onEdit={handleEdit} onDelete={openDeleteModal}/>
+            <Table columns={columns} data={formattedData} onEdit={handleEdit} onDelete={openDeleteModal}/>
            
+            {/* <Table columns={columns} data={[...formattedData].reverse()} onEdit={handleEdit} onDelete={openDeleteModal}/> */}
+
             <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
             <DeleteEmployeeModal
                 isOpen={isDeleteModalOpen}
@@ -187,10 +218,11 @@ const Employee = () => {
                                 className="w-full px-4 py-2 border rounded"
                             >
                                 <option value="">Tất cả</option>
-                                <option value="B001">B001</option>
-                                <option value="B002">B002</option>
-                                <option value="B003">B003</option>
-                                <option value="B004">B004</option>
+                                {branches.map((branch) => (
+                                <option key={branch._id} value={branch._id}>
+                                    {branch._id}
+                                </option>
+                                ))}
                             </select>
                         </div>
                         {/* Vai trò nhân viên */}

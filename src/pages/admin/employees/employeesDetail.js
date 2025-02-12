@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { FileDrop } from "./FileDropEm";
 
 const UpdateEmployeeForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [employee, setEmployee] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [branches, setBranches] = useState([]);
+  const [newFileName, setNewFileName] = useState("");
 
   useEffect(() => {
     const fetchEmployee = async () => {
@@ -19,6 +22,17 @@ const UpdateEmployeeForm = () => {
         console.error("Error fetching employee:", error);
       }
     };
+
+    const fetchBranches = async () => {
+        try {
+          const response = await axios.get("http://localhost:3000/branches/all/nopagination"); // 🔹 Thay URL_API bằng API thực tế
+          setBranches(response.data.data); // 🔹 Cập nhật danh sách chi nhánh
+        } catch (error) {
+          console.error("Lỗi khi lấy danh sách chi nhánh:", error);
+        }
+      };
+
+    fetchBranches();
     fetchEmployee();
   }, [id]);
 
@@ -27,6 +41,7 @@ const UpdateEmployeeForm = () => {
     try {
       const updatedEmployee = {
         ...employee,
+        avatar: newFileName || employee.avatar,
         updatedAt: new Date().toISOString(), // Update the updatedAt field
       };
       await axios.put(
@@ -41,9 +56,16 @@ const UpdateEmployeeForm = () => {
 
   // Định dạng lương
   const formatSalary = (value) => {
-    return new Intl.NumberFormat("vi-VN").format(value); 
+    return new Intl.NumberFormat("vi-VN").format(value);
   };
 
+  const getAvatarURL = (fileName) => {
+    if (!fileName)
+      return "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"; // Ảnh mặc định
+    return `https://firebasestorage.googleapis.com/v0/b/gymz-image.firebasestorage.app/o/employee%2F${encodeURIComponent(
+      fileName
+    )}?alt=media&token=b6198647-fb1c-4852-a628-9a6c5882f7a7`;
+  };
 
   if (!employee) {
     return <div>Loading...</div>;
@@ -72,37 +94,61 @@ const UpdateEmployeeForm = () => {
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
           />
         </div>
+        {/* Avatar */}
+        <div className="flex flex-col items-center">
+          <label className="block font-medium">Ảnh đại diện</label>
+          <div className="flex justify-center w-full">
+            <img
+              src={getAvatarURL(newFileName || employee.avatar)}
+              alt="Avatar"
+              className="w-24 h-24 rounded mb-2"
+            />
+          </div>
+          <FileDrop onFileUpload={setNewFileName} />
+        </div>
 
         {/* Email */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Email
+          </label>
           <input
             type="email"
             value={employee.email}
-            onChange={(e) => setEmployee({ ...employee, email: e.target.value })}
+            onChange={(e) =>
+              setEmployee({ ...employee, email: e.target.value })
+            }
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
           />
         </div>
 
         {/* Số điện thoại */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Số Điện Thoại</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Số Điện Thoại
+          </label>
           <input
             type="text"
             value={employee.phone}
-            onChange={(e) => setEmployee({ ...employee, phone: e.target.value })}
+            onChange={(e) =>
+              setEmployee({ ...employee, phone: e.target.value })
+            }
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
           />
         </div>
 
         {/* Mật khẩu */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Mật khẩu</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Mật khẩu
+          </label>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
               value={employee.password}
-              onChange={(e) => setEmployee({ ...employee, password: e.target.value })}
+              onChange={(e) =>
+                setEmployee({ ...employee, password: e.target.value })
+              }
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
             />
             <button
@@ -117,22 +163,30 @@ const UpdateEmployeeForm = () => {
 
         {/* Chi nhánh */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Chi nhánh</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Chi nhánh
+          </label>
           <select
             value={employee.branch_id}
-            onChange={(e) => setEmployee({ ...employee, branch_id: e.target.value })}
+            onChange={(e) =>
+              setEmployee({ ...employee, branch_id: e.target.value })
+            }
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
           >
-            <option value="B001">B001</option>
-            <option value="B002">B002</option>
-            <option value="B003">B003</option>
-            <option value="B004">B004</option>
+            <option value="">Chọn chi nhánh</option>
+            {branches.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                {branch._id}
+                </option>
+            ))}
           </select>
         </div>
 
         {/* Vai trò */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Vai Trò</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Vai Trò
+          </label>
           <select
             value={employee.role}
             onChange={(e) => setEmployee({ ...employee, role: e.target.value })}
@@ -146,28 +200,37 @@ const UpdateEmployeeForm = () => {
 
         {/* Lương */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Lương</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Lương
+          </label>
           <input
             type="text"
             value={formatSalary(employee.salary || 0)}
             onChange={(e) => {
-                const rawValue = e.target.value.replace(/\D/g, ""); // Chỉ giữ lại số
-                setEmployee({ ...employee, salary: Number(rawValue) });
+              const rawValue = e.target.value.replace(/\D/g, ""); // Chỉ giữ lại số
+              setEmployee({ ...employee, salary: Number(rawValue) });
             }}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
-            />
+          />
         </div>
 
         {/* Ngày vào làm */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Ngày Vào Làm</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Ngày Vào Làm
+          </label>
           <input
             type="date"
-            value={employee.hiredAt ? new Date(employee.hiredAt).toISOString().split("T")[0] : ""}
-            onChange={(e) => setEmployee({ ...employee, hiredAt: e.target.value })}
+            value={
+              employee.hiredAt
+                ? new Date(employee.hiredAt).toISOString().split("T")[0]
+                : ""
+            }
+            onChange={(e) =>
+              setEmployee({ ...employee, hiredAt: e.target.value })
+            }
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
-            />
-
+          />
         </div>
 
         <div>
@@ -193,26 +256,25 @@ const UpdateEmployeeForm = () => {
           />
         </div>
 
-        
         {/* Buttons */}
         <div className="flex gap-4 mt-4">
-                {/* Nút Lưu (Chiếm 2/3) */}
-                <button
-                    type="submit"
-                    className="w-2/3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    onClick={() => console.log("Nhân viên đã cập nhật", employee)}
-                >
-                    Cập nhật Nhân Viên
-                </button>
+          {/* Nút Lưu (Chiếm 2/3) */}
+          <button
+            type="submit"
+            className="w-2/3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            onClick={() => console.log("Nhân viên đã cập nhật", employee)}
+          >
+            Cập nhật Nhân Viên
+          </button>
 
-                {/* Nút Hủy (Chiếm 1/3) */}
-                <button
-                    className="w-1/3 bg-gray-400 text-white py-2 rounded hover:bg-gray-500"
-                    onClick={() => navigate("/employees")}
-                >
-                    Hủy
-                </button>
-            </div>
+          {/* Nút Hủy (Chiếm 1/3) */}
+          <button
+            className="w-1/3 bg-gray-400 text-white py-2 rounded hover:bg-gray-500"
+            onClick={() => navigate("/employees")}
+          >
+            Hủy
+          </button>
+        </div>
       </form>
     </div>
   );
