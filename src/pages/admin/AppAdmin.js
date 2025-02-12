@@ -29,6 +29,7 @@ const AppAdmin = () => {
                         <Route path="/users" element={<User />} />
                         <Route path="/employees" element={<Employee />} />
                         <Route path="/addproducts" element={<AddProduct />} /> 
+                        <Route path="/editproduct/:id" element={<AddProduct />} />
 
                         {/* Add more routes as needed */}
                     </Routes>

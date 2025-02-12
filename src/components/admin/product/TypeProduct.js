@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 
-export function TypeProduct({setVariations}) {
+export function TypeProduct({variations,setVariations}) {
   const [items, setItems] = useState([
     { category: "", stock: "", originalPrice: "", salePrice: "",theme:"" },
   ]);
@@ -9,8 +9,16 @@ export function TypeProduct({setVariations}) {
     setVariations(items);
   },[items,setVariations]);
 
+  useEffect(() => {
+    console.log("Received variations in TypeProduct:", variations);
+  }, [variations]);
 
-
+  useEffect(() => {
+    if (variations.length > 0) {
+      setItems(variations); // Gán trực tiếp variations vào items
+    }
+  }, [variations]);
+  
   
   const addNewItem = () => {
     setItems([
@@ -26,13 +34,6 @@ export function TypeProduct({setVariations}) {
     ]);
   };
 
-  // const handleAddItem = (id, field, value) => {
-  //   setItems((prevItems) =>
-  //     prevItems.map((item) =>
-  //       item.id === id ? { ...item, [field]: value } : item
-  //     )
-  //   );
-  // };
 
   const handleAddItem = (index, field, value) => {
     const updatedItems = [...items];
