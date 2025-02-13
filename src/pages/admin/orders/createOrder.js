@@ -1,28 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-const UpdateOrderForm = () => {
-    const { id } = useParams();
+const CreateOrder = () => {
     const navigate = useNavigate();
-    const [order, setOrder] = useState(null);
+    const [order, setOrder] = useState({
+        user_id: '',
+        items: [],
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    });
     const [users, setUsers] = useState([]);
-    const [products, setProducts] = useState({});
     const [allProducts, setAllProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [newProductId, setNewProductId] = useState('');
     const [newProductQuantity, setNewProductQuantity] = useState(1);
 
     useEffect(() => {
-        const fetchOrder = async () => {
-            try {
-                const response = await axios.get(`http://localhost:3000/orders/${id}`);
-                setOrder(response.data.data); // Access the data field
-            } catch (error) {
-                console.error('Error fetching order:', error);
-            }
-        };
-
         const fetchUsers = async () => {
             try {
                 const response = await axios.get('http://localhost:3000/users/all');
@@ -41,52 +35,27 @@ const UpdateOrderForm = () => {
             }
         };
 
-        fetchOrder();
         fetchUsers();
         fetchAllProducts();
-    }, [id]);
-
-    useEffect(() => {
-        if (order) {
-            const fetchProducts = async () => {
-                try {
-                    const productIds = order.items.map(item => item.product_id);
-                    const response = await axios.post('http://localhost:3000/orders/products/byIds', { ids: productIds });
-                    const productsMap = response.data.data.reduce((map, product) => {
-                        map[product._id] = product;
-                        return map;
-                    }, {});
-                    setProducts(productsMap);
-                    setLoading(false); // Set loading to false after fetching products
-                } catch (error) {
-                    console.error('Error fetching products:', error);
-                    setLoading(false); // Set loading to false even if there's an error
-                }
-            };
-
-            fetchProducts();
-        }
-    }, [order]);
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const updatedOrder = {
+            // Calculate total price
+            const totalPrice = order.items.reduce((total, item) => total + item.quantity * item.price, 0);
+
+            // Create a copy of the order without the price field in items
+            const orderToSubmit = {
                 ...order,
-                updatedAt: new Date().toISOString(), // Update the updatedAt field
+                totalPrice, // Include total price
+                items: order.items.map(({ product_id, quantity }) => ({ product_id, quantity })),
             };
-            await axios.put(`http://localhost:3000/orders/update/${id}`, updatedOrder);
+            await axios.post('http://localhost:3000/orders/create', orderToSubmit);
             navigate('/orders'); // Navigate back to the orders list
         } catch (error) {
-            console.error('Error updating order:', error);
+            console.error('Error creating order:', error);
         }
-    };
-
-    const calculateTotalPrice = () => {
-        return order.items.reduce((total, item) => {
-            const product = products[item.product_id];
-            return total + item.quantity * (product ? product.price : 0);
-        }, 0);
     };
 
     const handleAddProduct = () => {
@@ -95,7 +64,8 @@ const UpdateOrderForm = () => {
             if (existingItem) {
                 existingItem.quantity += newProductQuantity;
             } else {
-                order.items.push({ product_id: newProductId, quantity: newProductQuantity });
+                const product = allProducts.find(p => p._id === newProductId);
+                order.items.push({ product_id: newProductId, quantity: newProductQuantity, name: product.name, price: product.price });
             }
             setOrder({ ...order });
             setNewProductId('');
@@ -115,23 +85,16 @@ const UpdateOrderForm = () => {
         setOrder({ ...order, items: updatedItems });
     };
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+    const calculateTotalPrice = () => {
+        return order.items.reduce((total, item) => {
+            return total + item.quantity * item.price;
+        }, 0);
+    };
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Cập Nhật Đơn Hàng</h1>
+            <h1 className="text-2xl font-bold mb-4">Tạo Đơn Hàng Mới</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">ID</label>
-                    <input
-                        type="text"
-                        value={order._id}
-                        readOnly
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
-                    />
-                </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">User ID</label>
                     <select
@@ -139,6 +102,7 @@ const UpdateOrderForm = () => {
                         onChange={(e) => setOrder({ ...order, user_id: e.target.value })}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     >
+                        <option value="">Chọn User ID</option>
                         {users.map(user => (
                             <option key={user._id} value={user._id}>
                                 {user._id}
@@ -183,6 +147,7 @@ const UpdateOrderForm = () => {
                         <thead>
                             <tr>
                                 <th className="py-2 px-4 border-b bg-black text-white">Product ID</th>
+                                <th className="py-2 px-4 border-b bg-black text-white">Name</th>
                                 <th className="py-2 px-4 border-b bg-black text-white">Quantity</th>
                                 <th className="py-2 px-4 border-b bg-black text-white">Price</th>
                                 <th className="py-2 px-4 border-b bg-black text-white">Actions</th>
@@ -192,6 +157,7 @@ const UpdateOrderForm = () => {
                             {order.items.map(item => (
                                 <tr key={item.product_id}>
                                     <td className="py-3 px-6 border-b">{item.product_id}</td>
+                                    <td className="py-3 px-6 border-b">{item.name}</td>
                                     <td className="py-3 px-6 border-b">
                                         <input
                                             type="number"
@@ -200,7 +166,7 @@ const UpdateOrderForm = () => {
                                             className="w-full px-2 py-1 border border-gray-300 rounded-md"
                                         />
                                     </td>
-                                    <td className="py-3 px-6 border-b">{products[item.product_id]?.price}</td>
+                                    <td className="py-3 px-6 border-b">{item.price}</td>
                                     <td className="py-3 px-6 border-b">
                                         <button
                                             type="button"
@@ -260,7 +226,7 @@ const UpdateOrderForm = () => {
                         type="submit"
                         className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                        Cập Nhật Đơn Hàng
+                        Tạo Đơn Hàng
                     </button>
                 </div>
             </form>
@@ -268,4 +234,4 @@ const UpdateOrderForm = () => {
     );
 };
 
-export default UpdateOrderForm;
+export default CreateOrder;
