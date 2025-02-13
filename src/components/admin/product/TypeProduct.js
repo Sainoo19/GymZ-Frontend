@@ -6,6 +6,7 @@ export function TypeProduct({ variations, setVariations }) {
   const [items, setItems] = useState([
     { category: "", stock: "", originalPrice: "", salePrice: "", theme: "" },
   ]);
+  const [errors, setErrors] = useState({}); // Lưu trạng thái lỗi
 
   useEffect(() => {
     setVariations(items);
@@ -39,12 +40,27 @@ export function TypeProduct({ variations, setVariations }) {
     const updatedItems = items.filter((_, i) => i !== index);
     setItems(updatedItems);
   };
+
+
   const handleAddItem = (index, field, value) => {
-    const updatedItems = [...items];
-    updatedItems[index][field] = value;
+  const updatedItems = [...items];
+
+    const rawValue = value.replace(/,/g, "");
+    updatedItems[index][field] = rawValue;
+    
     setItems(updatedItems);
   };
 
+
+
+  const formatCurrency = (value) => {
+    if (typeof value !== "string") {
+      value = String(value); // Chuyển về chuỗi nếu không phải
+    }
+    let number = value.replace(/\D/g, ""); // Xóa ký tự không phải số
+    return number.replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Thêm dấu ","
+  };
+  
   return (
     <div className="justify-center">
       {items.map((item, index) => (
@@ -98,7 +114,7 @@ export function TypeProduct({ variations, setVariations }) {
               <input
                 type="text"
                 placeholder="VND"
-                value={item.originalPrice}
+                value={formatCurrency(item.originalPrice)}
                 onChange={(e) =>
                   handleAddItem(index, "originalPrice", e.target.value)
                 }
@@ -110,7 +126,7 @@ export function TypeProduct({ variations, setVariations }) {
               <input
                 type="text"
                 placeholder="VND"
-                value={item.salePrice}
+                value={formatCurrency(item.salePrice)}
                 onChange={(e) =>
                   handleAddItem(index, "salePrice", e.target.value)
                 }
