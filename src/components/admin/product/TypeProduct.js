@@ -11,6 +11,7 @@ export function TypeProduct({variations,setVariations}) {
 
   useEffect(() => {
     console.log("Received variations in TypeProduct:", variations);
+    
   }, [variations]);
 
   useEffect(() => {

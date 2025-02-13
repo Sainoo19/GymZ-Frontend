@@ -183,8 +183,8 @@ const ProductDetail = ({ productId, onClose }) => {
               <p className="font-semibold text-base mt-6 mb-3">
                 Thư viện hình ảnh
               </p>
-              <FileDrop setImages={setImages}></FileDrop>
-            </div>
+              <FileDrop images={images} setImages={setImages} />
+              </div>
           </div>
 
           <div className=" w-full mt-6 mb-4">

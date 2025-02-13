@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PictureFile from "../../../assets/images/pictureFile.png";
 import firebase from "firebase/compat/app";
 import "firebase/compat/storage";
@@ -6,13 +6,21 @@ import { v4 as uuidv } from "uuid";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 
-
-export function FileDrop({ setImages }) {
+export function FileDrop({ setImages, images = [] }) {
   const [isOver, setIsOver] = useState(false);
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState(images || []);
   const [uploadProgress, setUploadProgress] = useState({});
   const [completed, setCompleted] = useState({});
   const [ImgUrl, setImgURL] = useState("");
+
+  useEffect(() => {
+    if (images.length > 0) {
+      setFiles(images.map((url) => ({
+        url,
+        name: decodeURIComponent(url.split("?")[0].split("/").pop()) // Lấy tên file từ URL
+      })));
+    }
+  }, [images]);
 
   const handleDragOver = (event) => {
     event.preventDefault();
@@ -30,7 +38,6 @@ export function FileDrop({ setImages }) {
 
     const droppedFiles = Array.from(event.dataTransfer.files);
     setFiles((prevFiles) => [...prevFiles, ...droppedFiles]);
-    simulateUpload(droppedFiles);
   };
 
   const handleClick = () => {
@@ -86,9 +93,8 @@ export function FileDrop({ setImages }) {
               return updatedProgress;
             });
 
-            setImgURL((prevUrls) => [...prevUrls, downloadURL]);
+            setFiles((prevFiles) => [...prevFiles, downloadURL]);
             setImages((prevUrls) => [...prevUrls, downloadURL]);
-
             console.log("Uploaded:", file.name, downloadURL);
           }
         );
@@ -98,41 +104,6 @@ export function FileDrop({ setImages }) {
     }
   };
 
-  const simulateUpload = (files) => {
-    files.forEach((file) => {
-      setUploadProgress((prevProgress) => ({
-        ...prevProgress,
-        [file.name]: 0,
-      }));
-      setCompleted((prevCompleted) => ({
-        ...prevCompleted,
-        [file.name]: false,
-      }));
-
-      const interval = setInterval(() => {
-        setUploadProgress((prevProgress) => {
-          const newProgress = { ...prevProgress };
-          if (newProgress[file.name] < 100) {
-            newProgress[file.name] += 10;
-          } else {
-            clearInterval(interval);
-            setTimeout(() => {
-              setCompleted((prevCompleted) => ({
-                ...prevCompleted,
-                [file.name]: true,
-              }));
-              setUploadProgress((prevProgress) => {
-                const updatedProgress = { ...prevProgress };
-                delete updatedProgress[file.name];
-                return updatedProgress;
-              });
-            }, 100);
-          }
-          return newProgress;
-        });
-      }, 300);
-    });
-  };
   const deleteFileFromFirebase = async (fileName) => {
     try {
       const storageRef = firebase.storage().ref();
@@ -150,10 +121,12 @@ export function FileDrop({ setImages }) {
 
     if (!fileToRemove) return;
 
-    await deleteFileFromFirebase(fileToRemove.name);
-
+    if (typeof fileToRemove === "string") {
+      const fileName = fileToRemove.split("/").pop(); // Lấy tên file từ URL
+      await deleteFileFromFirebase(fileName);
+    }
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-    setImgURL((prevUrls) => prevUrls.filter((_, i) => i !== index));
+    setImages((prevUrls) => prevUrls.filter((_, i) => i !== index));
   };
 
   const generateUniqueFileName = (originalName) => {
@@ -206,13 +179,16 @@ export function FileDrop({ setImages }) {
               }`}
             >
               <img
-                src={URL.createObjectURL(file)}
-                alt={file.name}
+src={file.url}                 alt={`Uploaded ${index}`}
                 className={`w-14 h-14 object-cover border rounded transition-transform ${
                   completed[file.name] ? "scale-110 " : ""
                 }`}
+                
               />
-              <p className="text-xs ml-4 break-all ">{file.name}</p>
+              
+              <p className="text-xs ml-4 break-all">
+                {typeof file === "string" ? `Image ${index + 1}` : file.name}
+              </p>
               <button
                 onClick={() => removeFileOnFirebase(index)}
                 className="ml-auto text-red-500 hover:text-red-700 text-lg font-bold px-2"
