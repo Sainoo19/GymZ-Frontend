@@ -65,13 +65,10 @@ const AddUserForm = () => {
         navigate('/users'); // Quay lại trang danh sách
     };
 
-    const getAvatarURL = (fileName) => {
-        if (!fileName)
-          return "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"; // Ảnh mặc định
-        return `https://firebasestorage.googleapis.com/v0/b/gymz-image.firebasestorage.app/o/users%2F${encodeURIComponent(
-          fileName
-        )}?alt=media&token=b6198647-fb1c-4852-a628-9a6c5882f7a7`;
-    };
+    const handleFileUpload = (fileName) => {
+        console.log("File name received:", fileName);
+        setUser((prev) => ({ ...prev, avatar: fileName }));
+      };
 
     return (
         <div className='bg-background_admin'>
@@ -206,16 +203,9 @@ const AddUserForm = () => {
                         </div>
 
                         {/* Avatar */}
-                        <div className="flex flex-col items-center">
-                            <label className="block font-medium">Ảnh đại diện</label>
-                            <div className="flex justify-center w-full">
-                                <img
-                                src={getAvatarURL(newFileName || user.avatar)}
-                                alt="Avatar"
-                                className="w-24 h-24 rounded mb-2"
-                                />
-                            </div>
-                            <FileDropUser onFileUpload={setNewFileName} />
+                        <div className=" w-1/2 justify-items-center ">
+                            <p className="font-semibold text-base mt-6 mb-3">Hình ảnh</p>
+                            <FileDropUser onFileUpload={handleFileUpload} />
                         </div>
                     </div>
                     

@@ -99,11 +99,10 @@ const UpdateUserForm = () => {
     const getAvatarURL = (fileName) => {
         if (!fileName)
           return "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"; // Ảnh mặc định
-        return `https://firebasestorage.googleapis.com/v0/b/gymz-image.firebasestorage.app/o/users%2F${encodeURIComponent(
-          fileName
-        )}?alt=media&token=b6198647-fb1c-4852-a628-9a6c5882f7a7`;
+        return `https://firebasestorage.googleapis.com/v0/b/gymz-image-a912a.firebasestorage.app/o/users%2F${encodeURIComponent(
+            fileName
+          )}?alt=media&token=1f6c048a-1465-4784-8557-6344dad37115`;
     };
-
     const handleCancel = () => {
         navigate('/users'); // Quay lại trang danh sách
     };

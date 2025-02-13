@@ -73,7 +73,7 @@ const handleFileChange = (event) => {
         const fileExtension = selectedFile.name.split(".").pop(); // Lấy đuôi file
         
         const cleanFileName = removeVietnameseTones(fileName); // Xử lý tên file
-        const uniqueFileName = `EMP_${cleanFileName}_${timestamp}.${fileExtension}`;
+        const uniqueFileName = `US_${cleanFileName}_${timestamp}.${fileExtension}`;
 
       const storageRef = firebase.storage().ref();
       const fileRef = storageRef.child(`users/${uniqueFileName}`);
