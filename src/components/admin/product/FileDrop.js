@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import PictureFile from "../../../assets/images/pictureFile.png";
 import firebase from "firebase/compat/app";
 import "firebase/compat/storage";
-import { v4 as uuidv } from "uuid";
+// import { v4 as uuidv } from "uuid";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 
@@ -15,10 +15,12 @@ export function FileDrop({ setImages, images = [] }) {
 
   useEffect(() => {
     if (images.length > 0) {
-      setFiles(images.map((url) => ({
-        url,
-        name: decodeURIComponent(url.split("?")[0].split("/").pop()) // Lấy tên file từ URL
-      })));
+      setFiles(
+        images.map((url) => ({
+          url,
+          name: decodeURIComponent(url.split("?")[0].split("/").pop().replace("product%2F", ""))
+        }))
+      );
     }
   }, [images]);
 
@@ -131,7 +133,8 @@ export function FileDrop({ setImages, images = [] }) {
 
   const generateUniqueFileName = (originalName) => {
     const fileExtension = originalName.split(".").pop(); //lấy đuôi file
-    const uniqueName = `${uuidv()}_${Date.now()}.${fileExtension}`;
+    const uniqueName = `${Date.now()}.${fileExtension}`;
+    // const uniqueName = `${uuidv()}_${Date.now()}.${fileExtension}`;
     return uniqueName;
   };
   return (
@@ -179,13 +182,13 @@ export function FileDrop({ setImages, images = [] }) {
               }`}
             >
               <img
-src={file.url}                 alt={`Uploaded ${index}`}
+                src={file.url}
+                alt={`Uploaded ${index}`}
                 className={`w-14 h-14 object-cover border rounded transition-transform ${
                   completed[file.name] ? "scale-110 " : ""
                 }`}
-                
               />
-              
+
               <p className="text-xs ml-4 break-all">
                 {typeof file === "string" ? `Image ${index + 1}` : file.name}
               </p>
