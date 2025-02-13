@@ -1,15 +1,17 @@
 import { useRef, useEffect, useState } from "react";
-import { FileDrop } from "./FileDrop";
+import { FileDrop } from "../../../components/admin/product/FileDrop";
 import axios from "axios";
-import { TypeProduct } from "./TypeProduct";
+import { TypeProduct } from "../../../components/admin/product/TypeProduct";
 import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const API_BASE_URL = "http://localhost:3000/products";
 
 const loaiHang = ["Thực phẩm chức năng", "Whey", "Giày", "Quần áo"];
 
-const ProductDetail = ({ productId, onClose }) => {
+const ProductDetail = ({  onClose }) => {
+  const { productId } = useParams(); 
   const textareaRef = useRef(null);
   const handleInput = () => {
     const textarea = textareaRef.current;
@@ -37,7 +39,10 @@ const ProductDetail = ({ productId, onClose }) => {
   const [images, setImages] = useState([]);
 
   useEffect(() => {
-    if (!productId) return;
+    if (!productId) {
+      console.log("productId:", productId); // Kiểm tra dữ liệu API trả về
+
+      return};
   
     const fetchProduct = async () => {
       try {

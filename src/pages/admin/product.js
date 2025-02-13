@@ -103,8 +103,8 @@ const ProductCard = () => {
     }
   };
   const handleEditProduct = (productId) => {
-    navigate(`/editproduct/${productId}`);
-  };
+    navigate(`/editproduct/${productId}`); 
+  }
   return (
     <div className="mt-5 flex flex-col items-center">
       <button

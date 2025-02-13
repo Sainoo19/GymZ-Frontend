@@ -9,7 +9,7 @@ import Product from "./product";
 import User from "./user";
 import Employee from "./employee";
 import Header from "../../components/admin/layout/Header";
-import AddProduct from "../admin/products/addproduct"; 
+import ProductDetail from "../admin/products/productDetail";
 
 const AppAdmin = () => {
     return (
@@ -28,8 +28,8 @@ const AppAdmin = () => {
                         <Route path="/products" element={<Product />} />
                         <Route path="/users" element={<User />} />
                         <Route path="/employees" element={<Employee />} />
-                        <Route path="/addproducts" element={<AddProduct />} /> 
-                        <Route path="/editproduct/:id" element={<AddProduct />} />
+                        <Route path="/addproducts" element={<ProductDetail />} /> 
+                        <Route path="/editproduct/:productId" element={<ProductDetail />} />
 
                         {/* Add more routes as needed */}
                     </Routes>
