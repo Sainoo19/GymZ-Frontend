@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { UploadAvatar } from './UploadAvatar';
+// import { UploadAvatar } from './UploadAvatar';
+import { FileDropUser } from './FileDropUser';
+
 
 const UpdateUserForm = () => {
     const {id} = useParams(); //Lấy id từ URL
@@ -22,7 +24,7 @@ const UpdateUserForm = () => {
     const [selected, setSelected] = useState('');
     const status = ['Active', 'Inactive']
     const role = ['User', 'Silver', 'Gold']
-    const [avatarUrl, setAvatarUrl] = useState(''); //Chỉ lưu 1 ảnh
+    const [newFileName, setNewFileName] = useState("");
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -84,6 +86,7 @@ const UpdateUserForm = () => {
         try{
             const updatedUser = {
                 ...user,
+                avatar: newFileName || user.avatar,
                 updatedAt: new Date().toISOString(),
             };
             await axios.put(`http://localhost:3000/users/update/${id}`, updatedUser);
@@ -91,6 +94,14 @@ const UpdateUserForm = () => {
         } catch (error) {
             console.error('Error updating user:', error);
         }
+    };
+
+    const getAvatarURL = (fileName) => {
+        if (!fileName)
+          return "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"; // Ảnh mặc định
+        return `https://firebasestorage.googleapis.com/v0/b/gymz-image.firebasestorage.app/o/users%2F${encodeURIComponent(
+          fileName
+        )}?alt=media&token=b6198647-fb1c-4852-a628-9a6c5882f7a7`;
     };
 
     const handleCancel = () => {
@@ -251,17 +262,17 @@ const UpdateUserForm = () => {
                             </div>
                         </div>
 
-                        <div className='mr-3 w-2/4 mt-6 justify-items-center'>
-                            <div className='block bg-gray-300 w-9/12 h-80 rounded-2xl'>
-                                {/* Hiển thị ảnh */}
-                                {avatarUrl ? (
-                                    <img src={avatarUrl} alt='Avatar' className='w-full h-full object-cover rounded-2xl'/>
-                                ) : (
-                                    <p className='text-center'>Chưa có ảnh</p>
-                                )}
-                            </div>
-                            <p className='font-semibold text-base mt-6 mb-3'>Ảnh khách hàng</p>
-                            <UploadAvatar onUploadSuccess={setAvatarUrl}/>
+                        {/* Avatar */}
+                        <div className="flex flex-col items-center">
+                        <label className="block font-medium">Ảnh đại diện</label>
+                        <div className="flex justify-center w-full">
+                            <img
+                            src={getAvatarURL(newFileName || user.avatar)}
+                            alt="Avatar"
+                            className="w-24 h-24 rounded mb-2"
+                            />
+                        </div>
+                        <FileDropUser onFileUpload={setNewFileName} />
                         </div>
                     </div>
                     
