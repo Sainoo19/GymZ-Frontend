@@ -6,23 +6,43 @@ import "firebase/compat/storage";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 
-export function FileDrop({ setImages, images = [] }) {
+export function FileDrop({ setImages, images = [], selectedAvatar, setSelectedAvatar }) {
   const [isOver, setIsOver] = useState(false);
   const [files, setFiles] = useState(images || []);
   const [uploadProgress, setUploadProgress] = useState({});
   const [completed, setCompleted] = useState({});
-  const [ImgUrl, setImgURL] = useState("");
 
+  const [ImgUrl, setImgURL] = useState("");
+  const [cropper, setCropper] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null); // Hiển thị ảnh gốc
+  const [croppedImage, setCroppedImage] = useState(null); // Lưu ảnh đã cắt
+  const [showCropper, setShowCropper] = useState(false); // Hiện cropper hay không
+
+  useEffect(()=>{
+    console.log("f", selectedAvatar) 
+  })
+  useEffect(() => {
+    if (selectedAvatar) {
+      console.log("Avatar received from parent:", selectedAvatar);
+    }
+  }, [selectedAvatar]);
   useEffect(() => {
     if (images.length > 0) {
       setFiles(
         images.map((url) => ({
           url,
-          name: decodeURIComponent(url.split("?")[0].split("/").pop().replace("product%2F", ""))
+          name: decodeURIComponent(
+            url.split("?")[0].split("/").pop().replace("product%2F", "")
+          ),
         }))
       );
     }
   }, [images]);
+
+  const handleSelectAvatar = (url) => {
+    console.log("Avatar selected in FileDrop:", url);
+    setSelectedAvatar(url);
+  };
 
   const handleDragOver = (event) => {
     event.preventDefault();
@@ -138,9 +158,22 @@ export function FileDrop({ setImages, images = [] }) {
     return uniqueName;
   };
 
-  
   return (
     <div className="flex flex-col items-center">
+      <p>Hình đại diện cho sản phẩm</p>
+      <div className=" block mt-6 bg-gray-300 w-11/12 h-96 rounded-2xl">
+      {selectedAvatar ? (
+    <img
+      src={selectedAvatar}
+      alt="Selected Avatar"
+      className="h-full max-w-full object-contain rounded-2xl"
+    />
+  ) : (
+    <p className="text-gray-500">Chọn một ảnh để hiển thị</p>
+  )}
+      </div>
+
+      <p className="font-semibold text-base mt-6 mb-3">Thư viện hình ảnh</p>
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -183,6 +216,15 @@ export function FileDrop({ setImages, images = [] }) {
                 !completed[file.name] ? "bg-gray-300" : ""
               }`}
             >
+              <input
+                type="radio"
+                name="avatar"
+                value={file.url || ""}
+                checked={selectedAvatar === file.url}
+                onChange={() => handleSelectAvatar(file.url)}
+                className="mr-2"
+              />
+
               <img
                 src={file.url}
                 alt={`Uploaded ${index}`}

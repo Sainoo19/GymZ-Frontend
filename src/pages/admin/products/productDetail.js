@@ -20,7 +20,7 @@ const ProductDetail = ({ onClose }) => {
     images: [],
     variants: [], // Danh sách loại hàng
   });
-  
+  const [selectedAvatar, setSelectedAvatar] = useState("");
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const navigate = useNavigate();
@@ -31,7 +31,6 @@ const ProductDetail = ({ onClose }) => {
   const [variations, setVariations] = useState([]);
   const [images, setImages] = useState([]);
 
-  
   useEffect(() => {
     if (!productId) {
       console.log("productId:", productId); // Kiểm tra dữ liệu API trả về
@@ -58,11 +57,17 @@ const ProductDetail = ({ onClose }) => {
   useEffect(() => {
     const fetchProductCategory = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/productCategory/all");
+        const res = await axios.get(
+          "http://localhost:3000/productCategory/all"
+        );
         console.log("Fetched categories:", res.data);
-  
+
         // Cập nhật đúng đường dẫn tới danh sách danh mục
-        if (res.data && res.data.data && Array.isArray(res.data.data.categories)) {
+        if (
+          res.data &&
+          res.data.data &&
+          Array.isArray(res.data.data.categories)
+        ) {
           setCategories(res.data.data.categories);
         } else {
           console.error("Dữ liệu danh mục không hợp lệ:", res.data);
@@ -73,10 +78,10 @@ const ProductDetail = ({ onClose }) => {
         setCategories([]);
       }
     };
-  
+
     fetchProductCategory();
   }, []);
-  
+
   useEffect(() => {
     if (productData && Object.keys(productData).length > 0) {
       setName(productData.name || "");
@@ -85,6 +90,8 @@ const ProductDetail = ({ onClose }) => {
       setBrand(productData.brand || "");
       setVariations(productData.variations || []); // Quan trọng: cập nhật variations từ API
       setImages(productData.images || []);
+      setSelectedAvatar(productData.avatar || ""); // Cập nhật avatar từ dữ liệu sản phẩm
+      console.log("ava", productData.avatar);
     }
   }, [productData]);
 
@@ -101,6 +108,9 @@ const ProductDetail = ({ onClose }) => {
   };
 
   const handleSave = async () => {
+    console.log("Avatar to save:", selectedAvatar);
+    console.log("Images list:", images);
+
     try {
       if (images.length === 0) {
         alert("Vui lòng tải lên ít nhất một hình ảnh!");
@@ -122,6 +132,8 @@ const ProductDetail = ({ onClose }) => {
         brand,
         variations: formattedVariations,
         images,
+        avatar: selectedAvatar || images[0], // Lấy avatar hoặc ảnh đầu tiên nếu chưa chọn
+
         status: "active",
       };
 
@@ -213,12 +225,14 @@ const ProductDetail = ({ onClose }) => {
             </div>
 
             <div className=" w-1/2 justify-items-center ">
-              <div className=" block mt-6 bg-gray-300 w-11/12 h-96 rounded-2xl"></div>
+              <FileDrop
+                images={images}
+                setImages={setImages}
+                selectedAvatar={selectedAvatar}
+                setSelectedAvatar={setSelectedAvatar}
+              />
 
-              <p className="font-semibold text-base mt-6 mb-3">
-                Thư viện hình ảnh
-              </p>
-              <FileDrop images={images} setImages={setImages} />
+              {console.log("selectedAvatar", selectedAvatar)}
             </div>
           </div>
 
