@@ -16,21 +16,13 @@ export function FileDrop({
   const [files, setFiles] = useState(images || []);
   const [uploadProgress, setUploadProgress] = useState({});
   const [completed, setCompleted] = useState({});
-
   const [ImgUrl, setImgURL] = useState("");
+  const [previewImages, setPreviewImages] = useState([]); // Lưu danh sách ảnh preview
+  const [croppedImages, setCroppedImages] = useState([]); // Lưu danh sách ảnh đã cắt
+  const [showCropper, setShowCropper] = useState(false);
   const [cropper, setCropper] = useState(null);
-  const [previewImage, setPreviewImage] = useState(null); // Hiển thị ảnh gốc
-  const [croppedImage, setCroppedImage] = useState(null); // Lưu ảnh đã cắt
-  const [showCropper, setShowCropper] = useState(false); // Hiện cropper hay không
 
-  useEffect(() => {
-    console.log("f", selectedAvatar);
-  });
-  useEffect(() => {
-    if (selectedAvatar) {
-      console.log("Avatar received from parent:", selectedAvatar);
-    }
-  }, [selectedAvatar]);
+
   useEffect(() => {
     if (images.length > 0) {
       setFiles(
@@ -43,6 +35,143 @@ export function FileDrop({
       );
     }
   }, [images]);
+
+  const handleCrop = () => {
+    if (cropper) {
+      const croppedCanvas = cropper.getCroppedCanvas();
+      if (croppedCanvas) {
+        croppedCanvas.toBlob(async (blob) => {
+          const croppedUrl = URL.createObjectURL(blob);
+          setCroppedImages((prev) => [...prev, blob]); // Lưu blob để upload
+  
+          // Upload ngay lập tức
+          await uploadImageToFirebase(blob);
+  
+          setPreviewImages((prev) => prev.slice(1)); // Xóa ảnh đã crop khỏi danh sách preview
+          if (previewImages.length === 1) {
+            setShowCropper(false); // Nếu crop ảnh cuối cùng thì ẩn cropper
+          }
+        }, "image/jpeg");
+      }
+    }
+  };
+  const uploadImageToFirebase = async (image) => {
+    try {
+      const storageRef = firebase.storage().ref();
+      const uniqueFileName = generateUniqueFileName("cropped.jpg");
+      const fileRef = storageRef.child(`product/${uniqueFileName}`);
+  
+      const uploadTask = fileRef.put(image);
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress((prev) => ({ ...prev, [uniqueFileName]: progress }));
+        },
+        (error) => console.error("Error uploading file:", error),
+        async () => {
+          const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+          setFiles((prevFiles) => [...prevFiles, { url: downloadURL, name: uniqueFileName }]);
+          setImages((prevUrls) => [...prevUrls, downloadURL]);
+          setUploadProgress((prev) => {
+            const updatedProgress = { ...prev };
+            delete updatedProgress[uniqueFileName];
+            return updatedProgress;
+          });
+        }
+      );
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
+  
+
+
+
+  const handleFileUpload = async () => {
+    if (croppedImages.length === 0) return;
+
+    try {
+      const storageRef = firebase.storage().ref();
+      for (const image of croppedImages) {
+        const uniqueFileName = generateUniqueFileName("cropped.jpg");
+        const fileRef = storageRef.child(`product/${uniqueFileName}`);
+
+        const uploadTask = fileRef.put(image);
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadProgress((prev) => ({ ...prev, [uniqueFileName]: progress }));
+          },
+          (error) => console.error("Error uploading file:", error),
+          async () => {
+            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+            setFiles((prevFiles) => [...prevFiles, { url: downloadURL, name: uniqueFileName }]);
+            setImages((prevUrls) => [...prevUrls, downloadURL]);
+            setUploadProgress((prev) => {
+              const updatedProgress = { ...prev };
+              delete updatedProgress[uniqueFileName];
+              return updatedProgress;
+            });
+          }
+        );
+      }
+      setCroppedImages([]); // Xóa danh sách ảnh đã crop sau khi upload
+    } catch (error) {
+      console.error("Error uploading files:", error);
+    }
+  };
+
+
+
+
+  // const handleFileUpload = async () => {
+  //   if (!croppedImage) return;
+  //   try {
+  //     const storageRef = firebase.storage().ref();
+  //     const uniqueFileName = generateUniqueFileName("cropped.jpg");
+  //     const fileRef = storageRef.child(`product/${uniqueFileName}`);
+
+  //     const uploadTask = fileRef.put(croppedImage);
+
+  //     uploadTask.on(
+  //       "state_changed",
+  //       (snapshot) => {
+  //         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+  //         setUploadProgress((prev) => ({ ...prev, [uniqueFileName]: progress }));
+  //       },
+  //       (error) => console.error("Error uploading file:", error),
+  //       async () => {
+  //         const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+  //         setFiles((prevFiles) => [...prevFiles, { url: downloadURL, name: uniqueFileName }]);
+  //         setImages((prevUrls) => [...prevUrls, downloadURL]);
+  //         setUploadProgress((prev) => {
+  //           const updatedProgress = { ...prev };
+  //           delete updatedProgress[uniqueFileName];
+  //           return updatedProgress;
+  //         });
+  //       }
+  //     );
+  //   } catch (error) {
+  //     console.error("Error uploading file:", error);
+  //   }
+  // };
+
+  const handleFileChange = (event) => {
+    const selectedFiles = Array.from(event.target.files);
+    if (selectedFiles.length === 0) return;
+
+    const newPreviews = selectedFiles.map((file) => URL.createObjectURL(file));
+    setPreviewImages((prev) => [...prev, ...newPreviews]);
+    setShowCropper(true);
+  };
+
+
+
+
+
+
 
   const handleSelectAvatar = (url) => {
     console.log("Avatar selected in FileDrop:", url);
@@ -71,65 +200,65 @@ export function FileDrop({
     document.getElementById("fileInput").click();
   };
 
-  const handleFileUpload = async (event) => {
-    const selectedFiles = Array.from(event.target.files);
-    if (selectedFiles.length === 0) {
-      console.log("No file selected");
-      return;
-    }
+  // const handleFileUpload = async (event) => {
+  //   const selectedFiles = Array.from(event.target.files);
+  //   if (selectedFiles.length === 0) {
+  //     console.log("No file selected");
+  //     return;
+  //   }
 
-    setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
+  //   setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
 
-    try {
-      const storageRef = firebase.storage().ref();
-      const uploadedUrls = [];
+  //   try {
+  //     const storageRef = firebase.storage().ref();
+  //     const uploadedUrls = [];
 
-      for (const file of selectedFiles) {
-        const uniqueFileName = generateUniqueFileName(file.name);
-        const fileRef = storageRef.child(`product/${uniqueFileName}`);
+  //     for (const file of selectedFiles) {
+  //       const uniqueFileName = generateUniqueFileName(file.name);
+  //       const fileRef = storageRef.child(`product/${uniqueFileName}`);
 
-        const uploadTask = fileRef.put(file);
+  //       const uploadTask = fileRef.put(file);
 
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            setUploadProgress((prevProgress) => ({
-              ...prevProgress,
-              [file.name]: progress,
-            }));
-          },
-          (error) => {
-            console.error("Error uploading file:", error);
-          },
-          async () => {
-            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-            uploadedUrls.push(downloadURL);
+  //       uploadTask.on(
+  //         "state_changed",
+  //         (snapshot) => {
+  //           const progress =
+  //             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+  //           setUploadProgress((prevProgress) => ({
+  //             ...prevProgress,
+  //             [file.name]: progress,
+  //           }));
+  //         },
+  //         (error) => {
+  //           console.error("Error uploading file:", error);
+  //         },
+  //         async () => {
+  //           const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+  //           uploadedUrls.push(downloadURL);
 
-            // Cập nhật trạng thái hoàn thành
-            setCompleted((prevCompleted) => ({
-              ...prevCompleted,
-              [file.name]: true,
-            }));
+  //           // Cập nhật trạng thái hoàn thành
+  //           setCompleted((prevCompleted) => ({
+  //             ...prevCompleted,
+  //             [file.name]: true,
+  //           }));
 
-            // Ẩn thanh tiến trình
-            setUploadProgress((prevProgress) => {
-              const updatedProgress = { ...prevProgress };
-              delete updatedProgress[file.name];
-              return updatedProgress;
-            });
+  //           // Ẩn thanh tiến trình
+  //           setUploadProgress((prevProgress) => {
+  //             const updatedProgress = { ...prevProgress };
+  //             delete updatedProgress[file.name];
+  //             return updatedProgress;
+  //           });
 
-            setFiles((prevFiles) => [...prevFiles, downloadURL]);
-            setImages((prevUrls) => [...prevUrls, downloadURL]);
-            console.log("Uploaded:", file.name, downloadURL);
-          }
-        );
-      }
-    } catch (error) {
-      console.error("Error uploading files:", error);
-    }
-  };
+  //           setFiles((prevFiles) => [...prevFiles, downloadURL]);
+  //           setImages((prevUrls) => [...prevUrls, downloadURL]);
+  //           console.log("Uploaded:", file.name, downloadURL);
+  //         }
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error("Error uploading files:", error);
+  //   }
+  // };
 
   const deleteFileFromFirebase = async (fileName) => {
     try {
@@ -166,7 +295,7 @@ export function FileDrop({
   return (
     <div className="flex flex-col items-center">
       <p className="font-semibold text-base mt-6 ">Hình đại diện sản phẩm</p>
-      <div className=" block mt-4 bg-gray-300 w-10/12 rounded-2xl">
+      <div className=" block mt-4 bg-gray-300 w-10/12 h-72  rounded-2xl">
         {selectedAvatar ? (
           <img
             src={selectedAvatar}
@@ -195,7 +324,7 @@ export function FileDrop({
           multiple
           accept="image/*"
           className="hidden "
-          onChange={handleFileUpload}
+          onChange={handleFileChange}
         />
         <div className="mt-3">
           {files.length === 0 ? (
@@ -205,6 +334,28 @@ export function FileDrop({
           )}
         </div>
       </div>
+      {showCropper && previewImages.length > 0 && (
+        <div className="mt-4 w-full flex flex-col items-center">
+          <Cropper
+            src={previewImages[0]}
+            style={{ height: 300, width: "100%" }}
+            aspectRatio={1}
+            guides={false}
+            viewMode={1}
+            minCropBoxHeight={50}
+            minCropBoxWidth={50}
+            background={false}
+            autoCropArea={1}
+            onInitialized={(instance) => setCropper(instance)}
+          />
+          <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg" onClick={handleCrop}>
+            Cắt ảnh
+          </button>
+        </div>
+      )}
+
+      {/* Hiển thị danh sách ảnh đã crop */}
+
       <div className="mt-4 w-11/12  justify-center">
         {files.map((file, index) => (
           <div
