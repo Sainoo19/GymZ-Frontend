@@ -6,7 +6,12 @@ import "firebase/compat/storage";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 
-export function FileDrop({ setImages, images = [], selectedAvatar, setSelectedAvatar }) {
+export function FileDrop({
+  setImages,
+  images = [],
+  selectedAvatar,
+  setSelectedAvatar,
+}) {
   const [isOver, setIsOver] = useState(false);
   const [files, setFiles] = useState(images || []);
   const [uploadProgress, setUploadProgress] = useState({});
@@ -18,9 +23,9 @@ export function FileDrop({ setImages, images = [], selectedAvatar, setSelectedAv
   const [croppedImage, setCroppedImage] = useState(null); // Lưu ảnh đã cắt
   const [showCropper, setShowCropper] = useState(false); // Hiện cropper hay không
 
-  useEffect(()=>{
-    console.log("f", selectedAvatar) 
-  })
+  useEffect(() => {
+    console.log("f", selectedAvatar);
+  });
   useEffect(() => {
     if (selectedAvatar) {
       console.log("Avatar received from parent:", selectedAvatar);
@@ -160,17 +165,17 @@ export function FileDrop({ setImages, images = [], selectedAvatar, setSelectedAv
 
   return (
     <div className="flex flex-col items-center">
-      <p>Hình đại diện cho sản phẩm</p>
-      <div className=" block mt-6 bg-gray-300 w-11/12 h-96 rounded-2xl">
-      {selectedAvatar ? (
-    <img
-      src={selectedAvatar}
-      alt="Selected Avatar"
-      className="h-full max-w-full object-contain rounded-2xl"
-    />
-  ) : (
-    <p className="text-gray-500">Chọn một ảnh để hiển thị</p>
-  )}
+      <p className="font-semibold text-base mt-6 ">Hình đại diện sản phẩm</p>
+      <div className=" block mt-4 bg-gray-300 w-10/12 rounded-2xl">
+        {selectedAvatar ? (
+          <img
+            src={selectedAvatar}
+            alt="Selected Avatar"
+            className="h-full w-full max-w-full p-3 object-contain rounded-2xl"
+          />
+        ) : (
+          <p className="text-gray-500">Chọn một ảnh để hiển thị</p>
+        )}
       </div>
 
       <p className="font-semibold text-base mt-6 mb-3">Thư viện hình ảnh</p>
