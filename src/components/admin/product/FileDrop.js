@@ -137,6 +137,8 @@ export function FileDrop({ setImages, images = [] }) {
     // const uniqueName = `${uuidv()}_${Date.now()}.${fileExtension}`;
     return uniqueName;
   };
+
+  
   return (
     <div className="flex flex-col items-center">
       <div
@@ -144,7 +146,7 @@ export function FileDrop({ setImages, images = [] }) {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={handleClick}
-        className={`flex flex-col justify-center items-center h-32 w-80 border-2 border-dashed border-spacing-4 rounded-lg transition-colors cursor-pointer ${
+        className={`flex flex-col justify-center items-center h-32 w-80 border-2 border-dashed border-spacing-4 rounded-xl transition-colors cursor-pointer ${
           isOver ? "bg-gray-200" : "bg-white"
         }`}
       >
@@ -177,7 +179,7 @@ export function FileDrop({ setImages, images = [] }) {
             }
           >
             <div
-              className={`flex items-center w-full p-1 ${
+              className={`flex items-center w-full p-1 rounded-lg ${
                 !completed[file.name] ? "bg-gray-300" : ""
               }`}
             >

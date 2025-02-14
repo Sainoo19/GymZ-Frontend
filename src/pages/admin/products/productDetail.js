@@ -8,7 +8,6 @@ import { useParams } from "react-router-dom";
 
 const API_BASE_URL = "http://localhost:3000/products";
 
-const loaiHang = ["Thực phẩm chức năng", "Whey", "Giày", "Quần áo"];
 
 const ProductDetail = ({  onClose }) => {
   const { productId } = useParams(); 
@@ -29,15 +28,22 @@ const ProductDetail = ({  onClose }) => {
     images: [],
     variants: [], // Danh sách loại hàng
   });
+  const [category, setCategoryData] = useState({
+    _id:"",
+    name:"",
+    description:""
+  });
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [brand, setBrand] = useState("");
   const [avatar, setAvatar] = useState("");
-
   const [variations, setVariations] = useState([]);
   const [images, setImages] = useState([]);
 
+
+  const [nameCategory, setNameCategory] =useState("");
+  const [idCategory, setIDidCategory] = useState("");
   useEffect(() => {
     if (!productId) {
       console.log("productId:", productId); // Kiểm tra dữ liệu API trả về
@@ -60,6 +66,25 @@ const ProductDetail = ({  onClose }) => {
     fetchProduct();
   }, [productId]);
   
+
+
+  useEffect(() =>{
+    const fetchProductCategory = async() => {
+      try{
+        const res = await axios.get(`http://localhost:3000/productCategory/all`);
+        const productCategories = res.data;
+        console.log("cate", productCategories);
+        setCategoryData(productCategories);
+
+      }catch (error) {
+        console.error("Lỗi khi lấy thông tin doanh mục sản phẩm:", error);
+      }
+    };
+    fetchProductCategory()
+  },[])
+
+
+
   useEffect(() => {
     if (productData && Object.keys(productData).length > 0) {
       setName(productData.name || "");
@@ -69,10 +94,15 @@ const ProductDetail = ({  onClose }) => {
       setVariations(productData.variations || []); // Quan trọng: cập nhật variations từ API
       setImages(productData.images || []);
   
-      console.log("Updated variations state:", productData.variations); // Kiểm tra state cập nhật
     }
   }, [productData]);
   
+  useEffect(()=>{
+    if(category&& Object.keys(productData).length > 0){
+      setIDidCategory(category._id);
+      setNameCategory(category.name);
+    }
+  })
   
   useEffect(() => {
     console.log("Variations updated:", variations);
@@ -159,9 +189,9 @@ const ProductDetail = ({  onClose }) => {
                   <option value="" disabled>
                     Chọn loại hàng
                   </option>
-                  {loaiHang.map((item, index) => (
-                    <option key={index} value={item}>
-                      {item}
+                  {category.map((item) => (
+                    <option key={item._id} value={item._id}>
+                      {item.name}
                     </option>
                   ))}
                 </select>
