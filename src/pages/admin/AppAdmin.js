@@ -4,7 +4,10 @@ import SideBar from "../../components/admin/layout/SideBar";
 import Dashboard from "./dashboard";
 import Order from "../admin/orders/order";
 import UpdateOrderForm from "../admin/orders/ordersDetail";
+import CreateOrder from "../admin/orders/createOrder";
 import Payment from "../admin/payments/payment";
+import CreatePayment from "../admin/payments/createPayments";
+import UpdatePaymentForm from "../admin/payments/paymentsDetail";
 import Product from "./product";
 import Employee from "./employees/employee";
 import User from "../admin/users/user";
@@ -27,8 +30,11 @@ const AppAdmin = () => {
                     <Routes>
                         <Route path="/" element={<Dashboard />} />
                         <Route path="/orders" element={<Order />} />
+                        <Route path="/orders/create" element={<CreateOrder />} />
                         <Route path="/orders/:id" element={<UpdateOrderForm />} />
                         <Route path="/payments" element={<Payment />} />
+                        <Route path="/payments/create" element={<CreatePayment />} />
+                        <Route path="/payments/:id" element={<UpdatePaymentForm />} />
                         <Route path="/products" element={<Product />} />
                         <Route path="/users" element={<User />} />
                         <Route path="/users/:id" element={<UpdateUserForm />} />

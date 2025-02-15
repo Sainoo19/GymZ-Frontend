@@ -103,22 +103,22 @@ const ProductCard = () => {
     }
   };
   const handleEditProduct = (productId) => {
-    navigate(`/editproduct/${productId}`); 
+    navigate(`/editproduct/${productId}`);
   }
   return (
     <div className="mt-5 flex flex-col items-center">
       <div className=" w-11/12 my-6 ">
-      <button
-        className="bg-primary items-center float-right flex text-white px-6 py-4 rounded-lg"
-        onClick={() => navigate("/addproducts")} // Điều hướng khi nhấn nút
-      >
-        
-        <PlusCircle size={20} className="mr-4"/>
-        THÊM SẢN PHẨM
-      </button>
-      
+        <button
+          className="bg-primary items-center float-right flex text-white px-6 py-4 rounded-lg"
+          onClick={() => navigate("/addproducts")} // Điều hướng khi nhấn nút
+        >
+
+          <PlusCircle size={20} className="mr-4" />
+          THÊM SẢN PHẨM
+        </button>
+
       </div>
-     
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full px-4">
         {products.length > 0 ? (
           products.map((product) => {
