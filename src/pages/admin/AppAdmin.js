@@ -6,8 +6,10 @@ import Order from "../admin/orders/order";
 import UpdateOrderForm from "../admin/orders/ordersDetail";
 import Payment from "../admin/payments/payment";
 import Product from "./product";
-import User from "./user";
 import Employee from "./employees/employee";
+import User from "../admin/users/user";
+import UpdateUserForm from "../admin/users/userDetail";
+import AddUserForm from "../admin/users/addUser";
 import Header from "../../components/admin/layout/Header";
 import ProductDetail from "../admin/products/productDetail";
 import CreateEmployee from "./employees/createEmployee";
@@ -29,6 +31,8 @@ const AppAdmin = () => {
                         <Route path="/payments" element={<Payment />} />
                         <Route path="/products" element={<Product />} />
                         <Route path="/users" element={<User />} />
+                        <Route path="/users/:id" element={<UpdateUserForm />} />
+                        <Route path="/users/create" element={<AddUserForm />} />
                         <Route path="/employees" element={<Employee />} />
                         <Route path="/addproducts" element={<ProductDetail />} /> 
                         <Route path="/editproduct/:productId" element={<ProductDetail />} />
