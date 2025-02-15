@@ -125,39 +125,6 @@ export function FileDrop({
 
 
 
-
-  // const handleFileUpload = async () => {
-  //   if (!croppedImage) return;
-  //   try {
-  //     const storageRef = firebase.storage().ref();
-  //     const uniqueFileName = generateUniqueFileName("cropped.jpg");
-  //     const fileRef = storageRef.child(`product/${uniqueFileName}`);
-
-  //     const uploadTask = fileRef.put(croppedImage);
-
-  //     uploadTask.on(
-  //       "state_changed",
-  //       (snapshot) => {
-  //         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-  //         setUploadProgress((prev) => ({ ...prev, [uniqueFileName]: progress }));
-  //       },
-  //       (error) => console.error("Error uploading file:", error),
-  //       async () => {
-  //         const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-  //         setFiles((prevFiles) => [...prevFiles, { url: downloadURL, name: uniqueFileName }]);
-  //         setImages((prevUrls) => [...prevUrls, downloadURL]);
-  //         setUploadProgress((prev) => {
-  //           const updatedProgress = { ...prev };
-  //           delete updatedProgress[uniqueFileName];
-  //           return updatedProgress;
-  //         });
-  //       }
-  //     );
-  //   } catch (error) {
-  //     console.error("Error uploading file:", error);
-  //   }
-  // };
-
   const handleFileChange = (event) => {
     const selectedFiles = Array.from(event.target.files);
     if (selectedFiles.length === 0) return;
@@ -200,65 +167,13 @@ export function FileDrop({
     document.getElementById("fileInput").click();
   };
 
-  // const handleFileUpload = async (event) => {
-  //   const selectedFiles = Array.from(event.target.files);
-  //   if (selectedFiles.length === 0) {
-  //     console.log("No file selected");
-  //     return;
-  //   }
+  const handleCancelCrop = () => {
+    setPreviewImages((prev) => prev.slice(1));
+    if (previewImages.length === 1) {
+      setShowCropper(false);
+    }
+  };
 
-  //   setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
-
-  //   try {
-  //     const storageRef = firebase.storage().ref();
-  //     const uploadedUrls = [];
-
-  //     for (const file of selectedFiles) {
-  //       const uniqueFileName = generateUniqueFileName(file.name);
-  //       const fileRef = storageRef.child(`product/${uniqueFileName}`);
-
-  //       const uploadTask = fileRef.put(file);
-
-  //       uploadTask.on(
-  //         "state_changed",
-  //         (snapshot) => {
-  //           const progress =
-  //             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-  //           setUploadProgress((prevProgress) => ({
-  //             ...prevProgress,
-  //             [file.name]: progress,
-  //           }));
-  //         },
-  //         (error) => {
-  //           console.error("Error uploading file:", error);
-  //         },
-  //         async () => {
-  //           const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-  //           uploadedUrls.push(downloadURL);
-
-  //           // Cập nhật trạng thái hoàn thành
-  //           setCompleted((prevCompleted) => ({
-  //             ...prevCompleted,
-  //             [file.name]: true,
-  //           }));
-
-  //           // Ẩn thanh tiến trình
-  //           setUploadProgress((prevProgress) => {
-  //             const updatedProgress = { ...prevProgress };
-  //             delete updatedProgress[file.name];
-  //             return updatedProgress;
-  //           });
-
-  //           setFiles((prevFiles) => [...prevFiles, downloadURL]);
-  //           setImages((prevUrls) => [...prevUrls, downloadURL]);
-  //           console.log("Uploaded:", file.name, downloadURL);
-  //         }
-  //       );
-  //     }
-  //   } catch (error) {
-  //     console.error("Error uploading files:", error);
-  //   }
-  // };
 
   const deleteFileFromFirebase = async (fileName) => {
     try {
@@ -295,7 +210,7 @@ export function FileDrop({
   return (
     <div className="flex flex-col items-center">
       <p className="font-semibold text-base mt-6 ">Hình đại diện sản phẩm</p>
-      <div className=" block mt-4 bg-gray-300 w-10/12 h-72  rounded-2xl">
+      <div className=" block mt-4 bg-gray-300 w-11/12 h-72  rounded-2xl">
         {selectedAvatar ? (
           <img
             src={selectedAvatar}
@@ -347,9 +262,15 @@ export function FileDrop({
             autoCropArea={1}
             onInitialized={(instance) => setCropper(instance)}
           />
-          <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg" onClick={handleCrop}>
+          <div className="flex w-1/2 mt-2  justify-between">
+          <button className=" px-4 py-2 bg-primary text-white rounded-lg" onClick={handleCrop}>
             Cắt ảnh
           </button>
+          <button className="px-4 py-2 border border-red-600 text-primary rounded-lg" onClick={handleCancelCrop}>
+              Hủy
+            </button>
+            </div>
+         
         </div>
       )}
 
