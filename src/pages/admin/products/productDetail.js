@@ -30,6 +30,8 @@ const ProductDetail = ({ onClose }) => {
   const [avatar, setAvatar] = useState("");
   const [variations, setVariations] = useState([]);
   const [images, setImages] = useState([]);
+  const [isUploading, setIsUploading] = useState(false); // Thêm trạng thái tải lên
+
 
   useEffect(() => {
     if (!productId) {
@@ -245,7 +247,7 @@ const ProductDetail = ({ onClose }) => {
                 {productId ? "Cập nhật" : "Thêm"}
               </button>
               <button
-                onClick={() => navigate("/products")}
+                onClick={() => navigate("/product")}
                 className="m-3 p-2 w-1/4 block border border-primary rounded-lg"
               >
                 Huỷ

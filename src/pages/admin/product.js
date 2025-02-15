@@ -175,7 +175,7 @@ const ProductCard = () => {
 
                 <div className="flex items-start gap-4">
                   <img
-                    src={product.images[0] || "/whey.png"}
+                    src={product.avatar || "/whey.png"}
                     alt={product.name}
                     className="w-20 h-20 object-cover rounded-md"
                   />

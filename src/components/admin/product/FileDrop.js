@@ -11,6 +11,7 @@ export function FileDrop({
   images = [],
   selectedAvatar,
   setSelectedAvatar,
+  setIsUploading,
 }) {
   const [isOver, setIsOver] = useState(false);
   const [files, setFiles] = useState(images || []);
@@ -21,6 +22,7 @@ export function FileDrop({
   const [croppedImages, setCroppedImages] = useState([]); // Lưu danh sách ảnh đã cắt
   const [showCropper, setShowCropper] = useState(false);
   const [cropper, setCropper] = useState(null);
+  const [isUploading, setIsUploadingState] = useState(false);
 
 
   useEffect(() => {
@@ -43,7 +45,9 @@ export function FileDrop({
         croppedCanvas.toBlob(async (blob) => {
           const croppedUrl = URL.createObjectURL(blob);
           setCroppedImages((prev) => [...prev, blob]); // Lưu blob để upload
-  
+          setIsUploadingState(true);
+          setIsUploading(true); // Cập nhật trạng thái tải lên
+
           // Upload ngay lập tức
           await uploadImageToFirebase(blob);
   
@@ -78,6 +82,14 @@ export function FileDrop({
             delete updatedProgress[uniqueFileName];
             return updatedProgress;
           });
+          setTimeout(() => {
+            if (Object.keys(uploadProgress).length === 0) {
+              setIsUploadingState(false);
+
+              setIsUploading(false);
+              
+            }
+          }, 500);
         }
       );
     } catch (error) {
@@ -198,6 +210,13 @@ export function FileDrop({
 
   const handleClick = () => {
     document.getElementById("fileInput").click();
+  };
+
+  const handleCancelCrop = () => {
+    setPreviewImages((prev) => prev.slice(1));
+    if (previewImages.length === 1) {
+      setShowCropper(false);
+    }
   };
 
   // const handleFileUpload = async (event) => {
@@ -351,6 +370,9 @@ export function FileDrop({
           <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg" onClick={handleCrop}>
             Cắt ảnh
           </button>
+          <button className="px-4 py-2 bg-red-500 text-white rounded-lg" onClick={handleCancelCrop}>
+              Hủy
+            </button>
         </div>
       )}
 
