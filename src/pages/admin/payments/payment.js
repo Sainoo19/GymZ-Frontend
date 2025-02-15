@@ -5,6 +5,7 @@ import Table from '../../../components/admin/Table';
 import Pagination from '../../../components/admin/layout/Pagination';
 import DeletePaymentModal from './paymentsDelete';
 import { FaFilter } from 'react-icons/fa';
+import reformDateTime from '../../../components/utils/reformDateTime';
 
 const Payment = () => {
     const [columns] = useState([
@@ -45,7 +46,12 @@ const Payment = () => {
                     }
                 });
                 if (response.data.status === 'success') {
-                    setData(response.data.data.payments);
+                    const payments = response.data.data.payments.map(payment => ({
+                        ...payment,
+                        createdAt: reformDateTime(payment.createdAt),
+                        updatedAt: reformDateTime(payment.updatedAt)
+                    }));
+                    setData(payments);
                     setTotalPages(response.data.metadata.totalPages);
                 } else {
                     console.error('API response error:', response.data.message);
