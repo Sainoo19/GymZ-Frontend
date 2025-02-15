@@ -52,31 +52,13 @@ const handleFileChange = (event) => {
       fileInput.value = ""; // 🔹 Reset để chọn lại cùng file
     }
   };
-
-  const removeVietnameseTones = (str) => {
-    return str
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "") // Loại bỏ dấu tiếng Việt
-        .replace(/đ/g, "d").replace(/Đ/g, "D") // Chuyển đ -> d, Đ -> D
-        .replace(/[^a-zA-Z0-9]/g, "_") // Thay ký tự đặc biệt thành _
-        .toLowerCase(); // Chuyển thành chữ thường
-};
   
-
-
   const uploadFile = async (selectedFile) => {
     if (!selectedFile) return;
 
     try {
-      const timestamp = Date.now();
-      const fileName = selectedFile.name.split(".").slice(0, -1).join("."); // Lấy tên gốc (không có đuôi)
-        const fileExtension = selectedFile.name.split(".").pop(); // Lấy đuôi file
-        
-        const cleanFileName = removeVietnameseTones(fileName); // Xử lý tên file
-        const uniqueFileName = `US_${cleanFileName}_${timestamp}.${fileExtension}`;
-
       const storageRef = firebase.storage().ref();
-      const fileRef = storageRef.child(`users/${uniqueFileName}`);
+      const fileRef = storageRef.child(`users/${selectedFile.name}`); // Giữ nguyên tên file
 
       // Tải lên file
       const uploadTask = fileRef.put(selectedFile);
@@ -89,21 +71,21 @@ const handleFileChange = (event) => {
           setUploadProgress(progress);
         },
         (error) => {
-          console.error("Error uploading file:", error);
+          console.error("Lỗi khi tải file lên:", error);
         },
         async () => {
           // Lấy URL khi hoàn thành
           const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-          console.log("File uploaded successfully:", downloadURL);
+          console.log("File đã tải lên thành công:", downloadURL);
           setImgURL(downloadURL);
 
           if (onFileUpload) {
-            onFileUpload(uniqueFileName); 
+            onFileUpload(downloadURL); // 🔹 Trả trực tiếp URL về adduseradduser
           }
         }
       );
     } catch (error) {
-      console.error("Error uploading file:", error);
+      console.error("Lỗi khi tải file lên:", error);
     }
   };
 

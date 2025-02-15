@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-// import { UploadAvatar } from './UploadAvatar';
 import { FileDropUser } from './FileDropUser';
 
 
@@ -96,13 +95,6 @@ const UpdateUserForm = () => {
         }
     };
 
-    const getAvatarURL = (fileName) => {
-        if (!fileName)
-          return "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"; // Ảnh mặc định
-        return `https://firebasestorage.googleapis.com/v0/b/gymz-image-a912a.firebasestorage.app/o/users%2F${encodeURIComponent(
-            fileName
-          )}?alt=media&token=1f6c048a-1465-4784-8557-6344dad37115`;
-    };
     const handleCancel = () => {
         navigate('/users'); // Quay lại trang danh sách
     };
@@ -266,7 +258,7 @@ const UpdateUserForm = () => {
                         <label className="block font-medium">Ảnh đại diện</label>
                         <div className="flex justify-center w-full">
                             <img
-                            src={getAvatarURL(newFileName || user.avatar)}
+                            src={newFileName || user.avatar || "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"}
                             alt="Avatar"
                             className="w-24 h-24 rounded mb-2"
                             />

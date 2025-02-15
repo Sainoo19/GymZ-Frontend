@@ -6,13 +6,13 @@ import firebase from 'firebase/compat/app';
 
 //Firebase của Huyền Thư
 const firebaseConfig = {
-  apiKey: "AIzaSyBmPJ_nXitVvPnxD67VtQF5F-vnzujiuNs",
-  authDomain: "gymz-image-a912a.firebaseapp.com",
-  projectId: "gymz-image-a912a",
-  storageBucket: "gymz-image-a912a.firebasestorage.app",
-  messagingSenderId: "1060870666319",
-  appId: "1:1060870666319:web:7f94b5dc881bb1fbe1523a",
-  measurementId: "G-YNKNCGY27P"
+  apiKey: "AIzaSyAfBwK1Ql-hoLh9P1yEdBP1bsqlhuNSUgc",
+  authDomain: "gymz-image.firebaseapp.com",
+  projectId: "gymz-image",
+  storageBucket: "gymz-image.firebasestorage.app",
+  messagingSenderId: "806728501409",
+  appId: "1:806728501409:web:6ce5d335924fc3954d48e0",
+  measurementId: "G-XZVSCDMH9V"
 };
 firebase.initializeApp(firebaseConfig);
 
