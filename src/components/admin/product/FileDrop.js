@@ -11,7 +11,6 @@ export function FileDrop({
   images = [],
   selectedAvatar,
   setSelectedAvatar,
-  setIsUploading,
 }) {
   const [isOver, setIsOver] = useState(false);
   const [files, setFiles] = useState(images || []);
@@ -22,7 +21,6 @@ export function FileDrop({
   const [croppedImages, setCroppedImages] = useState([]); // Lưu danh sách ảnh đã cắt
   const [showCropper, setShowCropper] = useState(false);
   const [cropper, setCropper] = useState(null);
-  const [isUploading, setIsUploadingState] = useState(false);
 
 
   useEffect(() => {
@@ -45,12 +43,10 @@ export function FileDrop({
         croppedCanvas.toBlob(async (blob) => {
           const croppedUrl = URL.createObjectURL(blob);
           setCroppedImages((prev) => [...prev, blob]); // Lưu blob để upload
-          setIsUploadingState(true);
-          setIsUploading(true); // Cập nhật trạng thái tải lên
 
           // Upload ngay lập tức
           await uploadImageToFirebase(blob);
-  
+
           setPreviewImages((prev) => prev.slice(1)); // Xóa ảnh đã crop khỏi danh sách preview
           if (previewImages.length === 1) {
             setShowCropper(false); // Nếu crop ảnh cuối cùng thì ẩn cropper
@@ -64,7 +60,7 @@ export function FileDrop({
       const storageRef = firebase.storage().ref();
       const uniqueFileName = generateUniqueFileName("cropped.jpg");
       const fileRef = storageRef.child(`product/${uniqueFileName}`);
-  
+
       const uploadTask = fileRef.put(image);
       uploadTask.on(
         "state_changed",
@@ -82,21 +78,13 @@ export function FileDrop({
             delete updatedProgress[uniqueFileName];
             return updatedProgress;
           });
-          setTimeout(() => {
-            if (Object.keys(uploadProgress).length === 0) {
-              setIsUploadingState(false);
-
-              setIsUploading(false);
-              
-            }
-          }, 500);
         }
       );
     } catch (error) {
       console.error("Error uploading file:", error);
     }
   };
-  
+
 
 
 
@@ -212,13 +200,6 @@ export function FileDrop({
     document.getElementById("fileInput").click();
   };
 
-  const handleCancelCrop = () => {
-    setPreviewImages((prev) => prev.slice(1));
-    if (previewImages.length === 1) {
-      setShowCropper(false);
-    }
-  };
-
   // const handleFileUpload = async (event) => {
   //   const selectedFiles = Array.from(event.target.files);
   //   if (selectedFiles.length === 0) {
@@ -332,9 +313,8 @@ export function FileDrop({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={handleClick}
-        className={`flex flex-col justify-center items-center h-32 w-80 border-2 border-dashed border-spacing-4 rounded-xl transition-colors cursor-pointer ${
-          isOver ? "bg-gray-200" : "bg-white"
-        }`}
+        className={`flex flex-col justify-center items-center h-32 w-80 border-2 border-dashed border-spacing-4 rounded-xl transition-colors cursor-pointer ${isOver ? "bg-gray-200" : "bg-white"
+          }`}
       >
         <img src={PictureFile} className="w-10" alt="picture"></img>
         <input
@@ -370,9 +350,6 @@ export function FileDrop({
           <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg" onClick={handleCrop}>
             Cắt ảnh
           </button>
-          <button className="px-4 py-2 bg-red-500 text-white rounded-lg" onClick={handleCancelCrop}>
-              Hủy
-            </button>
         </div>
       )}
 
@@ -382,17 +359,15 @@ export function FileDrop({
         {files.map((file, index) => (
           <div
             key={index}
-            className={`flex flex-col items-center border rounded-lg shadow-sm mb-2 relative w-full transition-transform ${
-              completed[file.name] ? "scale-110" : "scale-100"
-            }`}
+            className={`flex flex-col items-center border rounded-lg shadow-sm mb-2 relative w-full transition-transform ${completed[file.name] ? "scale-110" : "scale-100"
+              }`}
             onAnimationEnd={() =>
               setCompleted((prev) => ({ ...prev, [file.name]: false }))
             }
           >
             <div
-              className={`flex items-center w-full p-1 rounded-lg ${
-                !completed[file.name] ? "bg-gray-300" : ""
-              }`}
+              className={`flex items-center w-full p-1 rounded-lg ${!completed[file.name] ? "bg-gray-300" : ""
+                }`}
             >
               <input
                 type="radio"
@@ -406,9 +381,8 @@ export function FileDrop({
               <img
                 src={file.url}
                 alt={`Uploaded ${index}`}
-                className={`w-14 h-14 object-cover border rounded transition-transform ${
-                  completed[file.name] ? "scale-110 " : ""
-                }`}
+                className={`w-14 h-14 object-cover border rounded transition-transform ${completed[file.name] ? "scale-110 " : ""
+                  }`}
               />
 
               <p className="text-xs ml-4 break-all">

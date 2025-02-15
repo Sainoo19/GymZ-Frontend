@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { ArrowUp, MoreHorizontal } from "lucide-react";
 import { FaFilter } from 'react-icons/fa';
+import { useNavigate } from "react-router-dom";
+import { PlusCircle } from "lucide-react";
 import Pagination from '../../components/admin/layout/Pagination';
 
 
 
 const ProductCard = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [minMaxPrices, setMinMaxPrices] = useState({});
   const [stocks, setStocks] = useState({}); // Thêm state lưu trữ stock
@@ -29,7 +32,7 @@ const ProductCard = () => {
         const response = await axios.get('http://localhost:3000/products/all', {
           params: {
             page: currentPage, // Đã có biến này nhưng useEffect chưa theo dõi nó
-            limit: 10,
+            limit: 12,
             search,
             ...filters
           }
@@ -122,7 +125,9 @@ const ProductCard = () => {
       }
     }
   };
-
+  const handleEditProduct = (productId) => {
+    navigate(`/editproduct/${productId}`);
+  }
   //tìm kiếm 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -149,6 +154,7 @@ const ProductCard = () => {
 
 
   return (
+
     <div className="mt-5 flex flex-col items-center">
       <div className="mt-2 mb-10 flex flex-row justify-center items-center gap-4">
         <input
@@ -192,6 +198,14 @@ const ProductCard = () => {
             <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => setIsFilterModalOpen(false)}>Áp dụng</button>
           </div>
         )}
+        <button
+          className="bg-primary items-center float-right flex text-white px-6 py-4 rounded-lg"
+          onClick={() => navigate("/addproducts")} // Điều hướng khi nhấn nút
+        >
+
+          <PlusCircle size={20} className="mr-4" />
+          THÊM SẢN PHẨM
+        </button>
       </div>
 
       {/* Grid danh sách sản phẩm */}
@@ -225,7 +239,12 @@ const ProductCard = () => {
                 {isMenuVisible === product._id && (
                   <div className="absolute top-10 right-2 bg-white shadow-md rounded-md w-40 z-10 menu-container">
                     <ul className="text-sm text-gray-700">
-                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Chỉnh sửa</li>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleEditProduct(product._id)}
+                      >
+                        Chỉnh sửa
+                      </li>
                       <li className="px-4 py-2 hover:bg-red-100 text-red-600 cursor-pointer" onClick={() => handleDeleteProduct(product._id)}>
                         Xóa
                       </li>
@@ -234,7 +253,7 @@ const ProductCard = () => {
                 )}
 
                 <div className="flex items-start gap-4">
-                  <img src={product.images[0] || "/whey.png"} alt={product.name} className="w-20 h-20 object-cover rounded-md" />
+                  <img src={product.avatar || "/whey.png"} alt={product.name} className="w-20 h-20 object-cover rounded-md" />
                   <div className="flex flex-col justify-between h-full flex-grow">
                     <p className="font-semibold text-[30px]">{product.name}</p>
                     <p className="font-base text-[30px]">{product.category}</p>
