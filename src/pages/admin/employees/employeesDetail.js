@@ -59,13 +59,8 @@ const UpdateEmployeeForm = () => {
     return new Intl.NumberFormat("vi-VN").format(value);
   };
 
-  const getAvatarURL = (fileName) => {
-    if (!fileName)
-      return "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"; // Ảnh mặc định
-    return `https://firebasestorage.googleapis.com/v0/b/gymz-image.firebasestorage.app/o/employee%2F${encodeURIComponent(
-      fileName
-    )}?alt=media&token=b6198647-fb1c-4852-a628-9a6c5882f7a7`;
-  };
+
+
 
   if (!employee) {
     return <div>Loading...</div>;
@@ -96,16 +91,17 @@ const UpdateEmployeeForm = () => {
         </div>
         {/* Avatar */}
         <div className="flex flex-col items-center">
-          <label className="block font-medium">Ảnh đại diện</label>
-          <div className="flex justify-center w-full">
+        <label className="block font-medium">Ảnh đại diện</label>
+        <div className="flex justify-center w-full">
             <img
-              src={getAvatarURL(newFileName || employee.avatar)}
-              alt="Avatar"
-              className="w-24 h-24 rounded mb-2"
+            src={newFileName || employee.avatar || "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"} // 🔹 Lấy trực tiếp URL ảnh
+            alt="Avatar"
+            className="w-24 h-24 rounded mb-2"
             />
-          </div>
-          <FileDrop onFileUpload={setNewFileName} />
         </div>
+        <FileDrop onFileUpload={setNewFileName} />
+        </div>
+
 
         {/* Email */}
         <div>

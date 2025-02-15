@@ -69,48 +69,42 @@ const handleFileChange = (event) => {
   
 
 
-  const uploadFile = async (selectedFile) => {
-    if (!selectedFile) return;
+const uploadFile = async (selectedFile) => {
+  if (!selectedFile) return;
 
-    try {
-      const timestamp = Date.now();
-      const fileName = selectedFile.name.split(".").slice(0, -1).join("."); // Lấy tên gốc (không có đuôi)
-        const fileExtension = selectedFile.name.split(".").pop(); // Lấy đuôi file
-        
-        const cleanFileName = removeVietnameseTones(fileName); // Xử lý tên file
-        const uniqueFileName = `EMP_${cleanFileName}_${timestamp}.${fileExtension}`;
+  try {
+    const storageRef = firebase.storage().ref();
+    const fileRef = storageRef.child(`employee/${selectedFile.name}`); // Giữ nguyên tên file
 
-      const storageRef = firebase.storage().ref();
-      const fileRef = storageRef.child(`employee/${uniqueFileName}`);
+    // Tải lên file
+    const uploadTask = fileRef.put(selectedFile);
 
-      // Tải lên file
-      const uploadTask = fileRef.put(selectedFile);
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        // Cập nhật tiến trình tải lên
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setUploadProgress(progress);
+      },
+      (error) => {
+        console.error("Lỗi khi tải file lên:", error);
+      },
+      async () => {
+        // Lấy URL khi hoàn thành
+        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+        console.log("File đã tải lên thành công:", downloadURL);
+        setImgURL(downloadURL);
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          // Cập nhật tiến trình tải lên
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setUploadProgress(progress);
-        },
-        (error) => {
-          console.error("Error uploading file:", error);
-        },
-        async () => {
-          // Lấy URL khi hoàn thành
-          const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-          console.log("File uploaded successfully:", downloadURL);
-          setImgURL(downloadURL);
-
-          if (onFileUpload) {
-            onFileUpload(uniqueFileName); // 🔹 Gửi URL ảnh về CreateEmployee
-          }
+        if (onFileUpload) {
+          onFileUpload(downloadURL); // 🔹 Trả trực tiếp URL về CreateEmployee
         }
-      );
-    } catch (error) {
-      console.error("Error uploading file:", error);
-    }
-  };
+      }
+    );
+  } catch (error) {
+    console.error("Lỗi khi tải file lên:", error);
+  }
+};
+
 
 // đừng xóa cái return này!!!!
 // return (

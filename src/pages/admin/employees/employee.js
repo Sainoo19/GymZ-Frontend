@@ -60,7 +60,7 @@ const Employee = () => {
                         hiredAt: new Date(employee.hiredAt).toLocaleDateString(),
                         createdAt: new Date(employee.createdAt).toLocaleDateString(),
                         updatedAt: new Date(employee.updatedAt).toLocaleDateString(),
-                        avatarURL: getAvatarURL(employee.avatar),
+                        // avatarURL: (employee.avatar),
                     }));
                     setData(formattedData);
                     setTotalPages(response.data.metadata.totalPages);
@@ -150,16 +150,12 @@ const Employee = () => {
         setIsFilterModalOpen(false);
     };
 
-    const getAvatarURL = (fileName) => {
-        if (!fileName) return "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"; // Avatar mặc định nếu không có ảnh
-        return `https://firebasestorage.googleapis.com/v0/b/gymz-image.firebasestorage.app/o/employee%2F${encodeURIComponent(fileName)}?alt=media&token=b6198647-fb1c-4852-a628-9a6c5882f7a7`;
-    };
 
     const formattedData = data.map((item) => ({
         ...item,
         avatar: (
             <img 
-                src={getAvatarURL(item.avatar)} 
+                src={item.avatar || "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"} 
                 alt="Avatar"
                 className="w-10 h-10 rounded-full object-cover"
             />
