@@ -21,7 +21,7 @@ const UpdatePaymentForm = () => {
 
         const fetchOrders = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/orders/all');
+                const response = await axios.get('http://localhost:3000/orders/all/nopagination');
                 setOrders(response.data.data);
             } catch (error) {
                 console.error('Error fetching orders:', error);
@@ -30,7 +30,7 @@ const UpdatePaymentForm = () => {
 
         const fetchUsers = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/users/all');
+                const response = await axios.get('http://localhost:3000/users/all/nopagination');
                 setUsers(response.data.data);
             } catch (error) {
                 console.error('Error fetching users:', error);

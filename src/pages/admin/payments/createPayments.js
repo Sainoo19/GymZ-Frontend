@@ -20,8 +20,8 @@ const CreatePayment = () => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/orders/all');
-                setOrders(response.data.data);
+                const response = await axios.get('http://localhost:3000/orders/all/nopagination');
+                setOrders(response.data.data || []); // Ensure orders is an array
             } catch (error) {
                 console.error('Error fetching orders:', error);
             }
@@ -29,8 +29,8 @@ const CreatePayment = () => {
 
         const fetchUsers = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/users/all');
-                setUsers(response.data.data);
+                const response = await axios.get('http://localhost:3000/users/all/nopagination');
+                setUsers(response.data.data || []); // Ensure users is an array
             } catch (error) {
                 console.error('Error fetching users:', error);
             }
@@ -69,9 +69,10 @@ const CreatePayment = () => {
                         value={payment.orderId}
                         onChange={handleOrderChange}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        style={{ maxHeight: '8rem', overflowY: 'auto' }} // Add inline styles for max height and overflow
                     >
                         <option value="">Chọn Order ID</option>
-                        {orders.map(order => (
+                        {Array.isArray(orders) && orders.map(order => (
                             <option key={order._id} value={order._id}>
                                 {order._id}
                             </option>
@@ -86,7 +87,7 @@ const CreatePayment = () => {
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     >
                         <option value="">Chọn User ID</option>
-                        {users.map(user => (
+                        {Array.isArray(users) && users.map(user => (
                             <option key={user._id} value={user._id}>
                                 {user._id}
                             </option>

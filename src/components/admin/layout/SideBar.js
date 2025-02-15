@@ -11,6 +11,8 @@ const navItems = [
     { to: "/products", label: "SẢN PHẨM", icon: IconAllProduct },
     { to: "/employees", label: "NHÂN VIÊN", icon: IconAllProduct },
     { to: "/users", label: "KHÁCH HÀNG", icon: IconAllProduct },
+    { to: "/branches", label: "CHI NHÁNH", icon: IconAllProduct },
+    { to: "/discounts", label: "KHUYẾN MÃI", icon: IconAllProduct }
     // Add more items here as needed
 ];
 

@@ -12,6 +12,10 @@ const UpdateOrderForm = () => {
     const [loading, setLoading] = useState(true);
     const [newProductId, setNewProductId] = useState('');
     const [newProductQuantity, setNewProductQuantity] = useState(1);
+    const [selectedVariationId, setSelectedVariationId] = useState('');
+    const [selectedTheme, setSelectedTheme] = useState('');
+    const [themes, setThemes] = useState([]);
+    const [filteredCategories, setFilteredCategories] = useState([]);
 
     useEffect(() => {
         const fetchOrder = async () => {
@@ -76,6 +80,16 @@ const UpdateOrderForm = () => {
                 updatedAt: new Date().toISOString(), // Update the updatedAt field
             };
             await axios.put(`http://localhost:3000/orders/update/${id}`, updatedOrder);
+            // Fetch updated order and products after updating
+            const response = await axios.get(`http://localhost:3000/orders/${id}`);
+            setOrder(response.data.data); // Access the data field
+            const productIds = response.data.data.items.map(item => item.product_id);
+            const productsResponse = await axios.post('http://localhost:3000/orders/products/byIds', { ids: productIds });
+            const productsMap = productsResponse.data.data.reduce((map, product) => {
+                map[product._id] = product;
+                return map;
+            }, {});
+            setProducts(productsMap);
             navigate('/orders'); // Navigate back to the orders list
         } catch (error) {
             console.error('Error updating order:', error);
@@ -85,34 +99,84 @@ const UpdateOrderForm = () => {
     const calculateTotalPrice = () => {
         return order.items.reduce((total, item) => {
             const product = products[item.product_id];
-            return total + item.quantity * (product ? product.price : 0);
+            const variation = product?.variations.find(v => v.category === item.category && v.theme === item.theme);
+            const salePrice = variation ? variation.salePrice : 0;
+            return total + item.quantity * salePrice;
         }, 0);
     };
 
     const handleAddProduct = () => {
-        if (newProductId && newProductQuantity > 0) {
-            const existingItem = order.items.find(item => item.product_id === newProductId);
+        if (newProductId && newProductQuantity > 0 && selectedVariationId && selectedTheme) {
+            const existingItem = order.items.find(item => item.product_id === newProductId && item.variation_id === selectedVariationId && item.theme === selectedTheme);
             if (existingItem) {
                 existingItem.quantity += newProductQuantity;
             } else {
-                order.items.push({ product_id: newProductId, quantity: newProductQuantity });
+                const product = allProducts.find(p => p._id === newProductId);
+                const variation = product.variations.find(v => v._id === selectedVariationId && v.theme === selectedTheme);
+                if (product && variation) {
+                    if (newProductQuantity > variation.stock) {
+                        alert(`Quantity exceeds stock. Available stock: ${variation.stock}`);
+                        return;
+                    }
+                    order.items.push({
+                        product_id: newProductId,
+                        variation_id: selectedVariationId,
+                        category: variation.category,
+                        theme: selectedTheme,
+                        quantity: newProductQuantity,
+                        salePrice: variation.salePrice
+                    });
+                } else {
+                    console.error('Product or variation not found');
+                }
             }
             setOrder({ ...order });
             setNewProductId('');
             setNewProductQuantity(1);
+            setSelectedVariationId('');
+            setSelectedTheme('');
+            setFilteredCategories([]);
         }
     };
 
-    const handleQuantityChange = (productId, quantity) => {
+    const handleQuantityChange = (productId, variationId, theme, quantity) => {
         const updatedItems = order.items.map(item =>
-            item.product_id === productId ? { ...item, quantity: parseInt(quantity, 10) } : item
+            item.product_id === productId && item.variation_id === variationId && item.theme === theme ? { ...item, quantity: parseInt(quantity, 10) || 0 } : item
         );
         setOrder({ ...order, items: updatedItems });
     };
 
-    const handleRemoveProduct = (productId) => {
-        const updatedItems = order.items.filter(item => item.product_id !== productId);
+    const handleRemoveProduct = (productId, variationId, theme) => {
+        const updatedItems = order.items.filter(item => !(item.product_id === productId && item.variation_id === variationId && item.theme === theme));
         setOrder({ ...order, items: updatedItems });
+    };
+
+    const handleProductChange = (productId) => {
+        setNewProductId(productId);
+        const product = allProducts.find(p => p._id === productId);
+        if (product) {
+            setSelectedVariationId(product.variations[0]?._id || '');
+            setThemes([...new Set(product.variations.map(v => v.theme))]);
+            setSelectedTheme(product.variations[0]?.theme || '');
+            setFilteredCategories(product.variations.filter(v => v.theme === product.variations[0]?.theme));
+        } else {
+            setSelectedVariationId('');
+            setThemes([]);
+            setSelectedTheme('');
+            setFilteredCategories([]);
+        }
+    };
+
+    const handleThemeChange = (theme) => {
+        setSelectedTheme(theme);
+        const product = allProducts.find(p => p._id === newProductId);
+        if (product) {
+            setFilteredCategories(product.variations.filter(v => v.theme === theme));
+            setSelectedVariationId(product.variations.find(v => v.theme === theme)?._id || '');
+        } else {
+            setFilteredCategories([]);
+            setSelectedVariationId('');
+        }
     };
 
     if (loading) {
@@ -182,7 +246,9 @@ const UpdateOrderForm = () => {
                     <table className="min-w-full bg-white">
                         <thead>
                             <tr>
-                                <th className="py-2 px-4 border-b bg-black text-white">Product ID</th>
+                                <th className="py-2 px-4 border-b bg-black text-white">Product Name</th>
+                                <th className="py-2 px-4 border-b bg-black text-white">Variation Category</th>
+                                <th className="py-2 px-4 border-b bg-black text-white">Theme</th>
                                 <th className="py-2 px-4 border-b bg-black text-white">Quantity</th>
                                 <th className="py-2 px-4 border-b bg-black text-white">Price</th>
                                 <th className="py-2 px-4 border-b bg-black text-white">Actions</th>
@@ -190,21 +256,23 @@ const UpdateOrderForm = () => {
                         </thead>
                         <tbody>
                             {order.items.map(item => (
-                                <tr key={item.product_id}>
-                                    <td className="py-3 px-6 border-b">{item.product_id}</td>
+                                <tr key={`${item.product_id}-${item.variation_id || 'no-variation'}-${item.theme}`}>
+                                    <td className="py-3 px-6 border-b">{products[item.product_id]?.name}</td>
+                                    <td className="py-3 px-6 border-b">{item.category}</td>
+                                    <td className="py-3 px-6 border-b">{item.theme}</td>
                                     <td className="py-3 px-6 border-b">
                                         <input
                                             type="number"
                                             value={item.quantity}
-                                            onChange={(e) => handleQuantityChange(item.product_id, e.target.value)}
+                                            onChange={(e) => handleQuantityChange(item.product_id, item.variation_id, item.theme, e.target.value)}
                                             className="w-full px-2 py-1 border border-gray-300 rounded-md"
                                         />
                                     </td>
-                                    <td className="py-3 px-6 border-b">{products[item.product_id]?.price}</td>
+                                    <td className="py-3 px-6 border-b">{products[item.product_id]?.variations.find(v => v.category === item.category && v.theme === item.theme)?.salePrice || 'N/A'}</td>
                                     <td className="py-3 px-6 border-b">
                                         <button
                                             type="button"
-                                            onClick={() => handleRemoveProduct(item.product_id)}
+                                            onClick={() => handleRemoveProduct(item.product_id, item.variation_id, item.theme)}
                                             className="text-red-600 hover:text-red-800"
                                         >
                                             Remove
@@ -220,7 +288,7 @@ const UpdateOrderForm = () => {
                     <div className="flex space-x-2">
                         <select
                             value={newProductId}
-                            onChange={(e) => setNewProductId(e.target.value)}
+                            onChange={(e) => handleProductChange(e.target.value)}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                         >
                             <option value="">Select Product</option>
@@ -230,10 +298,34 @@ const UpdateOrderForm = () => {
                                 </option>
                             ))}
                         </select>
+                        <select
+                            value={selectedTheme}
+                            onChange={(e) => handleThemeChange(e.target.value)}
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                            <option value="">Select Theme</option>
+                            {themes.map(theme => (
+                                <option key={theme} value={theme}>
+                                    {theme}
+                                </option>
+                            ))}
+                        </select>
+                        <select
+                            value={selectedVariationId}
+                            onChange={(e) => setSelectedVariationId(e.target.value)}
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                            <option value="">Select Category</option>
+                            {filteredCategories.map(variation => (
+                                <option key={variation._id} value={variation._id}>
+                                    {variation.category} - {variation.salePrice}
+                                </option>
+                            ))}
+                        </select>
                         <input
                             type="number"
                             value={newProductQuantity}
-                            onChange={(e) => setNewProductQuantity(parseInt(e.target.value, 10))}
+                            onChange={(e) => setNewProductQuantity(parseInt(e.target.value, 10) || 0)}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
                             min="1"
                         />
