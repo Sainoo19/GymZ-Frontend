@@ -5,15 +5,38 @@ import { useParams, useNavigate } from 'react-router-dom';
 const UpdatePaymentForm = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [payment, setPayment] = useState(null);
+    const [payment, setPayment] = useState({
+        _id: '',
+        orderId: '',
+        user_id: '',
+        userName: '',
+        amount: '',
+        paymentMethod: 'Credit Card', // Default to "Credit Card"
+        status: 'pending',
+        createdAt: '',
+        updatedAt: '',
+    });
     const [orders, setOrders] = useState([]);
-    const [users, setUsers] = useState([]);
 
     useEffect(() => {
         const fetchPayment = async () => {
             try {
                 const response = await axios.get(`http://localhost:3000/payments/${id}`);
-                setPayment(response.data.data); // Access the data field
+                const paymentData = response.data.data;
+                setPayment(prevPayment => ({
+                    ...prevPayment,
+                    ...paymentData,
+                }));
+
+                // Fetch user details based on user_id from payment data
+                if (paymentData.user_id) {
+                    const userResponse = await axios.get(`http://localhost:3000/users/${paymentData.user_id}`);
+                    const user = userResponse.data.data;
+                    setPayment(prevPayment => ({
+                        ...prevPayment,
+                        userName: user.name,
+                    }));
+                }
             } catch (error) {
                 console.error('Error fetching payment:', error);
             }
@@ -28,27 +51,27 @@ const UpdatePaymentForm = () => {
             }
         };
 
-        const fetchUsers = async () => {
-            try {
-                const response = await axios.get('http://localhost:3000/users/all/nopagination');
-                setUsers(response.data.data);
-            } catch (error) {
-                console.error('Error fetching users:', error);
-            }
-        };
-
         fetchPayment();
         fetchOrders();
-        fetchUsers();
     }, [id]);
 
-    const handleOrderChange = (e) => {
+    const handleOrderChange = async (e) => {
         const selectedOrder = orders.find(order => order._id === e.target.value);
-        setPayment({
-            ...payment,
-            orderId: selectedOrder._id,
-            amount: selectedOrder.totalPrice,
-        });
+        if (selectedOrder) {
+            try {
+                const userResponse = await axios.get(`http://localhost:3000/users/${selectedOrder.user_id}`);
+                const user = userResponse.data.data;
+                setPayment({
+                    ...payment,
+                    orderId: selectedOrder._id,
+                    user_id: selectedOrder.user_id,
+                    userName: user.name,
+                    amount: selectedOrder.totalPrice,
+                });
+            } catch (error) {
+                console.error('Error fetching user:', error);
+            }
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -64,10 +87,6 @@ const UpdatePaymentForm = () => {
             console.error('Error updating payment:', error);
         }
     };
-
-    if (!payment) {
-        return <div>Loading...</div>;
-    }
 
     return (
         <div className="max-w-2xl mx-auto p-4">
@@ -98,19 +117,13 @@ const UpdatePaymentForm = () => {
                     </select>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">User ID</label>
-                    <select
-                        value={payment.user_id}
-                        onChange={(e) => setPayment({ ...payment, user_id: e.target.value })}
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                    >
-                        <option value="">Chọn User ID</option>
-                        {users.map(user => (
-                            <option key={user._id} value={user._id}>
-                                {user._id}
-                            </option>
-                        ))}
-                    </select>
+                    <label className="block text-sm font-medium text-gray-700">User Name</label>
+                    <input
+                        type="text"
+                        value={payment.userName}
+                        readOnly
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
+                    />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Số Tiền</label>
@@ -123,12 +136,16 @@ const UpdatePaymentForm = () => {
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Phương Thức Thanh Toán</label>
-                    <input
-                        type="text"
+                    <select
                         value={payment.paymentMethod}
                         onChange={(e) => setPayment({ ...payment, paymentMethod: e.target.value })}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                    />
+                    >
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="VNPay">VNPay</option>
+                        <option value="MoMo">MoMo</option>
+                        <option value="Cash">Cash</option>
+                    </select>
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Trạng Thái</label>

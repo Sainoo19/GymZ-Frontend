@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { ArrowUp, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { FaFilter } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
 import { PlusCircle } from "lucide-react";
 import Pagination from '../../components/admin/layout/Pagination';
-
-
 
 const ProductCard = () => {
   const navigate = useNavigate();
@@ -152,60 +150,37 @@ const ProductCard = () => {
     });
   };
 
+  const applyFilters = () => {
+    setCurrentPage(1);
+    setIsFilterModalOpen(false);
+  };
 
   return (
-
-    <div className="mt-5 flex flex-col items-center">
-      <div className="mt-2 mb-10 flex flex-row justify-center items-center gap-4">
-        <input
-          type="text"
-          placeholder="Tìm kiếm..."
-          value={search}
-          onChange={handleSearchChange}
-          className="px-4 py-2 border rounded flex-1 max-w-lg"
-        />
-        <button
-          className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all flex items-center"
-          onClick={toggleFilterModal}
-        >
-          <FaFilter className="mr-2" /> Lọc
-        </button>
-        {isFilterModalOpen && (
-          <div className="bg-white p-4 rounded shadow-md mb-4 w-full max-w-lg">
-            <label className="block mb-2">Danh mục</label>
-            <select
-              name="category"
-              value={filters.category}
-              onChange={handleFilterChange}
-              className="w-full px-4 py-2 border rounded"
-            >
-              <option value="">Tất cả</option>
-              <option value="Thời trang">Thời trang</option>
-              <option value="Whey">Whey</option>
-            </select>
-            <label className="block mb-2">Sắp xếp theo giá</label>
-            <select
-              name="sortBy"
-              value={filters.sortBy}
-              onChange={handleFilterChange}
-              className="w-full px-4 py-2 border rounded"
-            >
-              <option value="">Mặc định</option>
-              <option value="priceAsc">Giá thấp đến cao</option>
-              <option value="priceDesc">Giá cao đến thấp</option>
-            </select>
-
-            <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => setIsFilterModalOpen(false)}>Áp dụng</button>
-          </div>
-        )}
-        <button
-          className="bg-primary items-center float-right flex text-white px-6 py-4 rounded-lg"
-          onClick={() => navigate("/addproducts")} // Điều hướng khi nhấn nút
-        >
-
-          <PlusCircle size={20} className="mr-4" />
-          THÊM SẢN PHẨM
-        </button>
+    <div className="mt-4 mb-5">
+      <div className="flex justify-between items-center mb-4 w-full">
+        <h1 className="text-2xl font-bold">Tất Cả Sản Phẩm</h1>
+        <div className="flex items-center space-x-2">
+          <input
+            type="text"
+            placeholder="Tìm kiếm..."
+            value={search}
+            onChange={handleSearchChange}
+            className="px-4 py-2 border rounded"
+          />
+          <button
+            className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all flex items-center"
+            onClick={toggleFilterModal}
+          >
+            <FaFilter className="mr-2" /> Lọc
+          </button>
+          <button
+            className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all flex items-center"
+            onClick={() => navigate("/addproducts")}
+          >
+            <PlusCircle size={20} className="mr-2" />
+            THÊM SẢN PHẨM
+          </button>
+        </div>
       </div>
 
       {/* Grid danh sách sản phẩm */}
@@ -265,29 +240,16 @@ const ProductCard = () => {
                   <div className="flex justify-between text-sm items-center">
                     <span className="font-base">Bán</span>
                     <div className="flex items-center gap-1 text-gray-700">
-                      <ArrowUp size={14} className="text-yellow-500" />
                       <span>{Selling}</span>
                     </div>
                   </div>
-                  <div className="border-t border-gray-300 my-2"></div>
-                  <div className="flex items-center text-sm w-full gap-2">
-                    <span className="text-sm font-base whitespace-nowrap mr-2">Sản phẩm còn</span>
-                    <div className="flex-1 flex items-center gap-2">
-                      <div className="w-full bg-gray-200 rounded-full h-2 relative">
-                        <div
-                          className="bg-yellow-500 h-2 rounded-full"
-                          style={{
-                            width: stock !== "Đang tải..." && stock > 0
-                              ? `${Math.max(((stock - Selling) / stock) * 100, 0)}%`
-                              : "0%"
-                          }}
-                        ></div>
-                      </div>
-                      <span className="text-sm font-base text-right w-10">
-                        {stock - Selling >= 0 ? stock - Selling : 0}
-                      </span>
+                  <div className="flex justify-between text-sm items-center">
+                    <span className="font-base">Sản phẩm còn</span>
+                    <div className="flex items-center gap-1 text-gray-700">
+                      <span>{stock - Selling >= 0 ? stock - Selling : 0}</span>
                     </div>
                   </div>
+
                 </div>
               </div>
             );
@@ -301,6 +263,54 @@ const ProductCard = () => {
       <div className="mt-6">
         <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
       </div>
+
+      {isFilterModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded shadow-lg w-full max-w-lg">
+            <h2 className="text-xl font-bold mb-4">Lọc Sản Phẩm</h2>
+            <div className="mb-4">
+              <label className="block mb-2">Danh mục</label>
+              <select
+                name="category"
+                value={filters.category}
+                onChange={handleFilterChange}
+                className="w-full px-4 py-2 border rounded"
+              >
+                <option value="">Tất cả</option>
+                <option value="Thời trang">Thời trang</option>
+                <option value="Whey">Whey</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block mb-2">Sắp xếp theo giá</label>
+              <select
+                name="sortBy"
+                value={filters.sortBy}
+                onChange={handleFilterChange}
+                className="w-full px-4 py-2 border rounded"
+              >
+                <option value="">Mặc định</option>
+                <option value="priceAsc">Giá thấp đến cao</option>
+                <option value="priceDesc">Giá cao đến thấp</option>
+              </select>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <button
+                className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+                onClick={toggleFilterModal}
+              >
+                Hủy
+              </button>
+              <button
+                className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
+                onClick={applyFilters}
+              >
+                Áp Dụng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

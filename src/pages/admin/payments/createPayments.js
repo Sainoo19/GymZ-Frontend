@@ -7,15 +7,15 @@ const CreatePayment = () => {
     const [payment, setPayment] = useState({
         orderId: '',
         user_id: '',
+        userName: '',
         amount: '',
-        paymentMethod: '',
+        paymentMethod: 'Credit Card', // Default to "Credit Card"
         status: 'pending',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     });
 
     const [orders, setOrders] = useState([]);
-    const [users, setUsers] = useState([]);
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -27,32 +27,35 @@ const CreatePayment = () => {
             }
         };
 
-        const fetchUsers = async () => {
-            try {
-                const response = await axios.get('http://localhost:3000/users/all/nopagination');
-                setUsers(response.data.data || []); // Ensure users is an array
-            } catch (error) {
-                console.error('Error fetching users:', error);
-            }
-        };
-
         fetchOrders();
-        fetchUsers();
     }, []);
 
-    const handleOrderChange = (e) => {
+    const handleOrderChange = async (e) => {
         const selectedOrder = orders.find(order => order._id === e.target.value);
-        setPayment({
-            ...payment,
-            orderId: selectedOrder._id,
-            amount: selectedOrder.totalPrice,
-        });
+        if (selectedOrder) {
+            try {
+                const userResponse = await axios.get(`http://localhost:3000/users/${selectedOrder.user_id}`);
+                const user = userResponse.data.data;
+                setPayment({
+                    ...payment,
+                    orderId: selectedOrder._id,
+                    user_id: selectedOrder.user_id,
+                    userName: user.name,
+                    amount: selectedOrder.totalPrice,
+                });
+            } catch (error) {
+                console.error('Error fetching user:', error);
+            }
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:3000/payments/create', payment);
+            await axios.post('http://localhost:3000/payments/create', {
+                ...payment,
+                user_id: payment.user_id, // Ensure user_id is sent in the POST request
+            });
             navigate('/payments'); // Navigate back to the payments list
         } catch (error) {
             console.error('Error creating payment:', error);
@@ -80,19 +83,13 @@ const CreatePayment = () => {
                     </select>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">User ID</label>
-                    <select
-                        value={payment.user_id}
-                        onChange={(e) => setPayment({ ...payment, user_id: e.target.value })}
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                    >
-                        <option value="">Chọn User ID</option>
-                        {Array.isArray(users) && users.map(user => (
-                            <option key={user._id} value={user._id}>
-                                {user._id}
-                            </option>
-                        ))}
-                    </select>
+                    <label className="block text-sm font-medium text-gray-700">User Name</label>
+                    <input
+                        type="text"
+                        value={payment.userName}
+                        readOnly
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
+                    />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Số Tiền</label>
@@ -105,12 +102,16 @@ const CreatePayment = () => {
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Phương Thức Thanh Toán</label>
-                    <input
-                        type="text"
+                    <select
                         value={payment.paymentMethod}
                         onChange={(e) => setPayment({ ...payment, paymentMethod: e.target.value })}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                    />
+                    >
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="VNPay">VNPay</option>
+                        <option value="MoMo">MoMo</option>
+                        <option value="Cash">Cash</option>
+                    </select>
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Trạng Thái</label>

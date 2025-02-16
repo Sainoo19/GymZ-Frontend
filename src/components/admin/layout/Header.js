@@ -23,17 +23,7 @@ const Header = () => {
                 {/* Biểu tượng thông báo */}
                 <FaBell className="text-xl cursor-pointer" />
 
-                {/* Thanh tìm kiếm */}
-                <div className="flex items-center">
-                    <FaSearch className="text-xl cursor-pointer" onClick={toggleSearch} />
-                    <input
-                        type="text"
-                        className={`ml-2 p-2 rounded bg-gray-700 text-white transition-all duration-300 ${searchVisible ? 'w-48 opacity-100' : 'w-0 opacity-0'
-                            }`}
-                        placeholder="Search..."
-                        style={{ visibility: searchVisible ? 'visible' : 'hidden' }}
-                    />
-                </div>
+
 
                 {/* Menu tài khoản */}
                 <div className="relative">

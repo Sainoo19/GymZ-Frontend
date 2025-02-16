@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { FileDrop } from "./FileDropEm";
+import reformDateTime from "../../../components/utils/reformDateTime";
 
 const UpdateEmployeeForm = () => {
   const { id } = useParams();
@@ -24,13 +25,13 @@ const UpdateEmployeeForm = () => {
     };
 
     const fetchBranches = async () => {
-        try {
-          const response = await axios.get("http://localhost:3000/branches/all/nopagination"); // 🔹 Thay URL_API bằng API thực tế
-          setBranches(response.data.data); // 🔹 Cập nhật danh sách chi nhánh
-        } catch (error) {
-          console.error("Lỗi khi lấy danh sách chi nhánh:", error);
-        }
-      };
+      try {
+        const response = await axios.get("http://localhost:3000/branches/all/nopagination"); // 🔹 Thay URL_API bằng API thực tế
+        setBranches(response.data.data); // 🔹 Cập nhật danh sách chi nhánh
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách chi nhánh:", error);
+      }
+    };
 
     fetchBranches();
     fetchEmployee();
@@ -58,9 +59,6 @@ const UpdateEmployeeForm = () => {
   const formatSalary = (value) => {
     return new Intl.NumberFormat("vi-VN").format(value);
   };
-
-
-
 
   if (!employee) {
     return <div>Loading...</div>;
@@ -91,17 +89,16 @@ const UpdateEmployeeForm = () => {
         </div>
         {/* Avatar */}
         <div className="flex flex-col items-center">
-        <label className="block font-medium">Ảnh đại diện</label>
-        <div className="flex justify-center w-full">
+          <label className="block font-medium">Ảnh đại diện</label>
+          <div className="flex justify-center w-full">
             <img
-            src={newFileName || employee.avatar || "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"} // 🔹 Lấy trực tiếp URL ảnh
-            alt="Avatar"
-            className="w-24 h-24 rounded mb-2"
+              src={newFileName || employee.avatar || "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"} // 🔹 Lấy trực tiếp URL ảnh
+              alt="Avatar"
+              className="w-24 h-24 rounded mb-2"
             />
+          </div>
+          <FileDrop onFileUpload={setNewFileName} />
         </div>
-        <FileDrop onFileUpload={setNewFileName} />
-        </div>
-
 
         {/* Email */}
         <div>
@@ -171,9 +168,9 @@ const UpdateEmployeeForm = () => {
           >
             <option value="">Chọn chi nhánh</option>
             {branches.map((branch) => (
-                <option key={branch.id} value={branch.id}>
+              <option key={branch.id} value={branch.id}>
                 {branch._id}
-                </option>
+              </option>
             ))}
           </select>
         </div>
@@ -235,7 +232,7 @@ const UpdateEmployeeForm = () => {
           </label>
           <input
             type="text"
-            value={employee.createdAt}
+            value={reformDateTime(employee.createdAt)}
             readOnly
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
           />
@@ -246,7 +243,7 @@ const UpdateEmployeeForm = () => {
           </label>
           <input
             type="text"
-            value={employee.updatedAt}
+            value={reformDateTime(employee.updatedAt)}
             readOnly
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
           />

@@ -146,8 +146,8 @@ const UpdateOrderForm = () => {
         setOrder({ ...order, items: updatedItems });
     };
 
-    const handleRemoveProduct = (productId, variationId, theme) => {
-        const updatedItems = order.items.filter(item => !(item.product_id === productId && item.variation_id === variationId && item.theme === theme));
+    const handleRemoveProduct = (productId, variationId, theme, category) => {
+        const updatedItems = order.items.filter(item => !(item.product_id === productId && item.variation_id === variationId && item.theme === theme && item.category === category));
         setOrder({ ...order, items: updatedItems });
     };
 
@@ -217,10 +217,10 @@ const UpdateOrderForm = () => {
                         onChange={(e) => setOrder({ ...order, status: e.target.value })}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     >
-                        <option value="pending">Đang chờ</option>
-                        <option value="processing">Đang xử lý</option>
-                        <option value="completed">Hoàn thành</option>
-                        <option value="cancelled">Đã hủy</option>
+                        <option value="Đang chờ">Đang chờ</option>
+                        <option value="Đang xử lý">Đang xử lý</option>
+                        <option value="Hoàn thành">Hoàn thành</option>
+                        <option value="Đã hủy">Đã hủy</option>
                     </select>
                 </div>
                 <div>
@@ -256,7 +256,7 @@ const UpdateOrderForm = () => {
                         </thead>
                         <tbody>
                             {order.items.map(item => (
-                                <tr key={`${item.product_id}-${item.variation_id || 'no-variation'}-${item.theme}`}>
+                                <tr key={`${item.product_id}-${item.variation_id}-${item.theme}-${item.category}`}>
                                     <td className="py-3 px-6 border-b">{products[item.product_id]?.name}</td>
                                     <td className="py-3 px-6 border-b">{item.category}</td>
                                     <td className="py-3 px-6 border-b">{item.theme}</td>
@@ -272,7 +272,7 @@ const UpdateOrderForm = () => {
                                     <td className="py-3 px-6 border-b">
                                         <button
                                             type="button"
-                                            onClick={() => handleRemoveProduct(item.product_id, item.variation_id, item.theme)}
+                                            onClick={() => handleRemoveProduct(item.product_id, item.variation_id, item.theme, item.category)}
                                             className="text-red-600 hover:text-red-800"
                                         >
                                             Remove

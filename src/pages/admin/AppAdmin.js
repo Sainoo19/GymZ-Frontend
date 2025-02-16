@@ -23,6 +23,7 @@ import Header from "../../components/admin/layout/Header";
 import ProductDetail from "../admin/products/productDetail";
 import CreateEmployee from "./employees/createEmployee";
 import UpdateEmployeeForm from "./employees/employeesDetail";
+import ProductDetailTest from "../admin/products/productTest";
 
 const AppAdmin = () => {
     return (
@@ -57,6 +58,7 @@ const AppAdmin = () => {
                         <Route path="/employees" element={<Employee />} />
                         <Route path="/addproducts" element={<ProductDetail />} />
                         <Route path="/editproduct/:productId" element={<ProductDetail />} />
+                        <Route path="/test/" element={<ProductDetailTest />} />
 
                         <Route path="/employees/create" element={<CreateEmployee />} />
                         <Route path="/employees/:id" element={<UpdateEmployeeForm />} />

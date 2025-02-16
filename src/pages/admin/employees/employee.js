@@ -2,7 +2,7 @@ import Table from '../../../components/admin/Table';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import DeleteEmployeeModal from './employeesDelete';
-import {FaFilter} from 'react-icons/fa';
+import { FaFilter } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Pagination from '../../../components/admin/layout/Pagination';
 
@@ -11,17 +11,12 @@ const Employee = () => {
         { field: '_id', label: 'ID' },
         { field: 'avatar', label: 'AVATAR' },
         { field: 'email', label: 'EMAIL' },
-        { field: 'password', label: 'PASSWORD' },
         { field: 'phone', label: 'PHONE' },
         { field: 'name', label: 'NAME' },
         { field: 'branch_id', label: 'ID BRANCH' },
         { field: 'role', label: 'ROLE' },
         { field: 'salary', label: 'SALARY' },
-        { field: 'hiredAt', label: 'HIRE AT' },
-        { field: 'createdAt', label: 'CREATED AT' },
-        { field: 'updatedAt', label: 'UPDATE AT' },
     ]);
-
 
     const [branches, setBranches] = useState([]);
     const [data, setData] = useState([]);
@@ -39,7 +34,6 @@ const Employee = () => {
     const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
     const navigate = useNavigate();
 
-    
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -51,15 +45,12 @@ const Employee = () => {
                         ...filters
                     }
                 });
-    
+
                 // Kiểm tra nếu response.data.data tồn tại và là một object chứa employees
                 if (response.data && response.data.data && Array.isArray(response.data.data.employees)) {
                     const formattedData = response.data.data.employees.map((employee) => ({
                         ...employee,
                         salary: employee.salary.toLocaleString(),
-                        hiredAt: new Date(employee.hiredAt).toLocaleDateString(),
-                        createdAt: new Date(employee.createdAt).toLocaleDateString(),
-                        updatedAt: new Date(employee.updatedAt).toLocaleDateString(),
                         // avatarURL: (employee.avatar),
                     }));
                     setData(formattedData);
@@ -74,17 +65,16 @@ const Employee = () => {
 
         const fetchBranches = async () => {
             try {
-              const response = await axios.get("http://localhost:3000/branches/all/nopagination"); // 🔹 Thay URL_API bằng API thực tế
-              setBranches(response.data.data); // 🔹 Cập nhật danh sách chi nhánh
+                const response = await axios.get("http://localhost:3000/branches/all/nopagination"); // 🔹 Thay URL_API bằng API thực tế
+                setBranches(response.data.data); // 🔹 Cập nhật danh sách chi nhánh
             } catch (error) {
-              console.error("Lỗi khi lấy danh sách chi nhánh:", error);
+                console.error("Lỗi khi lấy danh sách chi nhánh:", error);
             }
-          };
-    
+        };
+
         fetchBranches();
         fetchData();
     }, [currentPage, search, filters]);
-    
 
     const handleEdit = (id) => {
         navigate(`/employees/${id}`);
@@ -138,8 +128,6 @@ const Employee = () => {
             applyFilters();
         }, 0);
     };
-    
-    
 
     const toggleFilterModal = () => {
         setIsFilterModalOpen(!isFilterModalOpen);
@@ -150,49 +138,44 @@ const Employee = () => {
         setIsFilterModalOpen(false);
     };
 
-
     const formattedData = data.map((item) => ({
         ...item,
         avatar: (
-            <img 
-                src={item.avatar || "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"} 
+            <img
+                src={item.avatar || "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"}
                 alt="Avatar"
                 className="w-10 h-10 rounded-full object-cover"
             />
         )
     }));
 
-  
     return (
         <div className="mt-4">
-        <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold">Tất Cả Nhân Viên</h1>
-            <div className="flex items-center space-x-2">
-                <input
-                    type="text"
-                    placeholder="Tìm kiếm..."
-                    value={search}
-                    onChange={handleSearchChange}
-                    className="px-4 py-2 border rounded"
-                />
-                <button
-                    className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all flex items-center"
-                    onClick={toggleFilterModal}
-                >
-                    <FaFilter className="mr-2" /> Lọc
-                </button>
-                <button
-                    className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
-                    onClick={() => navigate('/employees/create')}
-                >
-                    Thêm Nhân Viên
-                </button>
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold">Tất Cả Nhân Viên</h1>
+                <div className="flex items-center space-x-2">
+                    <input
+                        type="text"
+                        placeholder="Tìm kiếm..."
+                        value={search}
+                        onChange={handleSearchChange}
+                        className="px-4 py-2 border rounded"
+                    />
+                    <button
+                        className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all flex items-center"
+                        onClick={toggleFilterModal}
+                    >
+                        <FaFilter className="mr-2" /> Lọc
+                    </button>
+                    <button
+                        className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
+                        onClick={() => navigate('/employees/create')}
+                    >
+                        Thêm Nhân Viên
+                    </button>
+                </div>
             </div>
-        </div>
-            <Table columns={columns} data={formattedData} onEdit={handleEdit} onDelete={openDeleteModal}/>
-           
-            {/* <Table columns={columns} data={[...formattedData].reverse()} onEdit={handleEdit} onDelete={openDeleteModal}/> */}
-
+            <Table columns={columns} data={formattedData} onEdit={handleEdit} onDelete={openDeleteModal} />
             <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
             <DeleteEmployeeModal
                 isOpen={isDeleteModalOpen}
@@ -215,9 +198,9 @@ const Employee = () => {
                             >
                                 <option value="">Tất cả</option>
                                 {branches.map((branch) => (
-                                <option key={branch._id} value={branch._id}>
-                                    {branch._id}
-                                </option>
+                                    <option key={branch._id} value={branch._id}>
+                                        {branch._id}
+                                    </option>
                                 ))}
                             </select>
                         </div>

@@ -160,10 +160,10 @@ const Order = () => {
                                 className="w-full px-4 py-2 border rounded"
                             >
                                 <option value="">Tất cả</option>
-                                <option value="processing">Processing</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
+                                <option value="Đang chờ">Đang chờ</option>
+                                <option value="Đang xử lý">Đang xử lý</option>
+                                <option value="Hoàn thành">Hoàn thành</option>
+                                <option value="Đã hủy">Đã hủy</option>
                             </select>
                         </div>
                         <div className="mb-4">

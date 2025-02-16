@@ -198,10 +198,10 @@ const CreateOrder = () => {
                         onChange={(e) => setOrder({ ...order, status: e.target.value })}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     >
-                        <option value="pending">Đang chờ</option>
-                        <option value="processing">Đang xử lý</option>
-                        <option value="completed">Hoàn thành</option>
-                        <option value="cancelled">Đã hủy</option>
+                        <option value="Đang chờ">Đang chờ</option>
+                        <option value="Đang xử lý">Đang xử lý</option>
+                        <option value="Hoàn thành">Hoàn thành</option>
+                        <option value="Đã hủy">Đã hủy</option>
                     </select>
                 </div>
                 <div>

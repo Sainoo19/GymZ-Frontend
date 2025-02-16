@@ -5,12 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2";
 import Pagination from '../../../components/admin/layout/Pagination';
 import { FaFilter } from 'react-icons/fa';
+import reformDateTime from '../../../components/utils/reformDateTime';
 
 const User = () => {
-    const [columns] = useState ([
+    const [columns] = useState([
         { field: '_id', label: 'USER ID' },
         { field: 'name', label: 'NAME' },
-        { field: 'address', label: 'ADDRESS'},
+        { field: 'address', label: 'ADDRESS' },
         { field: 'createdAt', label: 'CREATED AT' },
         { field: 'updatedAt', label: 'UPDATED AT' },
         { field: 'status', label: 'STATUS' },
@@ -37,7 +38,7 @@ const User = () => {
                 const response = await axios.get('http://localhost:3000/users/all', {
                     params: {
                         page: currentPage,
-                        limit: 3,
+                        limit: 10,
                         search,
                         ...filters,
                     }
@@ -45,7 +46,7 @@ const User = () => {
                 if (response.data.status === 'success') {
                     setUsers(response.data.data.users);
                     setTotalPages(response.data.metadata.totalPages);
-                } else{
+                } else {
                     console.error('API response error:', response.data.message);
                 }
             } catch (error) {
@@ -85,10 +86,10 @@ const User = () => {
             cancelButtonText: 'Hủy'
         }).then(async (result) => {
             if (result.isConfirmed) {
-                try{
+                try {
                     const response = await axios.delete(`http://localhost:3000/users/delete/${id}`);
-        
-                    if(response.status === 200) {
+
+                    if (response.status === 200) {
                         Swal.fire('Xóa thành công!', 'Người dùng đã bị xóa.', 'success');
                         setUsers(prevUsers => prevUsers.filter(user => user._id !== id));
                     } else {
@@ -108,7 +109,6 @@ const User = () => {
             [e.target.name]: e.target.value
         });
     };
-
 
     const toggleFilterModal = () => {
         setIsFilterModalOpen(!isFilterModalOpen);
@@ -132,14 +132,14 @@ const User = () => {
                             onChange={handleSearchChange}
                             className='px-4 py-2 border rounded'
                         />
-                        <button 
+                        <button
                             className='bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all flex items-center'
                             onClick={toggleFilterModal}
                         >
-                            <FaFilter/> Lọc
+                            <FaFilter /> Lọc
                         </button>
-                        <button 
-                            onClick = {() => navigate('/users/create')}
+                        <button
+                            onClick={() => navigate('/users/create')}
                             className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
                         >
                             Thêm khách hàng
@@ -150,21 +150,22 @@ const User = () => {
                 {/* Hiển thị trạng thái loading hoặc lỗi */}
                 {loading ? (
                     <p>Đang tải dữ liệu...</p>
-                    ) : error ? (
-                        <p className="text-red-500">Lỗi: {error}</p>
-                    ) : (
-                        <Table columns={columns} 
+                ) : error ? (
+                    <p className="text-red-500">Lỗi: {error}</p>
+                ) : (
+                    <Table columns={columns}
                         data={users.map(user => ({
                             ...user,
                             address: user.address
                                 ? `${user.address.street}, ${user.address.city}, ${user.address.country}`
-                                : 'N/A'
+                                : 'N/A',
+                            createdAt: reformDateTime(user.createdAt),
+                            updatedAt: reformDateTime(user.updatedAt)
                         }))}
                         onEdit={handleEdit}
                         onDelete={handleDelete}
-                        />
-                    )
-                }
+                    />
+                )}
                 <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
             </div>
 
@@ -172,7 +173,7 @@ const User = () => {
                 <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-96">
                         <h2 className="text-xl font-bold mb-4">Lọc khách hàng</h2>
-                        
+
                         {/* Lọc theo vai trò */}
                         <label className="block mb-2">Vai trò:</label>
                         <select
@@ -214,13 +215,13 @@ const User = () => {
                         <div className='flex justify-between'>
                             <button
                                 onClick={toggleFilterModal}
-                                className = 'bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500'
+                                className='bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500'
                             >
                                 Hủy
                             </button>
                             <button
                                 onClick={applyFilters}
-                                className = 'bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all'
+                                className='bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all'
                             >
                                 Áp dụng
                             </button>

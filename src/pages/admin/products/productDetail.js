@@ -5,12 +5,13 @@ import { TypeProduct } from "../../../components/admin/product/TypeProduct";
 import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css"; // Import CSS cho QuillJS
 
-const API_BASE_URL = "http://localhost:3000/products";
+const API_BASE_URL = process.env.REACT_APP_API_URL + "products";
 
 const ProductDetail = ({ onClose }) => {
   const { productId } = useParams();
-  const textareaRef = useRef(null);
   const [selected, setSelected] = useState("");
   const [productData, setProductData] = useState({
     name: "",
@@ -26,17 +27,16 @@ const ProductDetail = ({ onClose }) => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [content, setContent] = useState(""); // Initialize content with an empty string
   const [brand, setBrand] = useState("");
   const [avatar, setAvatar] = useState("");
   const [variations, setVariations] = useState([]);
   const [images, setImages] = useState([]);
   const [isUploading, setIsUploading] = useState(false); // Thêm trạng thái tải lên
 
-
   useEffect(() => {
     if (!productId) {
       console.log("productId:", productId); // Kiểm tra dữ liệu API trả về
-
       return;
     }
 
@@ -88,6 +88,7 @@ const ProductDetail = ({ onClose }) => {
     if (productData && Object.keys(productData).length > 0) {
       setName(productData.name || "");
       setDescription(productData.description || "");
+      setContent(productData.description || ""); // Set content with description
       setSelectedCategory(productData.category || "");
       setBrand(productData.brand || "");
       setVariations(productData.variations || []); // Quan trọng: cập nhật variations từ API
@@ -100,14 +101,6 @@ const ProductDetail = ({ onClose }) => {
   useEffect(() => {
     console.log("Variations updated:", variations);
   }, [variations]);
-
-  const handleInput = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    textarea.style.height = "auto"; // Reset chiều cao để tính lại chính xác
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 300)}px`; // Tự động mở rộng nhưng không vượt quá 600px
-  };
 
   const handleSave = async () => {
     console.log("Avatar to save:", selectedAvatar);
@@ -129,7 +122,7 @@ const ProductDetail = ({ onClose }) => {
 
       const newProduct = {
         name,
-        description,
+        description: content, // Save content as description
         category: selectedCategory,
         brand,
         variations: formattedVariations,
@@ -147,12 +140,28 @@ const ProductDetail = ({ onClose }) => {
         alert("Sản phẩm đã được thêm!");
       }
 
-      navigate("/"); // Quay về danh sách sản phẩm sau khi hoàn thành
+      navigate("/products"); // Quay về danh sách sản phẩm sau khi hoàn thành
     } catch (error) {
       console.error("Lỗi khi lưu sản phẩm:", error);
       alert("Lưu sản phẩm thất bại!");
     }
   };
+
+  const modules = {
+    toolbar: [
+      [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+      ['link', 'image'],
+      [{ 'align': [] }],
+      [{ 'color': [] }, { 'background': [] }],
+      ['clean']
+    ],
+  };
+
+  const formats = [
+    'header', 'font', 'list', 'bullet', 'bold', 'italic', 'underline', 'strike', 'blockquote', 'link', 'image', 'align', 'color', 'background'
+  ];
 
   return (
     <div className="bg-background_admin ">
@@ -176,14 +185,17 @@ const ProductDetail = ({ onClose }) => {
                   onChange={(e) => setName(e.target.value)}
                 ></input>
                 <p className="font-semibold text-base mt-6 mb-3">Miêu tả</p>
-                <textarea
-                  ref={textareaRef}
-                  placeholder="Nhập miêu tả"
-                  className="border-2 text-sm border-gray-600 rounded-lg p-2 w-11/12 focus:outline-none focus:ring-2 focus:ring-primary resize-none overflow-auto"
-                  onInput={handleInput}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
+                <div>
+                  <ReactQuill
+                    value={content}
+                    onChange={(value) => {
+                      setContent(value);
+                      setDescription(value);
+                    }}
+                    modules={modules}
+                    formats={formats}
+                  />
+                </div>
 
                 <p className="font-semibold text-base mt-6 mb-3">Loại hàng</p>
                 {console.log("Categories in render:", categories)}
