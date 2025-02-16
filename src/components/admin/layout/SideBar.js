@@ -11,6 +11,8 @@ const navItems = [
     { to: "/products", label: "SẢN PHẨM", icon: IconAllProduct },
     { to: "/employees", label: "NHÂN VIÊN", icon: IconAllProduct },
     { to: "/users", label: "KHÁCH HÀNG", icon: IconAllProduct },
+    { to: "/branches", label: "CHI NHÁNH", icon: IconAllProduct },
+    { to: "/discounts", label: "KHUYẾN MÃI", icon: IconAllProduct }
     // Add more items here as needed
 ];
 
@@ -18,10 +20,10 @@ const SideBar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
 
     return (
-        <div className="flex h-screen">
+        <div className="flex min-h-screen">
             {/* Desktop Sidebar */}
-            <nav className="bg-primary w-full h-full lg:block hidden justify-items-center">
-                <div className="pt-7">
+            <nav className="bg-primary w-full min-h-screen lg:block hidden justify-items-center">
+            <div className="pt-7">
                     <MyIcon className="block w-40 h-20 mx-auto" />
                 </div>
                 {navItems.map((item, index) => (

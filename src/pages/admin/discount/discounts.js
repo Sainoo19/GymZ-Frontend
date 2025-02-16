@@ -3,42 +3,39 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Table from '../../../components/admin/Table';
 import Pagination from '../../../components/admin/layout/Pagination';
-import DeleteOrderModal from './ordersDelete';
+import DeleteDiscountModal from './discountsDelete';
 import { FaFilter } from 'react-icons/fa';
 import reformDateTime from '../../../components/utils/reformDateTime';
 
-const Order = () => {
+const Discounts = () => {
     const [columns] = useState([
-        { field: '_id', label: 'ORDER ID' },
-        { field: 'user_id', label: 'USER ID' },
-        { field: 'totalPrice', label: 'TOTAL PRICE' },
+        { field: '_id', label: 'DISCOUNT ID' },
+        { field: 'code', label: 'CODE' },
+        { field: 'description', label: 'DESCRIPTION' },
+        { field: 'discountPercent', label: 'DISCOUNT PERCENTAGE' },
+        { field: 'validFrom', label: 'START DATE' },
+        { field: 'validUntil', label: 'END DATE' },
         { field: 'status', label: 'STATUS' },
-        { field: 'createdAt', label: 'CREATED AT' },
-        { field: 'updatedAt', label: 'UPDATED AT' },
     ]);
 
     const [data, setData] = useState([]);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [selectedOrderId, setSelectedOrderId] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState('');
     const [filters, setFilters] = useState({
-        user_id: '',
         status: '',
         startDate: '',
-        endDate: '',
-        minTotalPrice: '',
-        maxTotalPrice: '',
-        product_id: ''
+        endDate: ''
     });
     const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedDiscountId, setSelectedDiscountId] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/orders/all`, {
+                const response = await axios.get('http://localhost:3000/discounts/all', {
                     params: {
                         page: currentPage,
                         limit: 10,
@@ -47,13 +44,13 @@ const Order = () => {
                     }
                 });
                 if (response.data.status === 'success') {
-                    const orders = response.data.data.orders.map(order => ({
-                        ...order,
-                        createdAt: reformDateTime(order.createdAt),
-                        updatedAt: reformDateTime(order.updatedAt)
+                    const discounts = response.data.data.discounts.map(discount => ({
+                        ...discount,
+                        validFrom: reformDateTime(discount.validFrom),
+                        validUntil: reformDateTime(discount.validUntil)
                     }));
-                    setData(orders);
-                    setTotalPages(response.data.metadata.totalPages);
+                    setData(discounts);
+                    setTotalPages(response.data.metadata.totalPages || 1);
                 } else {
                     console.error('API response error:', response.data.message);
                 }
@@ -66,27 +63,27 @@ const Order = () => {
     }, [currentPage, search, filters]);
 
     const handleEdit = (id) => {
-        navigate(`/orders/${id}`);
+        navigate(`/discounts/${id}`);
     };
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:3000/orders/delete/${id}`);
-            setData(data.filter(order => order._id !== id));
+            await axios.delete(`http://localhost:3000/discounts/delete/${id}`);
+            setData(data.filter(discount => discount._id !== id));
             setIsDeleteModalOpen(false);
         } catch (error) {
-            console.error('Error deleting order:', error);
+            console.error('Error deleting discount:', error);
         }
     };
 
     const openDeleteModal = (id) => {
-        setSelectedOrderId(id);
+        setSelectedDiscountId(id);
         setIsDeleteModalOpen(true);
     };
 
     const closeDeleteModal = () => {
         setIsDeleteModalOpen(false);
-        setSelectedOrderId(null);
+        setSelectedDiscountId(null);
     };
 
     const handlePageChange = (page) => {
@@ -116,7 +113,7 @@ const Order = () => {
     return (
         <div className="mt-4">
             <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">Tất Cả Đơn Hàng</h1>
+                <h1 className="text-2xl font-bold">Tất Cả Khuyến Mãi</h1>
                 <div className="flex items-center space-x-2">
                     <input
                         type="text"
@@ -133,24 +130,24 @@ const Order = () => {
                     </button>
                     <button
                         className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
-                        onClick={() => navigate('/orders/create')}
+                        onClick={() => navigate('/discounts/create')}
                     >
-                        Thêm Đơn Hàng
+                        Thêm Khuyến Mãi
                     </button>
                 </div>
             </div>
             <Table columns={columns} data={data} onEdit={handleEdit} onDelete={openDeleteModal} />
             <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
-            <DeleteOrderModal
+            <DeleteDiscountModal
                 isOpen={isDeleteModalOpen}
                 onClose={closeDeleteModal}
                 onDelete={handleDelete}
-                orderId={selectedOrderId}
+                discountId={selectedDiscountId}
             />
             {isFilterModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-6 rounded shadow-lg">
-                        <h2 className="text-xl font-bold mb-4">Lọc Đơn Hàng</h2>
+                        <h2 className="text-xl font-bold mb-4">Lọc Khuyến Mãi</h2>
                         <div className="mb-4">
                             <label className="block mb-2">Trạng Thái</label>
                             <select
@@ -160,24 +157,8 @@ const Order = () => {
                                 className="w-full px-4 py-2 border rounded"
                             >
                                 <option value="">Tất cả</option>
-                                <option value="Đang chờ">Đang chờ</option>
-                                <option value="Đang xử lý">Đang xử lý</option>
-                                <option value="Hoàn thành">Hoàn thành</option>
-                                <option value="Đã hủy">Đã hủy</option>
-                            </select>
-                        </div>
-                        <div className="mb-4">
-                            <label className="block mb-2">Phương Thức Thanh Toán</label>
-                            <select
-                                name="paymentMethod"
-                                value={filters.paymentMethod}
-                                onChange={handleFilterChange}
-                                className="w-full px-4 py-2 border rounded"
-                            >
-                                <option value="">Tất cả</option>
-                                <option value="credit_card">Credit Card</option>
-                                <option value="paypal">PayPal</option>
-                                <option value="cash">Cash</option>
+                                <option value="active">Hoạt động</option>
+                                <option value="inactive">Không hoạt động</option>
                             </select>
                         </div>
                         <div className="mb-4">
@@ -196,36 +177,6 @@ const Order = () => {
                                 type="date"
                                 name="endDate"
                                 value={filters.endDate}
-                                onChange={handleFilterChange}
-                                className="w-full px-4 py-2 border rounded"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block mb-2">Giá Tối Thiểu</label>
-                            <input
-                                type="number"
-                                name="minTotalPrice"
-                                value={filters.minTotalPrice}
-                                onChange={handleFilterChange}
-                                className="w-full px-4 py-2 border rounded"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block mb-2">Giá Tối Đa</label>
-                            <input
-                                type="number"
-                                name="maxTotalPrice"
-                                value={filters.maxTotalPrice}
-                                onChange={handleFilterChange}
-                                className="w-full px-4 py-2 border rounded"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block mb-2">Mã Sản Phẩm</label>
-                            <input
-                                type="text"
-                                name="product_id"
-                                value={filters.product_id}
                                 onChange={handleFilterChange}
                                 className="w-full px-4 py-2 border rounded"
                             />
@@ -251,4 +202,4 @@ const Order = () => {
     );
 };
 
-export default Order;
+export default Discounts;
