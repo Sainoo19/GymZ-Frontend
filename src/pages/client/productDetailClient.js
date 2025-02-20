@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ProductImage from "../../components/clients/product/ProductImage";
+import ProductDescription from "../../components/clients/product/ProductDescription";
 
 const ProductDetailClient = () => {
   const URL_API = process.env.REACT_APP_API_URL;
   const [product, setProduct] = useState(null);
-  const productId = "PR012";
+  const productId = "PR010";
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(0);
 
@@ -29,14 +30,14 @@ const ProductDetailClient = () => {
         const response = await axios.get(
           `${URL_API}products/minmaxprice/${productId}`
         );
-        const { minPrice, maxPrice } = response.data.data;
-        console.log(minPrice, maxPrice);
-        setMinPrice(response.data.data.minSalePrice);
-        setMaxPrice(response.data.data.maxSalePrice);
+        const { minPrice, maxPrice } = response.data;
+        setMinPrice(minPrice);
+        setMaxPrice(maxPrice);
         return { minPrice, maxPrice };
       } catch (error) {
         console.error("Error fetching product:", error);
       }
+
     };
 
     fetchProduct();
@@ -59,7 +60,7 @@ const ProductDetailClient = () => {
           variations={product.variations}
         />
       }
-
+{<ProductDescription description={product.description} />}
       {/* <h1>{product.name}</h1>
       <div dangerouslySetInnerHTML={{ __html: product.description }} />
       <p>Price: ${product.variations[0].salePrice}</p> */}
