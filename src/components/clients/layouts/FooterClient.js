@@ -39,6 +39,7 @@ const Footer = () => {
       link: "https://www.tiktok.com",
     },
   ];
+
   return (
     <footer
       className="mt-10 pt-12 pb-6 px-10 font-[sans-serif] tracking-wide"
@@ -131,7 +132,7 @@ const Footer = () => {
         <div className="border-b border-gray-300 mt-5"></div>
         <div className="flex container mx-auto mt-8 items-center w-4/5 justify-between">
           <p className="text-gray-300 text-sm ">
-            GymZ © 2023-2025, All Rights Reserved.
+            GymZ © 2023 - {new Date().getFullYear()}, All Rights Reserved.
           </p>
           <div className="flex w-3/12 justify-around lg:w-1/3 sm:w-1/2 ">
             <img
