@@ -4,7 +4,7 @@ import Home from "./Home";
 import HeaderClient from "../../components/clients/layouts/HeaderClient";
 import ProductsClient from "./productsClient";
 import ProductDetailClient from "./productDetailClient";
-
+import Footer from "../../components/clients/layouts/FooterClient";
 
 const App = () => {
     return (
@@ -20,8 +20,7 @@ const App = () => {
                         {/* Add more routes as needed */}
                     </Routes>
                 </main>
-                { /* <Footer /> */}
-
+               <Footer/>
             </div>
         </BrowserRouter>
     );
