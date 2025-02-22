@@ -4,6 +4,7 @@ import Home from "./Home";
 import HeaderClient from "../../components/clients/layouts/HeaderClient";
 import ProductsClient from "./productsClient";
 import ProductDetailClient from "./productDetailClient";
+import AboutUs from "./aboutUs"
 
 
 const App = () => {
@@ -17,6 +18,7 @@ const App = () => {
                         <Route path="/" element={<Home />} />
                         <Route path="/productsclient" element={<ProductsClient />} />
                         <Route path="/productsclient/test" element={<ProductDetailClient />} />
+                        <Route path="/ve-chung-toi" element={<AboutUs />} />
                         {/* Add more routes as needed */}
                     </Routes>
                 </main>

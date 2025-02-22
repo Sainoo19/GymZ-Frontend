@@ -46,7 +46,7 @@ const HeaderClient = () => {
                     <a className="hover:text-white" href="/">
                         Chi Nhánh
                     </a>
-                    <a className="hover:text-white" href="/">
+                    <a className="hover:text-white" href="/ve-chung-toi">
                         Về chúng tôi
                     </a>
                 </div>
