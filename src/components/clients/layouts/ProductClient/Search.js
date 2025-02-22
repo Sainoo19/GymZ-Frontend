@@ -51,11 +51,18 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
       selectedBrands.includes(brand)
         ? selectedBrands.filter((b) => b !== brand)
         : [...selectedBrands.filter((b) => b !== "Tất cả"), brand];
-
+  
     setSelectedBrands(updatedBrands);
-    onFilter({ brands: updatedBrands, categories: selectedCategories, minPrice, maxPrice });
+  
+    // Nếu chọn "Tất cả", gửi danh sách rỗng để hiển thị toàn bộ sản phẩm
+    onFilter({ 
+      brands: brand === "Tất cả" ? [] : updatedBrands, 
+      categories: selectedCategories, 
+      minPrice, 
+      maxPrice 
+    });
   };
-
+  
   const handleCategorySelect = (category) => {
     let updatedCategories = selectedCategories.includes(category._id)
       ? selectedCategories.filter((id) => id !== category._id) // Bỏ chọn nếu đã chọn
@@ -128,14 +135,14 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
   <h4 className="font-medium mb-2">Thương hiệu</h4>
   <div className="grid grid-cols-3 gap-2 mt-2 w-full">
     {/* Thẻ "Tất cả" */}
-    <button
-      onClick={() => handleBrandSelect("Tất cả")}
-      className={`px-4 py-2 rounded-lg border text-sm text-center min-w-[100px] 
-        ${selectedBrands.length === 0 ? "bg-red-600 text-white" : "bg-gray-200"}
-      `}
-    >
-      Tất cả
-    </button>
+    {/* <button
+  onClick={() => handleBrandSelect("Tất cả")}
+  className={`px-4 py-2 rounded-lg border text-sm text-center min-w-[100px] 
+    ${selectedBrands.length === 0 ? "bg-red-600 text-white" : "bg-gray-200"}
+  `}
+>
+  Tất cả
+</button> */}
 
     {brands.map((brand, index) => (
       <button

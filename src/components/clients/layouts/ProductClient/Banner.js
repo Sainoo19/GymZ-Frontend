@@ -3,12 +3,12 @@ import bannerImage from "../../../../assets/images/banner.png"; // Đảm bảo 
 
 const Banner = () => {
     return (
-        <div className="w-full h-screen flex items-center justify-center">
-        <img src={bannerImage} className="w-full h-auto object-cover" alt="Banner" />
-      </div>
-      
+        <div className="w-full h-[200px] overflow-hidden flex items-center justify-center">
+            <img src={bannerImage} className="w-full h-auto object-cover" alt="Banner" />
+        </div>
     );
-  };
+};
+
 
   
   
