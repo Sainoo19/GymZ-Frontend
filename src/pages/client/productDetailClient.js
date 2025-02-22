@@ -50,7 +50,7 @@ const ProductDetailClient = () => {
   }
 
   return (
-    <div className="container  mx-auto  mt-10">
+    <div className="container font-roboto mx-auto  mt-10">
       {
         <ProductImage
           avatar={product.avatar}
@@ -58,7 +58,7 @@ const ProductDetailClient = () => {
           name={product.name}
           minPrice={minPrice}
           maxPrice={maxPrice}
-          variations={product.variations}
+          variations={product.variations} cla
         />
       }
       {<ProductDescription description={product.description } ProductId= {productId} />}
