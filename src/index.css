@@ -12,4 +12,66 @@ body {
     font-family: 'Roboto';
 
   }
+
+/* chạy chữ trang home news */
+@keyframes marquee {
+  0% { transform: translateX(150%);}
+  100% { transform: translateX(-250%);}
+}
+/* Phần tử chứa chữ */
+.animate-marquee-container-homenews {
+  width: 400px; overflow: hidden; /* Ẩn phần chữ chạy ra ngoài phần tử */
+  display: inline-block; position: relative; white-space: nowrap; /* Đảm bảo văn bản chạy trên cùng một dòng */
+}
+/* Phần chữ sẽ di chuyển */
+.animate-marquee-text {
+  display: inline-block; white-space: nowrap; animation: marquee 6s linear infinite;
+}
+
+
+/* chạy chữ trang branches faciloties */
+@keyframes marquee_branches {
+  0% {transform: translateX(300%);}
+  100% {transform: translateX(-200%); }
+}
+
+.animate-marquee-container-branches-facilities {
+  /* width: 400px; Chiều rộng cố định của phần tử hiển thị chữ */
+  overflow: hidden; display: inline-block; position: relative; white-space: nowrap;
+}
+.animate-marquee-text-branches {
+  display: inline-block; white-space: nowrap; animation: marquee_branches 10s linear infinite;
+}
+
+/* nháy đèn chữ */
+@keyframes blink {
+  0% {opacity: 1;}
+  50% {opacity: 0.3;}
+  100% {opacity: 1;}
+}
+
+.blinking-text {
+  animation: blink 0.7s infinite; 
+  color: secondary; 
+}
+
+
+
+/* Đổi chuột thành nắm để kéo slide ảnh */
+.swiper-container {
+  cursor: grab; /* Đặt con trỏ là "nắm bắt" khi không kéo */
+}
+
+.swiper-container:active {
+  cursor: grabbing; /* Đặt con trỏ thành "đang kéo" khi đang kéo */
+}
+
+
+
+
+
+
+
+
+
   

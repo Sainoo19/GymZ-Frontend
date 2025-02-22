@@ -1,9 +1,10 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./Home";
+import Home from "./home";
 import HeaderClient from "../../components/clients/layouts/HeaderClient";
 import ProductsClient from "./productsClient";
 import ProductDetailClient from "./productDetailClient";
+import Branches from "./branches";
 
 
 const App = () => {
@@ -17,6 +18,8 @@ const App = () => {
                         <Route path="/" element={<Home />} />
                         <Route path="/productsclient" element={<ProductsClient />} />
                         <Route path="/productsclient/test" element={<ProductDetailClient />} />
+                        <Route path="/branches" element={<Branches />} />
+
                         {/* Add more routes as needed */}
                     </Routes>
                 </main>
