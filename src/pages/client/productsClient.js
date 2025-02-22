@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import ProductCard from "../../components/clients/layouts/ProductClient/ProductCard";
-import Search from "../../components/clients/layouts/ProductClient/Search";
+import ProductCard from "../../components/clients/product/ProductCard";
+import Search from "../../components/clients/product/Search";
 import Pagination from "../../components/admin/layout/Pagination";
-import Banner from "../../components/clients/layouts/ProductClient/Banner"
+// import Banner from "../../components/clients/product/Banner"
 
 const ProductsClient = () => {
+  const URL_API = process.env.REACT_APP_API_URL;
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [minMaxPrices, setMinMaxPrices] = useState({});
@@ -17,7 +18,7 @@ const ProductsClient = () => {
 
   const fetchProducts = async (page, filters = {}, searchText = "") => {
     try {
-      const response = await axios.get("http://localhost:3000/productClient/all/active", {
+      const response = await axios.get(`${URL_API}productClient/all/active`, {
         params: { 
           page, 
           limit: 10,
@@ -48,7 +49,7 @@ const ProductsClient = () => {
 
   const fetchMinMaxPrices = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/productClient/minprice', {
+      const response = await axios.get(`${URL_API}productClient/minprice`, {
         headers: { 'Cache-Control': 'no-cache' },
       });
       const priceMap = response.data.data.reduce((acc, item) => {
@@ -63,7 +64,7 @@ const ProductsClient = () => {
 
   const fetchBrands = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/productClient/brands');
+      const response = await axios.get(`${URL_API}productClient/brands`);
       if (response.data.status === 'success') {
         setBrands(response.data.data);
       }
@@ -74,7 +75,7 @@ const ProductsClient = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/productClient/categories");
+      const response = await axios.get(`${URL_API}productClient/categories`);
       console.log("API response:", response.data);  // ✅ Kiểm tra dữ liệu trả về
   
       if (Array.isArray(response.data)) { 
@@ -179,39 +180,33 @@ const ProductsClient = () => {
     return <p>Loading products...</p>;
   }
 
-  return (
-    <div>
-      {/* Banner full width, sát Header */}
-      <div className="w-full mt-0">
-        <Banner />
-      </div>
-  
-      {/* Các item khác có ml-10 */}
-      <div className="ml-10 mt-10">
-        <Search
-          onSearch={handleSearch}
-          onFilter={handleFilter}
-          onSort={handleSort}
-          brands={brands}
-          categories={[{ _id: "", name: "Tất cả" }, ...categories]}
-        />
-  
-        <div className="flex flex-wrap gap-3 mt-5">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
-              <ProductCard key={product._id} product={product} minSalePrice={minMaxPrices[product._id]} />
-            ))
-          ) : (
-            <p>No products found.</p>
-          )}
-        </div>
-  
-        <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
-      </div>
+return (
+  <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-20">
+<div className="mt-8">
+  <Search
+      onSearch={handleSearch}
+      onFilter={handleFilter}
+      onSort={handleSort}
+      brands={brands}
+      categories={[{ _id: "", name: "Tất cả" }, ...categories]}
+  />
+</div>
+
+
+<div className="flex flex-wrap justify-center gap-6 mt-5">
+
+      {filteredProducts.length > 0 ? (
+        filteredProducts.map((product) => (
+          <ProductCard key={product._id} product={product} minSalePrice={minMaxPrices[product._id]} />
+        ))
+      ) : (
+        <p className="text-center col-span-full">No products found.</p>
+      )}
     </div>
-  );
-  
-  
+
+    <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
+  </div>
+);
 };
 
 export default ProductsClient;
