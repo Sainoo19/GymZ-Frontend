@@ -182,15 +182,19 @@ const ProductsClient = () => {
 
 return (
   <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-20">
-<Search
-    onSearch={handleSearch}
-    onFilter={handleFilter}
-    onSort={handleSort}
-    brands={brands}
-    categories={[{ _id: "", name: "Tất cả" }, ...categories]}
+<div className="mt-8">
+  <Search
+      onSearch={handleSearch}
+      onFilter={handleFilter}
+      onSort={handleSort}
+      brands={brands}
+      categories={[{ _id: "", name: "Tất cả" }, ...categories]}
   />
+</div>
 
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mt-5">
+
+<div className="flex flex-wrap justify-center gap-6 mt-5">
+
       {filteredProducts.length > 0 ? (
         filteredProducts.map((product) => (
           <ProductCard key={product._id} product={product} minSalePrice={minMaxPrices[product._id]} />
