@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import ProductCard from "../../components/clients/layouts/ProductClient/ProductCard";
-import Search from "../../components/clients/layouts/ProductClient/Search";
+import ProductCard from "../../components/clients/product/ProductCard";
+import Search from "../../components/clients/product/Search";
 import Pagination from "../../components/admin/layout/Pagination";
-import Banner from "../../components/clients/layouts/ProductClient/Banner"
+// import Banner from "../../components/clients/product/Banner"
 
 const ProductsClient = () => {
   const [products, setProducts] = useState([]);
@@ -179,39 +179,56 @@ const ProductsClient = () => {
     return <p>Loading products...</p>;
   }
 
-  return (
-    <div>
-      {/* Banner full width, sát Header */}
-      <div className="w-full mt-0">
-        <Banner />
-      </div>
+//   return (
+// <div className="container mx-auto px-10 lg:px-20">
+//   <Search
+//     onSearch={handleSearch}
+//     onFilter={handleFilter}
+//     onSort={handleSort}
+//     brands={brands}
+//     categories={[{ _id: "", name: "Tất cả" }, ...categories]}
+//   />
+
+//   <div className="grid grid-cols-2 sm:grid-cols-10 md:grid-cols-10 lg:grid-cols- gap-6 mt-5">
+//     {filteredProducts.length > 0 ? (
+//       filteredProducts.map((product) => (
+//         <ProductCard key={product._id} product={product} minSalePrice={minMaxPrices[product._id]} />
+//       ))
+//     ) : (
+//       <p>No products found.</p>
+//     )}
+//   </div>
+
+//   <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
+// </div>
+
+//   );
   
-      {/* Các item khác có ml-10 */}
-      <div className="ml-10 mt-10">
-        <Search
-          onSearch={handleSearch}
-          onFilter={handleFilter}
-          onSort={handleSort}
-          brands={brands}
-          categories={[{ _id: "", name: "Tất cả" }, ...categories]}
-        />
   
-        <div className="flex flex-wrap gap-3 mt-5">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
-              <ProductCard key={product._id} product={product} minSalePrice={minMaxPrices[product._id]} />
-            ))
-          ) : (
-            <p>No products found.</p>
-          )}
-        </div>
-  
-        <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
-      </div>
+// };
+return (
+  <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-20">
+<Search
+    onSearch={handleSearch}
+    onFilter={handleFilter}
+    onSort={handleSort}
+    brands={brands}
+    categories={[{ _id: "", name: "Tất cả" }, ...categories]}
+  />
+
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mt-5">
+      {filteredProducts.length > 0 ? (
+        filteredProducts.map((product) => (
+          <ProductCard key={product._id} product={product} minSalePrice={minMaxPrices[product._id]} />
+        ))
+      ) : (
+        <p className="text-center col-span-full">No products found.</p>
+      )}
     </div>
-  );
-  
-  
+
+    <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
+  </div>
+);
 };
 
 export default ProductsClient;
