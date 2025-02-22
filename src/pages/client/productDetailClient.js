@@ -37,7 +37,6 @@ const ProductDetailClient = () => {
       } catch (error) {
         console.error("Error fetching product:", error);
       }
-
     };
 
     fetchProduct();
@@ -60,10 +59,7 @@ const ProductDetailClient = () => {
           variations={product.variations}
         />
       }
-{<ProductDescription description={product.description} />}
-      {/* <h1>{product.name}</h1>
-      <div dangerouslySetInnerHTML={{ __html: product.description }} />
-      <p>Price: ${product.variations[0].salePrice}</p> */}
+      {<ProductDescription description={product.description } ProductId= {productId} />}
     </div>
   );
 };
