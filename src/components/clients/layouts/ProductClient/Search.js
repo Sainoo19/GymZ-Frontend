@@ -3,7 +3,8 @@ import { FaFilter } from "react-icons/fa";
 
 const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
   const [selectedBrands, setSelectedBrands] = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState([]); // 🔥 Chuyển từ string thành array
+  const [selectedCategories, setSelectedCategories] = useState([]); // 🔥 Dùng mảng thay vì string
+
   const [isOpen, setIsOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [sortOrder, setSortOrder] = useState("");
@@ -18,17 +19,19 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
 
   const handleClearFilters = () => {
     setSelectedBrands([]);
-    setSelectedCategories([]); // 🔥 Reset nhiều category
+    setSelectedCategories([]); // Đặt thành mảng rỗng thay vì chuỗi rỗng
+
     setSortOrder("");
     setMinPrice("");
     setMaxPrice("");
 
-    onFilter({ brands: [], categories: [], minPrice: "", maxPrice: "" });
+    onFilter({ brands: [], categories: "", minPrice: "", maxPrice: "" });
     onSearch("");
     onSort("");
   };
 
   const hasFilters = selectedBrands.length > 0 || selectedCategories.length > 0 || minPrice || maxPrice;
+
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -54,14 +57,16 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
   };
 
   const handleCategorySelect = (category) => {
-    let updatedCategories = category._id === "" ? [] :
-      selectedCategories.includes(category._id)
-        ? selectedCategories.filter((c) => c !== category._id)
-        : [...selectedCategories.filter((c) => c !== ""), category._id];
-
+    let updatedCategories = selectedCategories.includes(category._id)
+      ? selectedCategories.filter((id) => id !== category._id) // Bỏ chọn nếu đã chọn
+      : [...selectedCategories, category._id]; // Thêm vào danh sách nếu chưa có
+  
     setSelectedCategories(updatedCategories);
     onFilter({ brands: selectedBrands, categories: updatedCategories, minPrice, maxPrice });
   };
+  
+  
+  
 
   const handleSearchChange = (e) => {
     setSearchText(e.target.value);
@@ -104,16 +109,16 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
               <h4 className="font-medium mb-2">Danh mục</h4>
               <div className="grid grid-cols-3 gap-2 mt-2 w-full">
                 {categories.map((category, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleCategorySelect(category)}
-                    className={`px-4 py-2 rounded-lg border text-sm text-center min-w-[100px] 
-                      ${selectedCategories.includes(category._id) ? "bg-red-600 text-white" : "bg-gray-200"}
-                    `}
-                  >
-                    {category.name}
-                    
-                  </button>
+           <button
+           key={index}
+           onClick={() => handleCategorySelect(category)}
+           className={`px-4 py-2 rounded-lg border text-sm text-center min-w-[100px] 
+             ${selectedCategories.includes(category._id) ? "bg-red-600 text-white" : "bg-gray-200"}
+           `}
+         >
+           {category.name}
+         </button>
+         
                 ))}
               </div>
             </div>

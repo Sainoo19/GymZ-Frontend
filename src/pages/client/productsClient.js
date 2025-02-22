@@ -3,6 +3,7 @@ import axios from 'axios';
 import ProductCard from "../../components/clients/layouts/ProductClient/ProductCard";
 import Search from "../../components/clients/layouts/ProductClient/Search";
 import Pagination from "../../components/admin/layout/Pagination";
+import Banner from "../../components/clients/layouts/ProductClient/Banner"
 
 const ProductsClient = () => {
   const [products, setProducts] = useState([]);
@@ -22,7 +23,10 @@ const ProductsClient = () => {
           limit: 10,
           search: searchText,
           brands: filters.brands?.join(","), 
-          categories: filters.categories?.join(","), // ✅ Đảm bảo gửi ID thay vì tên
+          categories: Array.isArray(filters.categories) 
+          ? filters.categories.map(cat => (typeof cat === "string" ? cat : cat._id)).join(",") 
+          : "",
+        
           priceMin: filters.minPrice,
           priceMax: filters.maxPrice
         },
@@ -73,8 +77,10 @@ const ProductsClient = () => {
       const response = await axios.get("http://localhost:3000/productClient/categories");
       console.log("API response:", response.data);  // ✅ Kiểm tra dữ liệu trả về
   
-      if (Array.isArray(response.data)) { //  Kiểm tra nếu dữ liệu trả về là mảng
-        setCategories(response.data);  // Cập nhật danh mục đúng cách
+      if (Array.isArray(response.data)) { 
+        setCategories(response.data);  
+      } else if (response.data.status === "success" && Array.isArray(response.data.data)) {
+        setCategories(response.data.data);
       } else {
         console.error("Invalid category data format:", response.data);
       }
@@ -82,6 +88,7 @@ const ProductsClient = () => {
       console.error("Error fetching categories:", error);
     }
   };
+  
   
   
   
@@ -122,11 +129,10 @@ const ProductsClient = () => {
   const handleFilter = (filters) => {
     let filtered = products;
   
-    if (filters.categories && filters.categories.length > 0) {
-      filtered = filtered.filter(product => filters.categories.includes(product.category?._id || product.category));
-
+    if (!filters.category && (!filters.brands || filters.brands.length === 0) && !filters.minPrice && !filters.maxPrice) {
+      setFilteredProducts(products);
+      return;
     }
-    
   
     if (filters.brands && filters.brands.length > 0) {
       filtered = filtered.filter(product => filters.brands.includes(product.brand));
@@ -174,31 +180,39 @@ const ProductsClient = () => {
   }
 
   return (
-    <div className="ml-10 mt-10">
-     
-
-<Search
-  onSearch={handleSearch}
-  onFilter={handleFilter}
-  onSort={handleSort}
-  brands={brands}
-  categories={[{ _id: "", name: "Tất cả" }, ...categories]} // ✅ Truyền danh mục vào Search
-/>
-
-      <div className="flex flex-wrap gap-3 mt-5">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <ProductCard key={product._id} product={product} minSalePrice={minMaxPrices[product._id]} />
-          ))
-        ) : (
-          <p>No products found.</p>
-        )}
+    <div>
+      {/* Banner full width, sát Header */}
+      <div className="w-full mt-0">
+        <Banner />
       </div>
-      <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
+  
+      {/* Các item khác có ml-10 */}
+      <div className="ml-10 mt-10">
+        <Search
+          onSearch={handleSearch}
+          onFilter={handleFilter}
+          onSort={handleSort}
+          brands={brands}
+          categories={[{ _id: "", name: "Tất cả" }, ...categories]}
+        />
+  
+        <div className="flex flex-wrap gap-3 mt-5">
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map((product) => (
+              <ProductCard key={product._id} product={product} minSalePrice={minMaxPrices[product._id]} />
+            ))
+          ) : (
+            <p>No products found.</p>
+          )}
+        </div>
+  
+        <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
+      </div>
     </div>
   );
+  
+  
 };
 
 export default ProductsClient;
-
 
