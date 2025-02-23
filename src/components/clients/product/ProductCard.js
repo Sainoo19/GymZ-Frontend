@@ -17,17 +17,18 @@ const ProductCard = ({ product, minSalePrice }) => {
 
   return (
     <div
-      className="w-64 border rounded-lg shadow-md bg-white p-3 flex flex-col justify-between"
-      onClick={handleClick}
-    >
+    className="w-full sm:w-64 border rounded-lg shadow-md bg-white p-3 flex flex-col justify-between"
+    onClick={handleClick}
+  >
+  
       {/* Hình ảnh sản phẩm */}
-      <div className="w-full">
-        <img
-          src={avatarUrl}
-          alt={product.name}
-          className="w-full h-56 object-cover rounded-lg"
-        />
-      </div>
+      <img
+  src={avatarUrl}
+  alt={product.name}
+  className="w-full h-48 sm:h-56 object-contain rounded-xl sm:rounded-2xl"
+/>
+
+
 
       {/* Tên sản phẩm (Giữ độ cao cố định) */}
       <h3 className="text-center text-lg font-semibold mt-2 min-h-[48px] leading-tight">
