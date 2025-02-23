@@ -4,6 +4,8 @@
   "private": true,
   "dependencies": {
     "@ckeditor/ckeditor5-build-decoupled-document": "^44.2.0",
+    "@headlessui/react": "^2.2.0",
+    "@heroicons/react": "^2.2.0",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/postcss": "^4.0.0",
     "axios": "^1.7.9",
@@ -17,7 +19,7 @@
     "react": "^18.3.1",
     "react-cropper": "^2.3.3",
     "react-dom": "^18.3.1",
-    "react-icons": "^5.4.0",
+    "react-icons": "^5.5.0",
     "react-modal": "^3.16.3",
     "react-quill": "^2.0.0",
     "react-router-dom": "^7.1.3",

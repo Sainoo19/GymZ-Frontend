@@ -106,9 +106,9 @@ const App = () => {
                                 <Route path="/login-employee" element={<LoginAdminPage />} />
                                 <Route path="/sign-up" element={<SignUpPageUser />} />
                                 <Route path="/productsclient" element={<ProductsClient />} />
-                                <Route path="/productsclient/test" element={<ProductDetailClient />} />
                                 <Route path="/about-us" element={<AboutUs />} />
                                 <Route path="/branches" element={<BranchesClient />} />
+                                <Route path="/productsclient/:productId" element={<ProductDetailClient />} />
                                 {/* Add more routes as needed */}
                             </Routes>
                         </main>

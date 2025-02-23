@@ -124,5 +124,4 @@ const HeaderClient = () => {
         </header>
     );
 };
-
 export default HeaderClient;
