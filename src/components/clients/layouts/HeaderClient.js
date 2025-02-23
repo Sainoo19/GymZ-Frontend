@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const HeaderClient = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -9,24 +10,18 @@ const HeaderClient = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Check if the user is logged in by checking the token in localStorage
-        const token = localStorage.getItem('token');
-        if (token) {
-            // Fetch user data using the token
-            axios.get('http://localhost:3000/users/profile', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+        // Check if the user is logged in by checking the token in cookies
+        axios.get('http://localhost:3000/users/profile', {
+            withCredentials: true // Ensure cookies are sent with the request
+        })
+            .then(response => {
+                setUser(response.data.data);
+                setIsLoggedIn(true);
             })
-                .then(response => {
-                    setUser(response.data.data);
-                    setIsLoggedIn(true);
-                })
-                .catch(error => {
-                    console.error('Error fetching user data:', error);
-                    setIsLoggedIn(false);
-                });
-        }
+            .catch(error => {
+                console.error('Error fetching user data:', error);
+                setIsLoggedIn(false);
+            });
     }, [isLoggedIn]);
 
     const handleLoginClick = () => {
@@ -34,10 +29,19 @@ const HeaderClient = () => {
     };
 
     const handleLogoutClick = () => {
-        localStorage.removeItem('token');
-        setIsLoggedIn(false);
-        setUser(null);
-        navigate('/');
+        axios.post('http://localhost:3000/auth/logout', {}, {
+            withCredentials: true // Ensure cookies are sent with the request
+        })
+            .then(() => {
+                Cookies.remove('accessToken');
+                Cookies.remove('refreshToken');
+                setIsLoggedIn(false);
+                setUser(null);
+                navigate('/');
+            })
+            .catch(error => {
+                console.error('Error logging out:', error);
+            });
     };
 
     const defaultAvatar = '/assets/images/avatar.png';
@@ -112,7 +116,7 @@ const HeaderClient = () => {
                     <a className="hover:text-white" href="/">
                         Chi Nhánh
                     </a>
-                    <a className="hover:text-white" href="/">
+                    <a className="hover:text-white" href="/about-us">
                         Về chúng tôi
                     </a>
                 </div>

@@ -5,6 +5,7 @@ import DeleteEmployeeModal from './employeesDelete';
 import { FaFilter } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Pagination from '../../../components/admin/layout/Pagination';
+import { jwtDecode } from 'jwt-decode';
 
 const Employee = () => {
     const [columns] = useState([
@@ -33,9 +34,25 @@ const Employee = () => {
     });
     const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
     const navigate = useNavigate();
-    const token = localStorage.getItem('token');
-    const userRole = token ? JSON.parse(atob(token.split('.')[1])).role : null;
-    const userBranchId = token ? JSON.parse(atob(token.split('.')[1])).branch_id : null;
+    const [userRole, setUserRole] = useState(null);
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/employees/profile', {
+                    withCredentials: true // Ensure cookies are sent with the request
+                });
+                const role = response.data.data.role;
+                setUserRole(role);
+                console.log(role);
+            } catch (error) {
+                console.error('Error fetching user role:', error);
+                setUserRole(null);
+            }
+        };
+
+        fetchUserRole();
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -47,9 +64,7 @@ const Employee = () => {
                         search,
                         ...filters
                     },
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                    withCredentials: true // Ensure cookies are sent with the request
                 });
 
                 if (response.data && response.data.data && Array.isArray(response.data.data.employees)) {
@@ -78,7 +93,7 @@ const Employee = () => {
 
         fetchBranches();
         fetchData();
-    }, [currentPage, search, filters, token]);
+    }, [currentPage, search, filters]);
 
     const handleEdit = (id) => {
         if (userRole === 'admin' || userRole === 'manager') {
@@ -90,9 +105,7 @@ const Employee = () => {
         if (userRole === 'admin' || userRole === 'manager') {
             try {
                 await axios.delete(`http://localhost:3000/employees/delete/${id}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                    withCredentials: true // Ensure cookies are sent with the request
                 });
                 setData(data.filter(employee => employee._id !== id));
                 setIsDeleteModalOpen(false);

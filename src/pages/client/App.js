@@ -31,16 +31,32 @@ import ProductDetail from "../admin/products/productDetail";
 import CreateEmployee from "../admin/employees/createEmployee";
 import UpdateEmployeeForm from "../admin/employees/employeesDetail";
 import ProductDetailTest from "../admin/products/productTest";
+import FooterClient from "../../components/clients/layouts/FooterClient";
+import AboutUs from "./aboutUs";
+import axios from 'axios';
 
 const App = () => {
-    const token = localStorage.getItem('token');
-    const userRole = token ? JSON.parse(atob(token.split('.')[1])).role : null;
-    console.log(userRole);
+    const [userRole, setUserRole] = React.useState(null);
+
+    React.useEffect(() => {
+        axios.get('http://localhost:3000/employees/profile', {
+            withCredentials: true // Ensure cookies are sent with the request
+        })
+            .then(response => {
+                const role = response.data.data.role;
+                setUserRole(role);
+                console.log(role);
+            })
+            .catch(error => {
+                console.error('Error fetching user role:', error);
+                setUserRole(null);
+            });
+    }, []);
 
     return (
         <BrowserRouter>
             <div className="flex flex-col min-h-screen">
-                {userRole === 'admin' || userRole === 'staff' || userRole === 'manager' | userRole === 'Quản lí' ? (
+                {userRole === 'admin' || userRole === 'staff' || userRole === 'manager' || userRole === 'Quản lí' ? (
                     <>
                         <div className="flex h-screen">
                             <div className="w-1/5 fixed h-full">
@@ -50,7 +66,7 @@ const App = () => {
                             <div className="w-4/5 p-4">
                                 <Header />
                                 <Routes>
-                                    <Route path="admin/" element={<Dashboard />} />
+                                    <Route path="/admin/" element={<Dashboard />} />
                                     <Route path="admin/branches" element={<Branches />} />
                                     <Route path="admin/branches/create" element={<CreateBranch />} />
                                     <Route path="admin/branches/:id" element={<UpdateBranchForm />} />
@@ -73,6 +89,7 @@ const App = () => {
                                     <Route path="/test" element={<ProductDetailTest />} />
                                     <Route path="admin/employees/create" element={<CreateEmployee />} />
                                     <Route path="admin/employees/:id" element={<UpdateEmployeeForm />} />
+                                    <Route path="/login-employee" element={<LoginAdminPage />} /> {/* Add this route */}
                                     {/* Add more routes as needed */}
                                 </Routes>
                             </div>
@@ -89,9 +106,11 @@ const App = () => {
                                 <Route path="/sign-up" element={<SignUpPageUser />} />
                                 <Route path="/productsclient" element={<ProductsClient />} />
                                 <Route path="/productsclient/test" element={<ProductDetailClient />} />
+                                <Route path="/about-us" element={<AboutUs />} />
                                 {/* Add more routes as needed */}
                             </Routes>
                         </main>
+                        <FooterClient />
                     </>
                 )}
             </div>

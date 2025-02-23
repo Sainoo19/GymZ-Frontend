@@ -3,6 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { FileDrop } from "./FileDropEm";
 import reformDateTime from "../../../components/utils/reformDateTime";
+import Cookies from 'js-cookie';
 
 const UpdateEmployeeForm = () => {
   const { id } = useParams();
@@ -11,7 +12,7 @@ const UpdateEmployeeForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [branches, setBranches] = useState([]);
   const [newFileName, setNewFileName] = useState("");
-  const token = localStorage.getItem('token');
+  const token = Cookies.get('accessToken');
   const userRole = token ? JSON.parse(atob(token.split('.')[1])).role : null;
   const userBranchId = token ? JSON.parse(atob(token.split('.')[1])).branch_id : null;
 
@@ -26,9 +27,7 @@ const UpdateEmployeeForm = () => {
         const response = await axios.get(
           `http://localhost:3000/employees/${id}`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
+            withCredentials: true // Ensure cookies are sent with the request
           }
         );
         const employeeData = response.data.data;
@@ -48,9 +47,7 @@ const UpdateEmployeeForm = () => {
     const fetchBranches = async () => {
       try {
         const response = await axios.get("http://localhost:3000/branches/all/nopagination", {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          withCredentials: true // Ensure cookies are sent with the request
         });
         setBranches(response.data.data);
       } catch (error) {
@@ -60,7 +57,7 @@ const UpdateEmployeeForm = () => {
 
     fetchBranches();
     fetchEmployee();
-  }, [id, userRole, userBranchId, navigate, token]);
+  }, [id, userRole, userBranchId, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,12 +71,10 @@ const UpdateEmployeeForm = () => {
         `http://localhost:3000/employees/update/${id}`,
         updatedEmployee,
         {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          withCredentials: true // Ensure cookies are sent with the request
         }
       );
-      navigate("/employees");
+      navigate("/admin/employees");
     } catch (error) {
       console.error("Error updating employee:", error);
     }

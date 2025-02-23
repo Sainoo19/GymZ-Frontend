@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FileDrop } from "./FileDropEm";
+import Cookies from 'js-cookie';
 
 const CreateEmployee = () => {
   const navigate = useNavigate();
@@ -18,7 +19,8 @@ const CreateEmployee = () => {
     hiredAt: new Date().toISOString().split("T")[0],
     avatar: "",
   });
-  const token = localStorage.getItem('token');
+
+  const token = Cookies.get('accessToken');
   const userRole = token ? JSON.parse(atob(token.split('.')[1])).role : null;
   const userBranchId = token ? JSON.parse(atob(token.split('.')[1])).branch_id : null;
 
@@ -31,9 +33,7 @@ const CreateEmployee = () => {
     const fetchBranches = async () => {
       try {
         const response = await axios.get("http://localhost:3000/branches/all/nopagination", {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          withCredentials: true // Ensure cookies are sent with the request
         });
         setBranches(response.data.data);
       } catch (error) {
@@ -73,16 +73,14 @@ const CreateEmployee = () => {
         "http://localhost:3000/employees/create",
         formattedEmployee,
         {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          withCredentials: true // Ensure cookies are sent with the request
         }
       );
       const employeeId = response.data.data._id;
       // console.log("Employee created with ID:", employeeId);
 
       alert("Tạo nhân viên thành công!");
-      navigate("/employees"); // Chuyển hướng sau khi tạo thành công
+      navigate("/admin/employees"); // Chuyển hướng sau khi tạo thành công
     } catch (error) {
       if (error.response && error.response.status === 400) {
         alert("Email đã tồn tại, vui lòng chọn email khác");
@@ -238,7 +236,7 @@ const CreateEmployee = () => {
           {/* Nút Hủy (Chiếm 1/3) */}
           <button
             className="w-1/3 bg-gray-400 text-white py-2 rounded hover:bg-gray-500"
-            onClick={() => navigate("/employees")}
+            onClick={() => navigate("/admin/employees")}
           >
             Hủy
           </button>

@@ -12,10 +12,10 @@ const LoginPageUser = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:3000/auth/login/user", { email, password });
+            const response = await axios.post("http://localhost:3000/auth/login/user", { email, password }, {
+                withCredentials: true // Ensure cookies are sent with the request
+            });
             if (response.data.status === "success") {
-                // Save the token to localStorage or context
-                localStorage.setItem("token", response.data.data.token);
                 // Redirect to the previous page or home page
                 const from = location.state?.from?.pathname || "/";
                 navigate(from);

@@ -11,10 +11,10 @@ const LoginAdminPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:3000/auth/login/employee", { email, password });
+            const response = await axios.post("http://localhost:3000/auth/login/employee", { email, password }, {
+                withCredentials: true // Ensure cookies are sent with the request
+            });
             if (response.data.status === "success") {
-                // Save the token to localStorage or context
-                localStorage.setItem("token", response.data.data.token);
                 // Redirect to the admin dashboard or home page
                 navigate("/admin/");
                 // Refresh the page to ensure the admin data is correctly displayed
