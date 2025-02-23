@@ -32,8 +32,11 @@ const ProductCard = ({ product, minSalePrice }) => {
 
       {/* Tên sản phẩm (Giữ độ cao cố định) */}
       <h3 className="text-center text-lg font-semibold mt-2 min-h-[48px] leading-tight">
-        {product.name}
-      </h3>
+  {product.name.length > 25 ? product.name.substring(0, 22) + "..." : product.name}
+</h3>
+
+
+
 
       {/* Giá sản phẩm, hiển thị giá thấp nhất */}
       <p className="text-center text-xl font-bold text-gray-800 mt-1">
