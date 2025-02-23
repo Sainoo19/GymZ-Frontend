@@ -16,10 +16,12 @@ const ProductCard = ({ product, minSalePrice }) => {
   const avatarUrl = isValidUrl(product.avatar) ? product.avatar : "/whey.png";
 
   return (
-    <div
-    className="w-full sm:w-64 border rounded-lg shadow-md bg-white p-3 flex flex-col justify-between"
-    onClick={handleClick}
-  >
+<div
+ className="w-4/5 sm:w-64 border rounded-lg shadow-md bg-white p-3 flex flex-col justify-between"
+  onClick={handleClick}
+>
+
+
   
       {/* Hình ảnh sản phẩm */}
       <img
