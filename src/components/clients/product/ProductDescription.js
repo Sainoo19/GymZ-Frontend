@@ -11,10 +11,11 @@ const ProductDescription = ({ description, ProductId }) => {
   const [totalReviews, setTotalReviews] = useState(0);
   const [avgStar, setAvgStar] = useState(0);
   const [ratings, setRatings] = useState([]);
+  const [users, setUsers] = useState([]);
 
   const calculateRatings = (reviews) => {
     const totalReviews = reviews.length;
-    const ratingCounts = [0, 0, 0, 0, 0]; 
+    const ratingCounts = [0, 0, 0, 0, 0];
 
     // Đếm số đánh giá cho từng mức sao
     reviews.forEach((review) => {
@@ -24,16 +25,27 @@ const ProductDescription = ({ description, ProductId }) => {
     });
 
     // Tính phần trăm và tạo danh sách ratings
-    const ratings = ratingCounts.map((count, index) => ({
-      star: 1 + index, 
-      total: count,
-      percentage:
-        totalReviews > 0 ? Math.round((count / totalReviews) * 100) : 0,
-    })).sort((a, b) => b.star - a.star);;
-console.log("ratings",ratings);
+    const ratings = ratingCounts
+      .map((count, index) => ({
+        star: 1 + index,
+        total: count,
+        percentage:
+          totalReviews > 0 ? Math.round((count / totalReviews) * 100) : 0,
+      }))
+      .sort((a, b) => b.star - a.star);
     return ratings;
   };
-
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get(`${URL_API}users/all`);
+      if (response.data.status === "success") {
+        setUsers(response.data.data.users);
+        console.log(response.data.data.users)
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách người dùng:", error);
+    }
+  };
   const fetchReviews = async () => {
     try {
       const response = await axios.get(`${URL_API}reviews/${ProductId}`);
@@ -63,9 +75,15 @@ console.log("ratings",ratings);
   useEffect(() => {
     if (activeTab === "reviews") {
       fetchReviews();
+      fetchUsers();
+
     }
   }, [activeTab, ProductId]);
+  const getUserName = (userId) => {
+    const user = users.find((u) => u._id === userId);
 
+    return user ? user.name : "Người dùng ẩn danh";
+  };
   const renderStars = () => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -87,7 +105,7 @@ console.log("ratings",ratings);
   };
   return (
     <div>
-      <div className="w-4/5 container mx-auto   font-roboto my-10 border-b border-gray-300">
+      <div className="w-4/5 container mx-auto my-10 border-b border-gray-300">
         <div className="w-1/2  justify-around flex container mx-auto  ">
           <button
             className={`text-lg pb-1 ${
@@ -113,9 +131,9 @@ console.log("ratings",ratings);
         {activeTab === "details" ? (
           <div dangerouslySetInnerHTML={{ __html: description }} />
         ) : (
-          <div>
-            <div className="flex">
-              <h1>All reviews</h1>
+          <div className="">
+            <div className="flex ml-20">
+              <h1>Toàn bộ đánh giá</h1>
               <p className="text-gray-500 ml-2">({totalReviews})</p>
             </div>
 
@@ -143,13 +161,13 @@ console.log("ratings",ratings);
                 ))}
               </div>
             </div>
-
             <div className="w-4/5 mx-auto mt-6 p-4">
               {reviews.length === 0 ? (
                 <p className="text-gray-500">Chưa có đánh giá nào.</p>
               ) : (
                 reviews.map((review) => (
-                  <ReviewCommentCard key={review._id} review={review} />
+                  <ReviewCommentCard key={review._id} review={review} userName={getUserName(review.user_id)}
+                  />
                 ))
               )}
             </div>

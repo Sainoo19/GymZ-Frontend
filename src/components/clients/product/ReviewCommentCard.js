@@ -5,7 +5,7 @@ import { FaStar } from "react-icons/fa";
 
 
 // Component hiển thị từng review
-const ReviewCommentCard = ({ review }) => {
+const ReviewCommentCard = ({ review,userName  }) => {
   // Render số sao
   const renderStars = (rating) => {
     return [...Array(5)].map((_, index) => (
@@ -20,7 +20,7 @@ const ReviewCommentCard = ({ review }) => {
     <div className="border-b px-6  py-4 mb-4  bg-white shadow-md rounded-lg border border-gray-200">
       <div className="flex mt-2">{renderStars(review.rating)}</div>
       <div className="flex items-center space-x-3">  
-        <p className="font-semibold mt-3">{review.user_id}</p>
+        <p className="font-semibold mt-3">{userName}</p>
       </div>
 
 

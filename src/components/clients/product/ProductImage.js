@@ -1,7 +1,14 @@
 import { React, useEffect, useState } from "react";
 import formatCurrency from "../../utils/formatCurrency";
 
-const ProductImage = ({ avatar, images, name, minPrice, maxPrice, variations }) => {
+const ProductImage = ({
+  avatar,
+  images,
+  name,
+  minPrice,
+  maxPrice,
+  variations,
+}) => {
   const [quantity, setQuantity] = useState(1);
   const increase = () => setQuantity((prev) => prev + 1);
   const decrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
@@ -14,23 +21,33 @@ const ProductImage = ({ avatar, images, name, minPrice, maxPrice, variations }) 
 
   const roundNumber = (num) => Math.round(num);
 
-  // Lấy tất cả các category và theme có trong variations
-  const allThemes = variations ? Array.from(new Set(variations.map((v) => v.theme))) : [];
-  const allCategories = variations ? Array.from(new Set(variations.map((v) => v.category))) : [];
-
-  // Xác định category nào có ít nhất một theme
-  const validCategories = variations
-    ? Array.from(new Set(variations.filter((v) => v.theme).map((v) => v.category)))
+  const allThemes = variations
+    ? Array.from(new Set(variations.map((v) => v.theme)))
+    : [];
+  const allCategories = variations
+    ? Array.from(new Set(variations.map((v) => v.category)))
     : [];
 
-  // Khi chưa chọn category => hiển thị tất cả themes, nếu chọn category rồi => chỉ hiển thị theme thuộc category đó
+  const validCategories = variations
+    ? Array.from(
+        new Set(variations.filter((v) => v.theme).map((v) => v.category))
+      )
+    : [];
+
   const filteredThemes = selectedCategory
-    ? Array.from(new Set(variations.filter((v) => v.category === selectedCategory).map((v) => v.theme)))
+    ? Array.from(
+        new Set(
+          variations
+            .filter((v) => v.category === selectedCategory)
+            .map((v) => v.theme)
+        )
+      )
     : allThemes;
 
   const hasThemes = allThemes.length > 0; // Kiểm tra xem sản phẩm có theme hay không
   const isSelectionRequired = allCategories.length > 0 && hasThemes;
-  const isDisabled = isSelectionRequired && (!selectedTheme || !selectedCategory);
+  const isDisabled =
+    isSelectionRequired && (!selectedTheme || !selectedCategory);
 
   useEffect(() => {
     if (!variations) return;
@@ -44,18 +61,25 @@ const ProductImage = ({ avatar, images, name, minPrice, maxPrice, variations }) 
       }
     } else {
       if (selectedCategory) {
-        foundVariation = variations.find((v) => v.category === selectedCategory);
+        foundVariation = variations.find(
+          (v) => v.category === selectedCategory
+        );
       }
     }
 
-    setSelectedOriginalPrice(foundVariation ? foundVariation.originalPrice : null);
+    setSelectedOriginalPrice(
+      foundVariation ? foundVariation.originalPrice : null
+    );
     setSelectedSalePrice(foundVariation ? foundVariation.salePrice : null);
 
     // Chỉ tính phần trăm giảm giá khi đã chọn đủ điều kiện
     if (foundVariation?.originalPrice && foundVariation?.salePrice) {
       setPercentDiscount(
         foundVariation.originalPrice !== foundVariation.salePrice
-          ? roundNumber(100 - (foundVariation.salePrice / foundVariation.originalPrice) * 100)
+          ? roundNumber(
+              100 -
+                (foundVariation.salePrice / foundVariation.originalPrice) * 100
+            )
           : 0
       );
     } else {
@@ -75,11 +99,14 @@ const ProductImage = ({ avatar, images, name, minPrice, maxPrice, variations }) 
   return (
     <div>
       <div className="flex justify-around container items-center w-3/4 mx-auto">
-        <div className="w-1/2">
-          <img src={avatar} className="container mx-auto" alt={name} />
+      {/* <div className="w-1/2 lg:w-3/5 md:w-4/5 2xl:border-pink-800  xl:border-blue-500 lg:border-green-600 md:border-red-700 sm:border-yellow-700 xs:border-purple-800 md:border"> */}
+      <div className="w-1/2 ">
+      <img src={avatar} className="container mx-auto " alt={name} />
           <div className="flex items-center mt-4 justify-around">
             {images && images.length > 0 ? (
-              images.map((img, index) => <img key={index} src={img} className="w-1/4" alt="" />)
+              images.map((img, index) => (
+                <img key={index} src={img} className="w-1/4" alt="" />
+              ))
             ) : (
               <p>No image</p>
             )}
@@ -90,17 +117,21 @@ const ProductImage = ({ avatar, images, name, minPrice, maxPrice, variations }) 
 
           <div className="flex items-center">
             <p className="text-2xl font-semibold my-3">
-            {selectedSalePrice !== null
+              {selectedSalePrice !== null
                 ? formatCurrency(selectedSalePrice)
                 : minPrice === maxPrice
                 ? formatCurrency(minPrice)
-                : `${formatCurrency(minPrice)} - ${formatCurrency(maxPrice)}`}{" "}
+                : `${formatCurrency(minPrice)} - ${formatCurrency(
+                    maxPrice
+                  )}`}{" "}
               VND
             </p>
 
             {selectedOriginalPrice &&
               selectedOriginalPrice !== selectedSalePrice && (
-                <p className="line-through text-gray-400 ml-3">{formatCurrency(selectedOriginalPrice)} VND</p>
+                <p className="line-through text-gray-400 ml-3">
+                  {formatCurrency(selectedOriginalPrice)} VND
+                </p>
               )}
 
             {percentDiscount ? (
@@ -121,7 +152,9 @@ const ProductImage = ({ avatar, images, name, minPrice, maxPrice, variations }) 
                   <button
                     key={index}
                     className={`rounded-3xl py-1 px-5 mr-4 transition-all duration-200 ${
-                      selectedCategory === category ? "bg-primary text-white" : "bg-gray-200"
+                      selectedCategory === category
+                        ? "bg-primary text-white"
+                        : "bg-gray-200"
                     }`}
                     onClick={() => setSelectedCategory(category)}
                   >
@@ -141,7 +174,9 @@ const ProductImage = ({ avatar, images, name, minPrice, maxPrice, variations }) 
                   <button
                     key={index}
                     className={`rounded-3xl py-1 px-5 mr-4 transition-all duration-200 ${
-                      selectedTheme === theme ? "bg-primary text-white" : "bg-gray-200"
+                      selectedTheme === theme
+                        ? "bg-primary text-white"
+                        : "bg-gray-200"
                     }`}
                     onClick={() => setSelectedTheme(theme)}
                   >
@@ -172,7 +207,9 @@ const ProductImage = ({ avatar, images, name, minPrice, maxPrice, variations }) 
 
             <button
               className={`rounded-2xl w-1/2 ml-3 h-9 ${
-                isDisabled ? "bg-gray-300 cursor-not-allowed" : "bg-primary text-white"
+                isDisabled
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-primary text-white"
               }`}
               disabled={isDisabled}
             >
