@@ -4,7 +4,7 @@ import BranchesSystem from "../../components/clients/branches/branchesSystem/Bra
 import BranchesVideo from "../../components/clients/branches/BranchesVideo";
 
 
-const Branches = () => {
+const BranchesClient = () => {
     return (
         <div>
             {/* <h1>Đây là trang Branches</h1> */}
@@ -16,4 +16,4 @@ const Branches = () => {
     );
 };
 
-export default Branches;
+export default BranchesClient;
