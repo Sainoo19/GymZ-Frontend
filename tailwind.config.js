@@ -36,5 +36,5 @@ module.exports = {
     "fa-times",
     // Thêm các lớp Font Awesome bạn sử dụng tại đây
   ],
-  plugins: [],
+  plugins: [require('@tailwindcss/line-clamp')],
 };

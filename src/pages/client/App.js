@@ -1,9 +1,10 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./Home";
+import Home from "./home";
 import HeaderClient from "../../components/clients/layouts/HeaderClient";
 import ProductsClient from "./productsClient";
 import ProductDetailClient from "./productDetailClient";
+import Branches from "./branches";
 import LoginPageUser from "./login";
 import SignUpPageUser from "./signUp";
 import LoginAdminPage from "../admin/loginAdmin";
@@ -107,6 +108,7 @@ const App = () => {
                                 <Route path="/productsclient" element={<ProductsClient />} />
                                 <Route path="/productsclient/test" element={<ProductDetailClient />} />
                                 <Route path="/about-us" element={<AboutUs />} />
+                                <Route path="/branches" element={<Branches />} />
                                 {/* Add more routes as needed */}
                             </Routes>
                         </main>
