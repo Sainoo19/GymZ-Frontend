@@ -41,7 +41,7 @@ const FooterClient = () => {
   ];
   return (
     <footer
-      className="mt-10 pt-12 pb-6 px-10 font-[sans-serif] tracking-wide"
+      className=" pt-12 pb-6 px-10 font-[sans-serif] tracking-wide"
       style={{ backgroundColor: "#747171" }}
     >
       <div className="max-w-screen-xl mx-auto">
