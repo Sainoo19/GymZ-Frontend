@@ -10,7 +10,7 @@ const HomeDiscount = () => {
   // truyền tạm 
   const imageSrc = "https://bizweb.dktcdn.net/100/011/344/products/on-whey-gold-standard-mocha-cappuccino-5lbs-whey-protein-gymstore-jpeg.jpg?v=1688460891693";
   const startTime = "2025-02-19T00:00:00";
-  const endTime = "2025-02-25T15:02:00";
+  const endTime = "2025-04-25T15:02:00";
   // const discount = 20 ;
 
 
@@ -26,11 +26,11 @@ const HomeDiscount = () => {
 
     return difference > 0
       ? {
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / (1000 * 60)) % 60),
-          seconds: Math.floor((difference / 1000) % 60),
-        }
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / (1000 * 60)) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+      }
       : { days: 0, hours: 0, minutes: 0, seconds: 0 };
   };
 

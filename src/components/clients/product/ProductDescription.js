@@ -108,18 +108,16 @@ const ProductDescription = ({ description, ProductId }) => {
       <div className="w-4/5 container mx-auto my-10 border-b border-gray-300">
         <div className="w-1/2  justify-around flex container mx-auto  ">
           <button
-            className={`text-lg pb-1 ${
-              activeTab === "details" ? "borer border-black" : ""
-            }`}
+            className={`text-lg pb-1 ${activeTab === "details" ? "borer border-black" : ""
+              }`}
             onClick={() => setActiveTab("details")}
             type="button"
           >
             Chi tiết sản phẩm
           </button>
           <button
-            className={`text-lg pb-1 ${
-              activeTab === "reviews" ? "borer border-black" : ""
-            }`}
+            className={`text-lg pb-1 ${activeTab === "reviews" ? "borer border-black" : ""
+              }`}
             onClick={() => setActiveTab("reviews")}
           >
             Đánh giá
@@ -127,7 +125,7 @@ const ProductDescription = ({ description, ProductId }) => {
         </div>
       </div>
 
-      <div className="w-full container mx-auto">
+      <div className="w-full container mx-auto mb-10">
         {activeTab === "details" ? (
           <div dangerouslySetInnerHTML={{ __html: description }} />
         ) : (

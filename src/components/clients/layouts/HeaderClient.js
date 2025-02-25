@@ -16,6 +16,7 @@ const HeaderClient = () => {
         })
             .then(response => {
                 setUser(response.data.data);
+
                 setIsLoggedIn(true);
             })
             .catch(error => {
@@ -43,7 +44,7 @@ const HeaderClient = () => {
                 console.error('Error logging out:', error);
             });
     };
-
+    console.log(user);
     const defaultAvatar = '/assets/images/avatar.png';
 
     return (
@@ -74,7 +75,9 @@ const HeaderClient = () => {
                     </a>
                     {isLoggedIn ? (
                         <div className="relative">
+
                             <img
+
                                 src={user?.avatar || defaultAvatar}
                                 alt="User Avatar"
                                 className="h-10 w-10 rounded-full cursor-pointer"
