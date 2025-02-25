@@ -5,6 +5,7 @@ import DeleteEmployeeModal from './employeesDelete';
 import { FaFilter } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Pagination from '../../../components/admin/layout/Pagination';
+import { jwtDecode } from 'jwt-decode';
 
 const Employee = () => {
     const [columns] = useState([
@@ -33,6 +34,25 @@ const Employee = () => {
     });
     const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
     const navigate = useNavigate();
+    const [userRole, setUserRole] = useState(null);
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/employees/profile', {
+                    withCredentials: true // Ensure cookies are sent with the request
+                });
+                const role = response.data.data.role;
+                setUserRole(role);
+                console.log(role);
+            } catch (error) {
+                console.error('Error fetching user role:', error);
+                setUserRole(null);
+            }
+        };
+
+        fetchUserRole();
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -43,15 +63,14 @@ const Employee = () => {
                         limit: 10,
                         search,
                         ...filters
-                    }
+                    },
+                    withCredentials: true // Ensure cookies are sent with the request
                 });
 
-                // Kiểm tra nếu response.data.data tồn tại và là một object chứa employees
                 if (response.data && response.data.data && Array.isArray(response.data.data.employees)) {
                     const formattedData = response.data.data.employees.map((employee) => ({
                         ...employee,
                         salary: employee.salary.toLocaleString(),
-                        // avatarURL: (employee.avatar),
                     }));
                     setData(formattedData);
                     setTotalPages(response.data.metadata.totalPages);
@@ -65,8 +84,8 @@ const Employee = () => {
 
         const fetchBranches = async () => {
             try {
-                const response = await axios.get("http://localhost:3000/branches/all/nopagination"); // 🔹 Thay URL_API bằng API thực tế
-                setBranches(response.data.data); // 🔹 Cập nhật danh sách chi nhánh
+                const response = await axios.get("http://localhost:3000/branches/all/nopagination");
+                setBranches(response.data.data);
             } catch (error) {
                 console.error("Lỗi khi lấy danh sách chi nhánh:", error);
             }
@@ -77,22 +96,30 @@ const Employee = () => {
     }, [currentPage, search, filters]);
 
     const handleEdit = (id) => {
-        navigate(`/employees/${id}`);
+        if (userRole === 'admin' || userRole === 'manager') {
+            navigate(`/admin/employees/${id}`);
+        }
     };
 
     const handleDelete = async (id) => {
-        try {
-            await axios.delete(`http://localhost:3000/employees/delete/${id}`);
-            setData(data.filter(employee => employee._id !== id));
-            setIsDeleteModalOpen(false);
-        } catch (error) {
-            console.error('Error deleting employee:', error);
+        if (userRole === 'admin' || userRole === 'manager') {
+            try {
+                await axios.delete(`http://localhost:3000/employees/delete/${id}`, {
+                    withCredentials: true // Ensure cookies are sent with the request
+                });
+                setData(data.filter(employee => employee._id !== id));
+                setIsDeleteModalOpen(false);
+            } catch (error) {
+                console.error('Error deleting employee:', error);
+            }
         }
     };
 
     const openDeleteModal = (id) => {
-        setSelectedEmployeeId(id);
-        setIsDeleteModalOpen(true);
+        if (userRole === 'admin' || userRole === 'manager') {
+            setSelectedEmployeeId(id);
+            setIsDeleteModalOpen(true);
+        }
     };
 
     const closeDeleteModal = () => {
@@ -123,7 +150,6 @@ const Employee = () => {
             endDate: "",
             search: "",
         });
-        // Gọi applyFilters ngay sau khi reset
         setTimeout(() => {
             applyFilters();
         }, 0);
@@ -167,12 +193,14 @@ const Employee = () => {
                     >
                         <FaFilter className="mr-2" /> Lọc
                     </button>
-                    <button
-                        className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
-                        onClick={() => navigate('/employees/create')}
-                    >
-                        Thêm Nhân Viên
-                    </button>
+                    {(userRole === 'admin' || userRole === 'manager') && (
+                        <button
+                            className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
+                            onClick={() => navigate('/admin/employees/create')}
+                        >
+                            Thêm Nhân Viên
+                        </button>
+                    )}
                 </div>
             </div>
             <Table columns={columns} data={formattedData} onEdit={handleEdit} onDelete={openDeleteModal} />
@@ -187,7 +215,6 @@ const Employee = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-6 rounded shadow-lg">
                         <h2 className="text-xl font-bold mb-4">Lọc Nhân Viên</h2>
-                        {/* Chi nhánh */}
                         <div className="mb-4">
                             <label className="block mb-2">Chi Nhánh</label>
                             <select
@@ -204,7 +231,6 @@ const Employee = () => {
                                 ))}
                             </select>
                         </div>
-                        {/* Vai trò nhân viên */}
                         <div className="mb-4">
                             <label className="block mb-2">Vai Trò</label>
                             <select
@@ -240,7 +266,6 @@ const Employee = () => {
                             />
                         </div>
                         <div className="flex justify-end space-x-2">
-                            {/* Nút Xóa bộ lọc */}
                             <button
                                 className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-all"
                                 onClick={clearFilters}

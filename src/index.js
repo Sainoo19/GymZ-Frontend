@@ -26,5 +26,5 @@ root.render(
     {/* <AppAdmin /> */}
     <App />
   </React.StrictMode>
-);
+); 
 

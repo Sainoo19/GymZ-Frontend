@@ -6,13 +6,13 @@ import { Menu, X } from "lucide-react"; // Hamburger and close icons
 
 const navItems = [
     { to: "/", label: "TỔNG QUAN", icon: IconAllProduct },
-    { to: "/orders", label: "ĐƠN HÀNG", icon: IconAllProduct },
-    { to: "/payments", label: "HOÁ ĐƠN", icon: IconAllProduct },
-    { to: "/products", label: "SẢN PHẨM", icon: IconAllProduct },
-    { to: "/employees", label: "NHÂN VIÊN", icon: IconAllProduct },
-    { to: "/users", label: "KHÁCH HÀNG", icon: IconAllProduct },
-    { to: "/branches", label: "CHI NHÁNH", icon: IconAllProduct },
-    { to: "/discounts", label: "KHUYẾN MÃI", icon: IconAllProduct }
+    { to: "/admin/orders", label: "ĐƠN HÀNG", icon: IconAllProduct },
+    { to: "/admin/payments", label: "HOÁ ĐƠN", icon: IconAllProduct },
+    { to: "/admin/products", label: "SẢN PHẨM", icon: IconAllProduct },
+    { to: "/admin/employees", label: "NHÂN VIÊN", icon: IconAllProduct },
+    { to: "/admin/users", label: "KHÁCH HÀNG", icon: IconAllProduct },
+    { to: "/admin/branches", label: "CHI NHÁNH", icon: IconAllProduct },
+    { to: "/admin/discounts", label: "KHUYẾN MÃI", icon: IconAllProduct }
     // Add more items here as needed
 ];
 
@@ -23,7 +23,7 @@ const SideBar = () => {
         <div className="flex min-h-screen">
             {/* Desktop Sidebar */}
             <nav className="bg-primary w-full min-h-screen lg:block hidden justify-items-center">
-            <div className="pt-7">
+                <div className="pt-7">
                     <MyIcon className="block w-40 h-20 mx-auto" />
                 </div>
                 {navItems.map((item, index) => (

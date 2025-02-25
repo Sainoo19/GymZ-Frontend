@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FileDrop } from "./FileDropEm";
+import Cookies from 'js-cookie';
 
 const CreateEmployee = () => {
   const navigate = useNavigate();
@@ -12,25 +13,36 @@ const CreateEmployee = () => {
     password: "",
     phone: "",
     name: "",
-    branch_id: "B001",
-    role: "Nhân viên",
+    branch_id: "",
+    role: "staff",
     salary: "",
     hiredAt: new Date().toISOString().split("T")[0],
     avatar: "",
   });
 
+  const token = Cookies.get('accessToken');
+  const userRole = token ? JSON.parse(atob(token.split('.')[1])).role : null;
+  const userBranchId = token ? JSON.parse(atob(token.split('.')[1])).branch_id : null;
+
   useEffect(() => {
+    if (userRole === 'staff') {
+      navigate('/unauthorized'); // Redirect staff to an unauthorized page
+      return;
+    }
+
     const fetchBranches = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/branches/all/nopagination"); // 🔹 Thay URL_API bằng API thực tế
-        setBranches(response.data.data); // 🔹 Cập nhật danh sách chi nhánh
+        const response = await axios.get("http://localhost:3000/branches/all/nopagination", {
+          withCredentials: true // Ensure cookies are sent with the request
+        });
+        setBranches(response.data.data);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách chi nhánh:", error);
       }
     };
-  
+
     fetchBranches();
-  }, []);
+  }, [userRole, navigate, token]);
 
   // Định dạng số tiền
   const formatSalary = (value) => {
@@ -52,15 +64,23 @@ const CreateEmployee = () => {
         salary: parseInt(employee.salary.replace(/\./g, ""), 10), // Xử lý lương
       };
 
+      if (userRole === 'manager') {
+        formattedEmployee.branch_id = userBranchId; // Managers can only create employees in their own branch
+        formattedEmployee.role = 'staff'; // Managers can only create staff
+      }
+
       const response = await axios.post(
         "http://localhost:3000/employees/create",
-        formattedEmployee
+        formattedEmployee,
+        {
+          withCredentials: true // Ensure cookies are sent with the request
+        }
       );
       const employeeId = response.data.data._id;
       // console.log("Employee created with ID:", employeeId);
 
       alert("Tạo nhân viên thành công!");
-      navigate("/employees"); // Chuyển hướng sau khi tạo thành công
+      navigate("/admin/employees"); // Chuyển hướng sau khi tạo thành công
     } catch (error) {
       if (error.response && error.response.status === 400) {
         alert("Email đã tồn tại, vui lòng chọn email khác");
@@ -163,12 +183,13 @@ const CreateEmployee = () => {
               setEmployee({ ...employee, branch_id: e.target.value })
             }
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
+            disabled={userRole === 'manager'} // Managers cannot change branch
           >
             <option value="">Chọn chi nhánh</option>
             {branches.map((branch) => (
-                <option key={branch.id} value={branch.id}>
+              <option key={branch._id} value={branch._id}>
                 {branch._id}
-                </option>
+              </option>
             ))}
           </select>
         </div>
@@ -180,10 +201,11 @@ const CreateEmployee = () => {
             value={employee.role}
             onChange={(e) => setEmployee({ ...employee, role: e.target.value })}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
+            disabled={userRole === 'manager'} // Managers can only create staff
           >
-            <option value="Quản trị viên">Quản trị viên</option>
-            <option value="Quản lí">Quản lý</option>
-            <option value="Nhân viên">Nhân viên</option>
+            <option value="admin">Quản trị viên</option>
+            <option value="manager">Quản lý</option>
+            <option value="staff">Nhân viên</option>
           </select>
         </div>
 
@@ -200,24 +222,6 @@ const CreateEmployee = () => {
           />
         </div>
 
-        {/* <div>
-                <label className="block text-sm font-medium text-gray-700">Ngày Tạo</label>
-                <input
-                    type="text"
-                    value={employee.createdAt}
-                    readOnly
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
-                />
-            </div>
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Ngày Cập Nhật</label>
-                <input
-                    type="text"
-                    value={employee.updatedAt}
-                    readOnly
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
-                />
-            </div> */}
         {/* Buttons */}
         <div className="flex gap-4 mt-4">
           {/* Nút Lưu (Chiếm 2/3) */}
@@ -232,22 +236,14 @@ const CreateEmployee = () => {
           {/* Nút Hủy (Chiếm 1/3) */}
           <button
             className="w-1/3 bg-gray-400 text-white py-2 rounded hover:bg-gray-500"
-            onClick={() => navigate("/employees")}
+            onClick={() => navigate("/admin/employees")}
           >
             Hủy
           </button>
         </div>
-
-        {/* <div>
-                <button
-                    type="submit"
-                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                    Thêm Nhân Viên
-                </button>
-            </div> */}
       </form>
     </div>
   );
 };
+
 export default CreateEmployee;
