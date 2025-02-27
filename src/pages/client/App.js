@@ -33,6 +33,7 @@ import CreateEmployee from "../admin/employees/createEmployee";
 import UpdateEmployeeForm from "../admin/employees/employeesDetail";
 import ProductDetailTest from "../admin/products/productTest";
 import FooterClient from "../../components/clients/layouts/FooterClient";
+import CartPage from "./cartPage";
 import AboutUs from "./aboutUs";
 import axios from 'axios';
 
@@ -90,7 +91,10 @@ const App = () => {
                                     <Route path="/test" element={<ProductDetailTest />} />
                                     <Route path="admin/employees/create" element={<CreateEmployee />} />
                                     <Route path="admin/employees/:id" element={<UpdateEmployeeForm />} />
-                                    <Route path="/login-employee" element={<LoginAdminPage />} /> {/* Add this route */}
+                                    <Route path="/login-employee" element={<LoginAdminPage />} /> 
+
+                                    
+                                    {/* Add this route */}
                                     {/* Add more routes as needed */}
                                 </Routes>
                             </div>
@@ -109,6 +113,10 @@ const App = () => {
                                 <Route path="/about-us" element={<AboutUs />} />
                                 <Route path="/branches" element={<BranchesClient />} />
                                 <Route path="/productsclient/:productId" element={<ProductDetailClient />} />
+                                <Route path="/cart" element={<CartPage />} />
+
+                               
+                               
                                 {/* Add more routes as needed */}
                             </Routes>
                         </main>

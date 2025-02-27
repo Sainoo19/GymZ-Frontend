@@ -1,5 +1,7 @@
 import { React, useEffect, useState } from "react";
 import formatCurrency from "../../utils/formatCurrency";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 
 const ProductImage = ({
   avatar,
@@ -12,6 +14,8 @@ const ProductImage = ({
   const [quantity, setQuantity] = useState(1);
   const increase = () => setQuantity((prev) => prev + 1);
   const decrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  const { productId } = useParams();
+  const URL_API = process.env.REACT_APP_API_URL;
 
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -96,12 +100,31 @@ const ProductImage = ({
     }
   };
 
+  const handleAddToCart = async () => {
+    if (!selectedTheme || !selectedCategory) {
+      alert("Vui lòng chọn phân loại và loại hàng trước khi thêm vào giỏ hàng");
+      return;
+    }
+    try {
+      const response = await axios.post(
+        `${URL_API}cartClient/add`,
+        { product_id: productId, quantity, theme: selectedTheme, category: selectedCategory },
+        { withCredentials: true }  // Tự động gửi cookie
+    );
+    
+      alert("Thêm vào giỏ hàng thành công!");
+      console.log("Response:", response.data);
+    } catch (error) {
+      console.error("Lỗi khi thêm vào giỏ hàng:", error);
+      alert("Có lỗi xảy ra, vui lòng thử lại.");
+    } 
+  };
   return (
     <div>
       <div className="flex justify-around container items-center w-3/4 mx-auto">
-      {/* <div className="w-1/2 lg:w-3/5 md:w-4/5 2xl:border-pink-800  xl:border-blue-500 lg:border-green-600 md:border-red-700 sm:border-yellow-700 xs:border-purple-800 md:border"> */}
-      <div className="w-1/2 ">
-      <img src={avatar} className="container mx-auto " alt={name} />
+        {/* <div className="w-1/2 lg:w-3/5 md:w-4/5 2xl:border-pink-800  xl:border-blue-500 lg:border-green-600 md:border-red-700 sm:border-yellow-700 xs:border-purple-800 md:border"> */}
+        <div className="w-1/2 ">
+          <img src={avatar} className="container mx-auto " alt={name} />
           <div className="flex items-center mt-4 justify-around">
             {images && images.length > 0 ? (
               images.map((img, index) => (
@@ -212,6 +235,7 @@ const ProductImage = ({
                   : "bg-primary text-white"
               }`}
               disabled={isDisabled}
+              onClick={handleAddToCart}
             >
               Thêm vào giỏ hàng
             </button>

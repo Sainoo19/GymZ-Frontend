@@ -24,6 +24,7 @@ import ProductDetail from "../admin/products/productDetail";
 import CreateEmployee from "./employees/createEmployee";
 import UpdateEmployeeForm from "./employees/employeesDetail";
 import ProductDetailTest from "../admin/products/productTest";
+import CartPage from "../client/cartPage";
 
 
 
@@ -61,9 +62,10 @@ const AppAdmin = () => {
                         <Route path="/addproducts" element={<ProductDetail />} />
                         <Route path="/editproduct/:productId" element={<ProductDetail />} />
                         <Route path="/test/" element={<ProductDetailTest />} />
-
                         <Route path="/employees/create" element={<CreateEmployee />} />
                         <Route path="/employees/:id" element={<UpdateEmployeeForm />} />
+                        <Route path="/cart" element={<CartPage />} />
+
                         {/* Add more routes as needed */}
                     </Routes>
                 </div>
