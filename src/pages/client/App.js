@@ -118,7 +118,7 @@ const App = () => {
                                 <Route path="/productsclient/:productId" element={<ProductDetailClient />} />
                                 <Route path="/cart" element={<CartPage />} />
                                 <Route path="/checkout" element={<CheckOutPage />} />
-                                <Route path="/orderprogress" element={<OrderProgressPage />} /> 
+                                <Route path="/order-progress" element={<OrderProgressPage />} /> 
                                
                                
                                 {/* Add more routes as needed */}

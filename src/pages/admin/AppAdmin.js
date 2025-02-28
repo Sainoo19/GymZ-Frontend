@@ -66,7 +66,7 @@ const AppAdmin = () => {
                         <Route path="/employees/create" element={<CreateEmployee />} />
                         <Route path="/employees/:id" element={<UpdateEmployeeForm />} />
                         <Route path="/cart" element={<CartPage />} />
-                        <Route path="/orderprogress" element={< OrderProgressPage/>} />
+                        <Route path="/order-progress" element={< OrderProgressPage/>} />
 
                         {/* Add more routes as needed */}
                     </Routes>

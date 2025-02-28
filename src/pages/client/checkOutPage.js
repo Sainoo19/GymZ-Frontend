@@ -18,10 +18,10 @@ const CheckOutPage = () => {
     const orderId = searchParams.get("orderId");
   
     if (status === "success" && orderId) {
-      navigate(`/`);
+      navigate(`/order-progress?orderId=${orderId}`); // Chuyển đến trang theo dõi đơn hàng
     }
   }, [searchParams, navigate]);
-
+  
   const handleTotalAmount = (amount) => {
     setTotalAmount(amount);
   };

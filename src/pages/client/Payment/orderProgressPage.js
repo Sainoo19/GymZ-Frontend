@@ -1,40 +1,62 @@
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
-import { useLocation } from "react-router-dom";
 
 const OrderProgressPage = () => {
-  const location = useLocation();
-  const orderId = new URLSearchParams(location.search).get("orderId");
-  const URL_API = process.env.REACT_APP_API_URL;
-
-  const [status, setStatus] = useState("Đang xử lý...");
+  const [searchParams] = useSearchParams();
+  const orderId = searchParams.get("orderId");
+  const [statusHistory, setStatusHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     if (orderId) {
-      const fetchOrderStatus = async () => {
-        try {
-          const response = await axios.post(`${URL_API}payment/transaction-status`, { orderId });
-          setStatus(response.data.status);
-        } catch (error) {
-          console.error("Lỗi khi lấy trạng thái đơn hàng:", error);
-        }
-      };
-
+      setSuccessMessage("🎉 Đặt hàng thành công! Đơn hàng của bạn đang được xử lý.");
       fetchOrderStatus();
-
-      // Cập nhật trạng thái đơn hàng theo thời gian thực (mỗi 5 giây)
-      const interval = setInterval(fetchOrderStatus, 5000);
+      
+      // Cập nhật trạng thái đơn hàng mỗi 10 giây
+      const interval = setInterval(fetchOrderStatus, 10000);
 
       return () => clearInterval(interval);
     }
   }, [orderId]);
 
+  const fetchOrderStatus = async () => {
+    try {
+      const response = await axios.post("http://localhost:3000/payment/transaction-status", { orderId });
+      setStatusHistory(response.data.statusHistory);
+    } catch (error) {
+      console.error("Lỗi lấy trạng thái đơn hàng:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold text-center mb-6">Tiến trình đơn hàng</h1>
-      <div className="p-4 border rounded-lg bg-white text-center">
-        <p className="text-lg font-semibold">{status}</p>
-      </div>
+      <h1 className="text-2xl font-bold text-center mb-4">Theo Dõi Đơn Hàng</h1>
+      
+      {successMessage && (
+        <div className="bg-green-100 text-green-700 p-4 rounded-md mb-4">
+          {successMessage}
+        </div>
+      )}
+
+      {loading ? (
+        <p>Đang tải trạng thái đơn hàng...</p>
+      ) : (
+        <ul className="border p-4 rounded-md">
+          {statusHistory.length > 0 ? (
+            statusHistory.map((status, index) => (
+              <li key={index} className="py-2 border-b last:border-b-0">
+                ✅ {status}
+              </li>
+            ))
+          ) : (
+            <p>Không có trạng thái đơn hàng.</p>
+          )}
+        </ul>
+      )}
     </div>
   );
 };
