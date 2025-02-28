@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import formatCurrency from "../../../src/components/utils/formatCurrency";
+import { useNavigate } from "react-router-dom";
+import CheckOutPage from "./checkOutPage";
+
+
 const CartPage = () => {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedItems, setSelectedItem] = useState([]);
   const URL_API = process.env.REACT_APP_API_URL;
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
@@ -36,6 +41,9 @@ const CartPage = () => {
   if (loading) return <p>Đang tải giỏ hàng...</p>;
   if (!cart || !cart.items) return <p>Không có dữ liệu giỏ hàng.</p>;
 
+  const handleCheckOutClick = () =>{
+    navigate("/checkout", { state: { selectedItems }} )
+  }
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-bold text-center mb-6">GIỎ HÀNG CỦA TÔI</h1>
@@ -105,8 +113,8 @@ const CartPage = () => {
               Tổng Tiền: <span className="float-right">{formatCurrency(totalPrice)}₫</span>
             </p>
           </div>
-          <button className="w-full bg-black text-white py-2 mt-4">
-            Thanh Toán
+          <button className="w-full bg-black text-white py-2 mt-4" onClick={handleCheckOutClick}>
+            Mua hàng
           </button>
         </div>
       </div>

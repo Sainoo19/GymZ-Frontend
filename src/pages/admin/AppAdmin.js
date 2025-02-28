@@ -25,6 +25,7 @@ import CreateEmployee from "./employees/createEmployee";
 import UpdateEmployeeForm from "./employees/employeesDetail";
 import ProductDetailTest from "../admin/products/productTest";
 import CartPage from "../client/cartPage";
+import OrderProgressPage from "../client/Payment/orderProgressPage";
 
 
 
@@ -65,6 +66,7 @@ const AppAdmin = () => {
                         <Route path="/employees/create" element={<CreateEmployee />} />
                         <Route path="/employees/:id" element={<UpdateEmployeeForm />} />
                         <Route path="/cart" element={<CartPage />} />
+                        <Route path="/orderprogress" element={< OrderProgressPage/>} />
 
                         {/* Add more routes as needed */}
                     </Routes>
