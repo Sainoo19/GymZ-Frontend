@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
 
-const ProductsOrdered = ({ onTotalAmountChange }) => {
-  const location = useLocation();
-  const selectedItems = location.state?.selectedItems || [];
+const ProductsOrdered = ({ selectedItems, onTotalAmountChange }) => {
   const [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {
+    console.log("📦 Sản phẩm đã đặt:", selectedItems);
+
     const total = selectedItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
     setTotalAmount(total);
     onTotalAmountChange(total); // Truyền tổng tiền lên `CheckOutPage`
-  }, [selectedItems]);
+  }, [selectedItems, onTotalAmountChange]);
 
   return (
     <div className="border rounded-lg p-4 bg-white">

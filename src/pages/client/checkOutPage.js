@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams,useLocation  } from "react-router-dom";
 import DeliveryAddress from "../../components/clients/checkout/deliveryAddress";
 import ProductsOrdered from "../../components/clients/checkout/productsOrdered";
 import PaymentMethods from "../../components/clients/checkout/paymentMethod";
@@ -11,7 +11,9 @@ const CheckOutPage = () => {
   const URL_API = process.env.REACT_APP_API_URL;
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-
+  const location = useLocation(); 
+  const { selectedItems } = location.state || { selectedItems: [] };
+  
   // Xử lý callback khi thanh toán MoMo thành công
   useEffect(() => {
     const status = searchParams.get("status");
@@ -51,7 +53,7 @@ const CheckOutPage = () => {
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-bold text-center mb-6">Thanh Toán</h1>
       <DeliveryAddress />
-      <ProductsOrdered onTotalAmountChange={handleTotalAmount} />
+      <ProductsOrdered onTotalAmountChange={handleTotalAmount} selectedItems={selectedItems}  />
       <PaymentMethods onSelectPayment={handlePaymentSelection} totalAmount={totalAmount} />
     </div>
   );
