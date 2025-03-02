@@ -13,7 +13,7 @@ const PaymentMethods = ({ onSelectPayment, totalAmount }) => {
 
   const handleSelect = async (method) => {
     setSelectedMethod(method);
-    onSelectPayment(method);
+    onSelectPayment(method,totalAmount);
 
     if (method === "momo") {
       try {

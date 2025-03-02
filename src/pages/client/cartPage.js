@@ -7,12 +7,18 @@ import CheckOutPage from "./checkOutPage";
 const CartPage = () => {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [checkedItems, setCheckedItems] = useState({}); // Trạng thái checkbox  
+  const [checkedItems, setCheckedItems] = useState({}); // Trạng thái checkbox
   const URL_API = process.env.REACT_APP_API_URL;
   const navigate = useNavigate();
-const [selectedItems, setSelectedItems] = useState(new Set());
+  const [selectedItems, setSelectedItems] = useState(new Set());
   const [quantity, setQuantity] = useState(1);
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [maxDiscountAmount, setMaxDiscountAmount] = useState(0);
+  const [applicableProducts, setApplicableProducts] = useState(new Set());
 
+  const taxPercent = 5;
+  var totalPrice = 0;
   useEffect(() => {
     axios
       .get(`${URL_API}cartClient/get`, { withCredentials: true })
@@ -48,19 +54,16 @@ const [selectedItems, setSelectedItems] = useState(new Set());
       setQuantity(1);
     }
   };
-  const totalPrice = Array.from(selectedItems).reduce((sum, productId) => {
-    const item = cart.items.find((item) => item.product_id === productId);
-    return sum + (item ? (item.price || 0) * (item.quantity || 1) : 0);
-  }, 0);
-  
-  
+
   const handleCheckOutClick = () => {
     const selectedProducts = cart.items.filter((item) =>
       selectedItems.has(item.product_id)
     );
-    navigate("/checkout", { state: { selectedItems: selectedProducts } });
+    navigate("/checkout", {
+      state: { selectedItems: selectedProducts, discountAmount, taxPercent },
+    });
   };
-  
+
   const handleRemoveItem = (product_id, category, theme) => {
     axios
       .delete(`${URL_API}cartClient/remove`, {
@@ -83,14 +86,14 @@ const [selectedItems, setSelectedItems] = useState(new Set());
       });
       return;
     }
-  
-    console.log("🔍 Gửi request cập nhật số lượng:", {
+
+    console.log("Gửi request cập nhật số lượng:", {
       product_id: productId,
       category,
       theme: theme || "",
       quantity: newQuantity,
     });
-  
+
     axios
       .put(
         `${URL_API}cartClient/updateQuantity`,
@@ -103,8 +106,15 @@ const [selectedItems, setSelectedItems] = useState(new Set());
         { withCredentials: true }
       )
       .then((response) => {
-        console.log("Cập nhật thành công:", response.data);
-        setCart(response.data.cart);
+        console.log("Cập nhật thành công:", response.data.cart);
+        setCart((prevCart) => ({
+          ...prevCart,
+          items: prevCart.items.map((item) =>
+            item.product_id === productId
+              ? { ...item, quantity: newQuantity }
+              : item
+          ),
+        }));
       })
       .catch((error) => {
         console.error(
@@ -113,7 +123,7 @@ const [selectedItems, setSelectedItems] = useState(new Set());
         );
       });
   };
-  
+
   const increase = (item) =>
     updateQuantity(
       item.product_id,
@@ -129,13 +139,87 @@ const [selectedItems, setSelectedItems] = useState(new Set());
       item.quantity - 1
     );
 
+  const applyDiscount = async () => {
+    const trimmedCode = discountCode.trim();
+
+    if (!trimmedCode) {
+      alert("⚠️ Vui lòng nhập mã giảm giá!");
+      return;
+    }
+
+    try {
+      const response = await axios.get(`${URL_API}discounts/getVoucher`, {
+        params: { code: trimmedCode },
+      });
+
+      const { status, data } = response.data;
+
+      if (
+        status === "success" &&
+        data?.discountPercent > 0 &&
+        data?.usageLimit > 0
+      ) {
+        setDiscountPercent(data.discountPercent);
+        setMaxDiscountAmount(data.maxDiscountAmount || 0); // Lưu maxDiscountAmount
+        setApplicableProducts(new Set(data.applicableProducts || []));
+        alert(
+          `✅ Mã giảm giá đã được áp dụng! Giảm ${
+            data.discountPercent
+          }%, giảm tối đa ${formatCurrency(data.maxDiscountAmount)}đ`
+        );
+        console.log(
+          `Mã giảm giá đã được áp dụng! Giảm ${data.discountPercent}%`
+        );
+      } else {
+        alert("❌ Mã giảm giá không hợp lệ, đã hết hạn hoặc hết lượt sử dụng.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy mã giảm giá:", error);
+
+      const errorMessage =
+        error.response?.data?.message || "❌ Lỗi hệ thống, vui lòng thử lại!";
+      alert(errorMessage);
+    }
+  };
+
+  const totalAllProdctCartPrice = Array.from(selectedItems).reduce(
+    (sum, productId) => {
+      const item = cart.items.find((item) => item.product_id === productId);
+      return sum + (item ? (item.price || 0) * (item.quantity || 1) : 0);
+    },
+    0
+  );
+
+  // Tổng tiền chỉ cho các sản phẩm được áp dụng giảm giá
+  const totalApplicableProductPrice = Array.from(selectedItems).reduce(
+    (sum, productId) => {
+      if (applicableProducts.has(productId)) {
+        const item = cart.items.find((item) => item.product_id === productId);
+        return sum + (item ? (item.price || 0) * (item.quantity || 1) : 0);
+      }
+      return sum;
+    },
+    0
+  );
+
+  const discountAmount = Math.min(
+    (totalApplicableProductPrice * discountPercent) / 100,
+    maxDiscountAmount // Giới hạn không vượt quá maxDiscountAmount
+  );
+
+  const discountedTotal = totalAllProdctCartPrice - discountAmount;
+  const tax = (totalAllProdctCartPrice * taxPercent) / 100;
+  totalPrice = discountedTotal + tax;
+
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold text-center mb-6">GIỎ HÀNG CỦA TÔI</h1>
-      <div className="flex gap-6">
+    <div className="container mx-auto  w-4/5 ">
+      <h1 className="text-2xl font-bold text-center mt-6 mb-6">
+        GIỎ HÀNG CỦA TÔI
+      </h1>
+      <div className="flex gap-4">
         {/* Danh sách sản phẩm */}
-        <div className="w-3/4 border rounded-lg p-4 bg-white">
-          <div className="grid grid-cols-4 text-lg font-semibold border-b pb-2">
+        <div className="w-11/12 border rounded-lg p-4 bg-white">
+          <div className="grid grid-cols-5 text-base font-semibold border-b pb-2">
             <span>Sản Phẩm</span>
             <span>Giá</span>
             <span>Số Lượng</span>
@@ -144,28 +228,32 @@ const [selectedItems, setSelectedItems] = useState(new Set());
           {cart.items.map((item, index) => (
             <div
               key={index}
-              className="grid grid-cols-4 items-center py-4 border-b"
+              className="grid grid-cols-5 items-center py-4 border-b"
             >
               <div className="flex items-center gap-4">
-              <input
-  type="checkbox"
-  className="w-5 h-5"
-  checked={selectedItems.has(item.product_id)}
-  onChange={() => handleCheckBoxChange(item.product_id)}
-/>
+                <input
+                  type="checkbox"
+                  className="w-5 h-5"
+                  checked={selectedItems.has(item.product_id)}
+                  onChange={() => handleCheckBoxChange(item.product_id)}
+                />
                 <img
                   src={item.productAvatar}
                   alt={item.productName}
                   className="w-16 h-16"
                 />
                 <div>
-                  <h2 className="font-semibold">{item.productName}</h2>
+                  <h2 className="font-semibold text-sm">{item.productName}</h2>
                   <p className="text-sm">Phân Loại: {item.category}</p>
+                  <p className="text-sm">Loại: {item.theme}</p>
                 </div>
               </div>
-              <span>{formatCurrency(item.price)}₫</span>
+              <span>{formatCurrency(item.price)}₫ </span>
               <div className="flex items-center gap-2">
-                <button className="font-medium text-xl" onClick={() =>decrease(item)}>
+                <button
+                  className="font-medium text-xl"
+                  onClick={() => decrease(item)}
+                >
                   -
                 </button>
                 <input
@@ -174,7 +262,10 @@ const [selectedItems, setSelectedItems] = useState(new Set());
                   onChange={handleChangeQuantity}
                   className="font-medium text-base w-1/4 bg-transparent text-center focus:outline-none"
                 />
-                <button className="font-medium text-xl" onClick={() =>increase(item)}>
+                <button
+                  className="font-medium text-xl"
+                  onClick={() => increase(item)}
+                >
                   +
                 </button>
               </div>
@@ -191,27 +282,44 @@ const [selectedItems, setSelectedItems] = useState(new Set());
           ))}
         </div>
         {/* Thanh toán */}
-        <div className="w-1/4 border rounded-lg p-4 bg-white">
+        <div className="w-1/3 border rounded-lg p-4 bg-white">
           <h2 className="text-lg font-semibold mb-2">Mã Khuyến Mãi</h2>
           <div className="flex mb-4">
             <input
               type="text"
-              className="border p-2 flex-1"
+              className="border w-full text-base p-2 flex-1"
               placeholder="Nhập mã"
+              value={discountCode}
+              onChange={(e) => setDiscountCode(e.target.value)}
             />
-            <button className="bg-black text-white px-4">Nhập</button>
+            <button
+              className="bg-black text-white px-4"
+              onClick={applyDiscount}
+            >
+              Nhập
+            </button>
           </div>
           <div className="border-t pt-4">
-            <p>
-              Tạm Tính: <span className="float-right">{cart.subTotal}₫</span>
+            <p className="text-sm">
+              Tạm Tính:{" "}
+              <span className="float-right">
+                {" "}
+                {formatCurrency(totalAllProdctCartPrice)}₫
+              </span>
             </p>
-            <p>
-              Thuế: <span className="float-right">{cart.tax}₫</span>
+            <p className="text-sm mt-2">
+              Thuế (5%):{" "}
+              <span className="float-right"> + {formatCurrency(tax)}₫</span>
             </p>
-            <p>
-              Khuyến Mãi: <span className="float-right">-{cart.discount}₫</span>
-            </p>
-            <p className="font-semibold text-lg border-t pt-2">
+            {discountPercent > 0 && (
+              <p className="text-sm  mt-2">
+                Khuyến Mãi: -{discountPercent}%
+                <span className="float-right">
+                  - {formatCurrency(discountAmount)}₫
+                </span>
+              </p>
+            )}
+            <p className="font-semibold  mt-2 text-lg border-t pt-2">
               Tổng Tiền:{" "}
               <span className="float-right">{formatCurrency(totalPrice)}₫</span>
             </p>

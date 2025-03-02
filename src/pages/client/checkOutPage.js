@@ -12,8 +12,11 @@ const CheckOutPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation(); 
-  const { selectedItems } = location.state || { selectedItems: [] };
-  
+  const { selectedItems, discountAmount, taxPercent } = location.state || {
+    selectedItems: [],
+    discountAmount: 0,
+    taxPercent:5 ,
+  };
   // Xử lý callback khi thanh toán MoMo thành công
   useEffect(() => {
     const status = searchParams.get("status");
@@ -28,13 +31,13 @@ const CheckOutPage = () => {
     setTotalAmount(amount);
   };
 
-  const handlePaymentSelection = async (method) => {
+  const handlePaymentSelection = async (method,amount) => {
     setSelectedPayment(method);
 
     if (method === "momo") {
       try {
         const response = await axios.post(`${URL_API}payment/momopayment`, {
-          amount: totalAmount,
+          amount,
         });
 
         if (response.data && response.data.payUrl) {
@@ -53,9 +56,17 @@ const CheckOutPage = () => {
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-bold text-center mb-6">Thanh Toán</h1>
       <DeliveryAddress />
-      <ProductsOrdered onTotalAmountChange={handleTotalAmount} selectedItems={selectedItems}  />
-      <PaymentMethods onSelectPayment={handlePaymentSelection} totalAmount={totalAmount} />
-    </div>
+      <ProductsOrdered 
+  onTotalAmountChange={(amount) => {
+    console.log("🛒 Tổng tiền cập nhật:", amount);
+    setTotalAmount(amount);
+  }}
+  selectedItems={selectedItems}
+  discountAmount={discountAmount}
+  taxPercent={taxPercent}
+/>
+<PaymentMethods onSelectPayment={(method) => handlePaymentSelection(method, totalAmount)} totalAmount={totalAmount} />
+</div>
   );
 };
 

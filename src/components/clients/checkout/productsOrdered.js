@@ -1,15 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useMemo  } from "react";
+import formatCurrency from "../../utils/formatCurrency";
 
-const ProductsOrdered = ({ selectedItems, onTotalAmountChange }) => {
-  const [totalAmount, setTotalAmount] = useState(0);
+const ProductsOrdered = ({ selectedItems, onTotalAmountChange, discountAmount, taxPercent  }) => {
+
+  const totalBeforeTax = useMemo(
+    () => selectedItems.reduce((sum, item) => sum + item.quantity * item.price, 0),
+    [selectedItems]
+  );
+
+  const totalAfterDiscount = useMemo(() => totalBeforeTax - discountAmount, [totalBeforeTax, discountAmount]);
+  const taxAmount = useMemo(() => (totalAfterDiscount * taxPercent) / 100, [totalAfterDiscount, taxPercent]);
+  const finalTotal = useMemo(() => totalAfterDiscount + taxAmount, [totalAfterDiscount, taxAmount]);
 
   useEffect(() => {
-    console.log("📦 Sản phẩm đã đặt:", selectedItems);
+    console.log("🚀 Tổng tiền gửi lên CheckOutPage:", finalTotal);
+    // Tính tổng tiền trước thuế
+    
+    // Truyền tổng tiền cuối cùng lên `CheckOutPage`
+    onTotalAmountChange(finalTotal);
+  }, [selectedItems, discountAmount, taxPercent, onTotalAmountChange]);
 
-    const total = selectedItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
-    setTotalAmount(total);
-    onTotalAmountChange(total); // Truyền tổng tiền lên `CheckOutPage`
-  }, [selectedItems, onTotalAmountChange]);
 
   return (
     <div className="border rounded-lg p-4 bg-white">
@@ -25,10 +35,18 @@ const ProductsOrdered = ({ selectedItems, onTotalAmountChange }) => {
                   <p className="text-sm text-gray-600">Phân loại: {item.category}</p>
                 </div>
               </div>
-              <span className="text-lg font-medium">{item.quantity} x {item.price}₫</span>
+              <span className="text-lg font-medium">{item.quantity} x {formatCurrency(item.price)}₫</span>
             </div>
           ))}
-          <div className="text-right font-bold text-lg mt-4">Tổng tiền: {totalAmount}₫</div>
+          {/* Tổng tiền chi tiết */}
+          <div className="text-right font-bold text-lg mt-4">
+          <p>Tổng tiền: {formatCurrency(totalBeforeTax)}₫</p>
+            <p className="text-green-600">Giảm giá: -{formatCurrency(discountAmount)}₫</p>
+            <p className="text-gray-700">Thuế ({taxPercent}%): +{formatCurrency(taxAmount)}₫</p>
+            <p className="border-t pt-2 mt-2 text-xl text-red-600">
+              Tổng thanh toán: {formatCurrency(finalTotal)}₫
+            </p>
+          </div>
         </>
       ) : (
         <p className="text-center">Không có sản phẩm nào.</p>
@@ -36,5 +54,6 @@ const ProductsOrdered = ({ selectedItems, onTotalAmountChange }) => {
     </div>
   );
 };
+
 
 export default ProductsOrdered;
