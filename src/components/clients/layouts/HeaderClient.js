@@ -7,6 +7,7 @@ import { Dialog, DialogPanel, PopoverGroup } from "@headlessui/react";
 import HamburgerIcon from "../../../assets/icons/bars-3.svg";
 import XMarkIconSVG from "../../../assets/icons/x-mark.svg";
 import ShoppingCart from "../../../assets/icons/shopping-cart.svg";
+import { motion, AnimatePresence } from "framer-motion";
 
 const HeaderClient = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -133,51 +134,51 @@ const HeaderClient = () => {
           </button>
         </div>
 
-        <div className="flex items-center space-x-4">
-  {isLoggedIn && !mobileMenuOpen && (
-    <button className="" onClick={handleCartClick}>
-      <img src={ShoppingCart} alt="Cart" className="h-7 w-7" />
-    </button>
-  )}
+        {!mobileMenuOpen && (
+          <div className="hidden lg:flex items-center space-x-4">
+            {isLoggedIn && (
+              <>
+                <button className="" onClick={handleCartClick}>
+                  <img src={ShoppingCart} alt="Cart" className="h-7 w-7" />
+                </button>
 
-  {!mobileMenuOpen && isLoggedIn && (
-    <div className="relative">
-      <img
-        src={user?.avatar || defaultAvatar}
-        alt="User Avatar"
-        className="h-10 w-10 rounded-full cursor-pointer"
-        onClick={() => setDropdownOpen(!dropdownOpen)}
-      />
-      {dropdownOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-20">
-          <a
-            href="/profile"
-            className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
-          >
-            Quản lý tài khoản
-          </a>
-          <button
-            onClick={handleLogoutClick}
-            className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-200"
-          >
-            Đăng xuất
-          </button>
-        </div>
-      )}
-    </div>
-  )}
+                <div className="relative">
+                  <img
+                    src={user?.avatar || defaultAvatar}
+                    alt="User Avatar"
+                    className="h-10 w-10 rounded-full cursor-pointer"
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                  />
+                  {dropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-20">
+                      <a
+                        href="/profile"
+                        className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                      >
+                        Quản lý tài khoản
+                      </a>
+                      <button
+                        onClick={handleLogoutClick}
+                        className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-200"
+                      >
+                        Đăng xuất
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
 
-  {!mobileMenuOpen && !isLoggedIn && (
-    <button
-      className="bg-yellow-500 text-gray-800 px-6 py-2 rounded hover:bg-yellow-600 transition-all font-bold"
-      onClick={handleLoginClick}
-    >
-      Đăng nhập
-    </button>
-  )}
-</div>
-
-
+            {!isLoggedIn && (
+              <button
+                className="bg-yellow-500 text-gray-800 px-6 py-2 rounded hover:bg-yellow-600 transition-all font-bold"
+                onClick={handleLoginClick}
+              >
+                Đăng nhập
+              </button>
+            )}
+          </div>
+        )}
       </nav>
       <Dialog
         open={mobileMenuOpen}
@@ -187,9 +188,9 @@ const HeaderClient = () => {
         <div className="fixed inset-0 z-10" />
         <DialogPanel className="fixed inset-y-0 right-0 z-10 w-1/2 overflow-y-auto bg-primary px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div className="flex items-center justify-between">
-            <a href="#" className="-m-1.5 p-1.5">
+            <a href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">GymZ</span>
-              <img alt="" src="" className="h-8 w-auto" />
+              <img src={MainLogo} alt="Gym-Z logo" className="h-12 w-auto" />
             </a>
             <button
               type="button"
@@ -199,52 +200,113 @@ const HeaderClient = () => {
               <span className="sr-only">Close menu</span>
               <img
                 src={XMarkIconSVG}
-                alt="Menu"
+                alt="Close"
                 className="w-6 h-6 text-white z-10"
               />
             </button>
           </div>
-          <div className="mt-6 flow-root">
-            <div className="-my-6 divide-y divide-gray-500/10">
+
+          {/* Hiển thị Cart và Avatar */}
+          <div className=" items-center mt-6 flow-root">
+            {isLoggedIn && (
+              <>
+                <div className="relative">
+                  <div
+                    className="flex items-center w-full rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-secondary hover:text-primary"
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                  >
+                    <img
+                      src={user?.avatar || defaultAvatar}
+                      alt="User Avatar"
+                      className="h-10 w-10 rounded-full cursor-pointer"
+                    />
+                    <p className="ml-2">{user?.name}</p>
+                  </div>
+
+                  <AnimatePresence>
+                    {dropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="absolute left-0 mt-2 w-full bg-opacity-90 bg-transparent bg-primary rounded-md   z-20"
+                      >
+                        <button
+                          className="block w-full text-left px-4 py-2 text-base font-semibold rounded-lg text-white hover:bg-secondary hover:text-primary"
+                          onClick={handleCartClick}
+                        >
+                          Giỏ hàng
+                        </button>
+                        <a
+                          href="/profile"
+                          className="block w-full text-left px-4 py-2 text-base font-semibold rounded-lg text-white hover:bg-secondary hover:text-primary"
+                        >
+                          Quản lý tài khoản
+                        </a>
+                        <button
+                          onClick={handleLogoutClick}
+                          className="block w-full text-left px-4 py-2 text-base font-semibold rounded-lg text-white hover:bg-secondary hover:text-primary"
+                        >
+                          Đăng xuất
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Thêm hiệu ứng xuống cho menu */}
+                <motion.div
+                  animate={{ marginTop: dropdownOpen ? 120 : 0 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                ></motion.div>
+              </>
+            )}
+          </div>
+          <div className="mt-7 flow-root">
+            <div className="border border-white rounded-lg mb-2"></div>
+            <div className="-my-6 divide-y divide-white">
               <div className="space-y-2 py-6">
                 <a
                   href="/"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white hover:bg-secondary hover:text-primary"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-secondary hover:text-primary"
                 >
                   Trang chủ
                 </a>
                 <a
                   href="/productsclient"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white hover:bg-secondary hover:text-primary"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-secondary hover:text-primary"
                 >
                   Sản phẩm
                 </a>
                 <a
                   href="/"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white hover:bg-secondary hover:text-primary"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-secondary hover:text-primary"
                 >
-                  Tin tức
+                  Tin Tức
                 </a>
                 <a
                   href="/branches"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white hover:bg-secondary hover:text-primary"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-secondary hover:text-primary"
                 >
                   Chi Nhánh
-                </a>{" "}
+                </a>
                 <a
                   href="/about"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white hover:bg-secondary hover:text-primary"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-secondary hover:text-primary"
                 >
                   Về chúng tôi
                 </a>
-              </div>
-              <div className="py-6">
-                <a
-                  href="/"
-                  className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-white hover:bg-secondary hover:text-primary"
-                >
-                  Đăng nhập
-                </a>
+                {!isLoggedIn && (
+                  
+                    <button
+                  className="-mx-3 w-full text-left block rounded-lg px-3  py-2 text-base font-semibold text-white hover:bg-secondary hover:text-primary"
+                  onClick={handleLoginClick}
+                    >
+                      Đăng nhập
+                    </button>
+                  
+                )}
               </div>
             </div>
           </div>
