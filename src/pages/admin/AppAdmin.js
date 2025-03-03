@@ -52,9 +52,9 @@ const AppAdmin = () => {
                         <Route path="/orders" element={<Order />} />
                         <Route path="/orders/create" element={<CreateOrder />} />
                         <Route path="/orders/:id" element={<UpdateOrderForm />} />
-                        <Route path="/payments" element={<Payment />} />
-                        <Route path="/payments/create" element={<CreatePayment />} />
-                        <Route path="/payments/:id" element={<UpdatePaymentForm />} />
+                        <Route path="admin/payments" element={<Payment />} />
+                        <Route path="/admin/payments/create" element={<CreatePayment />} />
+                        <Route path="/admin/payments/:id" element={<UpdatePaymentForm />} />
                         <Route path="/products" element={<Product />} />
                         <Route path="/users" element={<User />} />
                         <Route path="/users/:id" element={<UpdateUserForm />} />
