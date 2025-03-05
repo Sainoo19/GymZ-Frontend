@@ -12,8 +12,10 @@ const ProductImage = ({
   variations,
 }) => {
   const [quantity, setQuantity] = useState(1);
-  const increase = () => setQuantity((prev) => prev + 1);
-  const decrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  const increase = () => {
+    setQuantity((prev) => (stock !== null && prev < stock ? prev + 1 : prev));
+  };
+    const decrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
   const { productId } = useParams();
   const URL_API = process.env.REACT_APP_API_URL;
 
@@ -22,6 +24,7 @@ const ProductImage = ({
   const [selectedOriginalPrice, setSelectedOriginalPrice] = useState(null);
   const [selectedSalePrice, setSelectedSalePrice] = useState(null);
   const [percentDiscount, setPercentDiscount] = useState(0);
+  const [stock, setStock] = useState(null);
 
   const roundNumber = (num) => Math.round(num);
 
@@ -75,6 +78,7 @@ const ProductImage = ({
       foundVariation ? foundVariation.originalPrice : null
     );
     setSelectedSalePrice(foundVariation ? foundVariation.salePrice : null);
+    setStock(foundVariation ? foundVariation.stock : null); // Cập nhật stock
 
     // Chỉ tính phần trăm giảm giá khi đã chọn đủ điều kiện
     if (foundVariation?.originalPrice && foundVariation?.salePrice) {
@@ -94,11 +98,12 @@ const ProductImage = ({
   const handleChangeQuantity = (e) => {
     const value = e.target.value;
     if (!isNaN(value) && Number(value) >= 1) {
-      setQuantity(Number(value));
+      setQuantity(stock !== null && Number(value) > stock ? stock : Number(value));
     } else if (value === "") {
       setQuantity(1);
     }
   };
+  
 
   const handleAddToCart = async () => {
     if (!selectedTheme || !selectedCategory) {
@@ -108,16 +113,21 @@ const ProductImage = ({
     try {
       const response = await axios.post(
         `${URL_API}cartClient/add`,
-        { product_id: productId, quantity, theme: selectedTheme, category: selectedCategory },
-        { withCredentials: true }  // Tự động gửi cookie
-    );
-    
+        {
+          product_id: productId,
+          quantity,
+          theme: selectedTheme,
+          category: selectedCategory,
+        },
+        { withCredentials: true } // Tự động gửi cookie
+      );
+
       alert("Thêm vào giỏ hàng thành công!");
       console.log("Response:", response.data);
     } catch (error) {
       console.error("Lỗi khi thêm vào giỏ hàng:", error);
       alert("Có lỗi xảy ra, vui lòng thử lại.");
-    } 
+    }
   };
   return (
     <div>
@@ -164,6 +174,9 @@ const ProductImage = ({
             ) : null}
           </div>
 
+          {stock !== null && (
+            <p className="text-gray-600 text-sm mt-2">Số lượng còn lại: {stock}</p>
+          )}
           <div className="border-b border-gray-300 my-3 rounded-lg"></div>
 
           {/* Hiển thị category */}
@@ -211,25 +224,25 @@ const ProductImage = ({
           )}
 
           <div className="border-b border-gray-300 my-3 rounded-lg"></div>
-
+          
           <div className="flex items-center my-7 w-11/12 justify-start">
-            <div className="flex bg-gray-200 w-1/5 h-9 justify-around rounded-2xl items-center">
-              <button className="font-medium text-2xl" onClick={decrease}>
+            <div className="flex px-3  bg-gray-200  h-9  rounded-2xl items-center">
+              <button className="font-medium  px-3 border  text-2xl" onClick={decrease}>
                 -
               </button>
               <input
                 type="text"
                 value={quantity}
                 onChange={handleChangeQuantity}
-                className="font-medium text-base w-1/4 bg-transparent text-center focus:outline-none"
+                className="font-medium text-base w-16 border   bg-transparent text-center focus:outline-none"
               />
-              <button className="font-medium text-xl" onClick={increase}>
+              <button className="font-medium  px-3 border  text-xl" onClick={increase}>
                 +
               </button>
             </div>
 
             <button
-              className={`rounded-2xl w-1/2 ml-3 h-9 ${
+              className={`rounded-2xl w-1/2 text-sm ml-3 h-9 ${
                 isDisabled
                   ? "bg-gray-300 cursor-not-allowed"
                   : "bg-primary text-white"

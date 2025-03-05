@@ -1,7 +1,9 @@
 import React, { useEffect, useState,useMemo  } from "react";
 import formatCurrency from "../../utils/formatCurrency";
+import axios from "axios";
 
 const ProductsOrdered = ({ selectedItems, onTotalAmountChange, discountAmount, taxPercent  }) => {
+  
 
   const totalBeforeTax = useMemo(
     () => selectedItems.reduce((sum, item) => sum + item.quantity * item.price, 0),
@@ -14,16 +16,67 @@ const ProductsOrdered = ({ selectedItems, onTotalAmountChange, discountAmount, t
 
   useEffect(() => {
     console.log("🚀 Tổng tiền gửi lên CheckOutPage:", finalTotal);
-    // Tính tổng tiền trước thuế
-    
-    // Truyền tổng tiền cuối cùng lên `CheckOutPage`
+   
     onTotalAmountChange(finalTotal);
   }, [selectedItems, discountAmount, taxPercent, onTotalAmountChange]);
+
+  const [shippingFee, setShippingFee] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const API_URL =  process.env.REACT_APP_API_URL;
+  const fetchShippingFee = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}shipping/shipping-fee`, {
+        params: {
+          pick_province: "Hồ Chí Minh",
+          pick_district: "Quận Bình Thạnh",
+          province: "Bạc Liêu",
+          district: "phường 3",
+          weight: 1000,  // Đơn vị: Gram
+          // value: 3000000, // Giá trị đơn hàng (VNĐ)
+          deliver_option: "none", 
+        },
+      });
+
+      setShippingFee(response.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy phí vận chuyển:", error);
+      setError(error.response?.data?.message || "Lỗi không xác định");
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
 
   return (
     <div className="border rounded-lg p-4 bg-white">
       <h2 className="text-lg font-semibold text-center mb-4">Sản phẩm đã đặt</h2>
+      <div className="container mx-auto p-6">
+      <h2 className="text-xl font-bold mb-4">Tính phí vận chuyển</h2>
+      <button 
+        className="px-4 py-2 bg-blue-500 text-white rounded"
+        onClick={fetchShippingFee}
+        disabled={loading}
+      >
+        {loading ? "Đang tính toán..." : "Lấy phí vận chuyển"}
+      </button>
+
+      {error && <p className="text-red-500 mt-4">❌ {error}</p>}
+
+      {shippingFee && (
+        <div className="mt-4 p-4 border rounded bg-gray-100">
+          <h3 className="text-lg font-semibold">Kết quả:</h3>
+          <p>🛵 Cước vận chuyển: <strong>{shippingFee.fee?.fee.toLocaleString()} VNĐ</strong></p>
+          <p>📦 Phí bảo hiểm: <strong>{shippingFee.fee?.insurance_fee.toLocaleString()} VNĐ</strong></p>
+          <p>📍 Hỗ trợ giao: {shippingFee.fee?.delivery ? "✅ Có" : "❌ Không"}</p>
+        </div>
+      )}
+    </div>
+
       {selectedItems.length > 0 ? (
         <>
           {selectedItems.map((item, index) => (

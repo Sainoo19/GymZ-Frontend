@@ -66,7 +66,7 @@ const Order = () => {
     }, [currentPage, search, filters]);
 
     const handleEdit = (id) => {
-        navigate(`/orders/${id}`);
+        navigate(`orders/${id}`);
     };
 
     const handleDelete = async (id) => {

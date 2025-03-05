@@ -35,17 +35,21 @@ const CartPage = () => {
   if (loading) return <p>Đang tải giỏ hàng...</p>;
   if (!cart || !cart.items) return <p>Không có dữ liệu giỏ hàng.</p>;
 
-  const handleCheckBoxChange = (productId) => {
+  const handleCheckBoxChange = (productId, category, theme) => {
     setSelectedItems((prevSelected) => {
       const newSelected = new Set(prevSelected);
-      if (newSelected.has(productId)) {
-        newSelected.delete(productId); // Bỏ chọn
+      const itemKey = `${productId}-${category}-${theme || ""}`; // Tạo key duy nhất
+  
+      if (newSelected.has(itemKey)) {
+        newSelected.delete(itemKey); // Bỏ chọn
       } else {
-        newSelected.add(productId); // Chọn
+        newSelected.add(itemKey); // Chọn sản phẩm chính xác
       }
+  
       return newSelected;
     });
   };
+  
   const handleChangeQuantity = (e) => {
     const value = e.target.value;
     if (!isNaN(value) && Number(value) >= 1) {
@@ -57,12 +61,14 @@ const CartPage = () => {
 
   const handleCheckOutClick = () => {
     const selectedProducts = cart.items.filter((item) =>
-      selectedItems.has(item.product_id)
+      selectedItems.has(`${item.product_id}-${item.category}-${item.theme || ""}`)
     );
+  
     navigate("/checkout", {
       state: { selectedItems: selectedProducts, discountAmount, taxPercent },
     });
   };
+  
 
   const handleRemoveItem = (product_id, category, theme) => {
     axios
@@ -71,10 +77,17 @@ const CartPage = () => {
         withCredentials: true,
       })
       .then((response) => {
-        setCart(response.data.cart); // Cập nhật lại giỏ hàng
+        console.log("Cart after removing item:", response.data.cart);
+  
+        // Xóa sản phẩm khỏi state ngay lập tức
+        setCart((prevCart) => ({
+          ...prevCart,
+          items: prevCart.items.filter((item) => item.product_id !== product_id),
+        }));
       })
       .catch((error) => console.error("Lỗi khi xoá sản phẩm:", error));
   };
+  
 
   const updateQuantity = (productId, category, theme, newQuantity) => {
     if (!productId || !category || newQuantity < 1) {
@@ -182,25 +195,33 @@ const CartPage = () => {
     }
   };
 
-  const totalAllProdctCartPrice = Array.from(selectedItems).reduce(
-    (sum, productId) => {
-      const item = cart.items.find((item) => item.product_id === productId);
-      return sum + (item ? (item.price || 0) * (item.quantity || 1) : 0);
-    },
-    0
-  );
+  const totalAllProdctCartPrice = Array.from(selectedItems).reduce((sum, key) => {
+    const [productId, category, theme] = key.split("-");
+    const item = cart.items.find(
+      (item) =>
+        item.product_id === productId &&
+        item.category === category &&
+        (item.theme || "") === theme
+    );
+    return sum + (item ? item.price * item.quantity : 0);
+  }, 0);
+  
 
   // Tổng tiền chỉ cho các sản phẩm được áp dụng giảm giá
-  const totalApplicableProductPrice = Array.from(selectedItems).reduce(
-    (sum, productId) => {
-      if (applicableProducts.has(productId)) {
-        const item = cart.items.find((item) => item.product_id === productId);
-        return sum + (item ? (item.price || 0) * (item.quantity || 1) : 0);
-      }
-      return sum;
-    },
-    0
-  );
+  const totalApplicableProductPrice = Array.from(selectedItems).reduce((sum, key) => {
+    if (applicableProducts.has(key)) {
+      const [productId, category, theme] = key.split("-");
+      const item = cart.items.find(
+        (item) =>
+          item.product_id === productId &&
+          item.category === category &&
+          (item.theme || "") === theme
+      );
+      return sum + (item ? item.price * item.quantity : 0);
+    }
+    return sum;
+  }, 0);
+  
 
   const discountAmount = Math.min(
     (totalApplicableProductPrice * discountPercent) / 100,
@@ -231,12 +252,13 @@ const CartPage = () => {
               className="grid grid-cols-5 items-center py-4 border-b"
             >
               <div className="flex items-center gap-4">
-                <input
-                  type="checkbox"
-                  className="w-5 h-5"
-                  checked={selectedItems.has(item.product_id)}
-                  onChange={() => handleCheckBoxChange(item.product_id)}
-                />
+              <input
+  type="checkbox"
+  className="w-5 h-5"
+  checked={selectedItems.has(`${item.product_id}-${item.category}-${item.theme || ""}`)}
+  onChange={() => handleCheckBoxChange(item.product_id, item.category, item.theme)}
+/>
+
                 <img
                   src={item.productAvatar}
                   alt={item.productName}
@@ -273,6 +295,7 @@ const CartPage = () => {
               <button
                 onClick={() =>
                   handleRemoveItem(item.product_id, item.category, item.theme)
+                  
                 }
                 className="text-red-500 text-xl"
               >

@@ -58,7 +58,7 @@ const ProductDetailClient = () => {
           name={product.name}
           minPrice={minPrice}
           maxPrice={maxPrice}
-          variations={product.variations} cla
+          variations={product.variations} 
         />
       }
       {<ProductDescription description={product.description } ProductId= {productId} />}
