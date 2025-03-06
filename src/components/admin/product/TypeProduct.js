@@ -4,7 +4,7 @@ import { x } from "lucide-react";
 import DeleteIconPNG from "../../../assets/icons/close_ring_light.png"
 export function TypeProduct({ variations, setVariations }) {
   const [items, setItems] = useState([
-    { category: "", stock: "", originalPrice: "", salePrice: "", theme: "" },
+    { category: "", stock: "", originalPrice: "", salePrice: "", theme: "",weight: "" },
   ]);
   const [errors, setErrors] = useState({}); // Lưu trạng thái lỗi
 
@@ -32,6 +32,8 @@ export function TypeProduct({ variations, setVariations }) {
         originalPrice: "",
         salePrice: "",
         theme: "",
+        weight:"",
+        costPrice:""
       },
     ]);
   };
@@ -81,7 +83,34 @@ export function TypeProduct({ variations, setVariations }) {
               className="border-2  text-sm border-gray-600 rounded-lg p-1 w-full focus:outline-none focus:ring-2 focus:ring-primary "
             ></input>
           </div>
+          <div className="flex justify-between w-11/12 ">
+          <div className=" w-full">
+          <p className="font-semibold text-base mt-6 mb-3">Khối lượng sản phẩm (g)</p>
 
+          <input
+              type="text"
+              placeholder="Khối lượng sản phẩm (g)"
+              value={formatCurrency(item.weight) }
+              onChange={(e) => handleAddItem(index, "weight", e.target.value)}
+              className="border-2  text-sm border-gray-600 rounded-lg p-1 w-full focus:outline-none focus:ring-2 focus:ring-primary "
+            ></input>
+          </div>
+         
+          </div>
+          <div className="flex justify-between w-11/12 ">
+          <div className=" w-full">
+          <p className="font-semibold text-base mt-6 mb-3">Giá nhập vào</p>
+
+          <input
+              type="text"
+              placeholder="Giá nhập từ đại lý"
+              value={formatCurrency(item.costPrice)  }
+              onChange={(e) => handleAddItem(index, "costPrice", e.target.value)}
+              className="border-2  text-sm border-gray-600 rounded-lg p-1 w-full focus:outline-none focus:ring-2 focus:ring-primary "
+            ></input>
+          </div>
+         
+          </div>
           <div className="flex justify-between w-11/12 ">
             <div className=" w-1/2">
               <p className="font-semibold text-base mt-6 mb-3">Loại hàng</p>

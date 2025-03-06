@@ -118,6 +118,8 @@ const ProductDetail = ({ onClose }) => {
         stock: Number(v.stock) || 0,
         originalPrice: Number(v.originalPrice) || 0,
         salePrice: Number(v.salePrice) || 0,
+        weight: Number(v.weight) || 0,
+        costPrice: Number(v.costPrice) || 0,
       }));
 
       const newProduct = {
