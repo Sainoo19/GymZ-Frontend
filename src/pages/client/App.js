@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./Home";
 import HeaderClient from "../../components/clients/layouts/HeaderClient";
@@ -42,6 +42,7 @@ import axios from 'axios';
 
 const App = () => {
     const [userRole, setUserRole] = React.useState(null);
+    const [isSidebarHidden, setIsSidebarHidden] = useState(false); // State để ẩn/hiện Sidebar
 
     React.useEffect(() => {
         axios.get('http://localhost:3000/employees/profile', {
@@ -64,11 +65,11 @@ const App = () => {
                 {userRole === 'admin' || userRole === 'staff' || userRole === 'manager' || userRole === 'Quản lí' ? (
                     <>
                         <div className="flex h-screen">
-                            <div className="w-1/5 fixed h-full">
-                                <SideBar />
-                            </div>
-                            <div className="w-1/5"></div>
-                            <div className="w-4/5 p-4">
+                            
+                        <SideBar isSidebarHidden={isSidebarHidden} setIsSidebarHidden={setIsSidebarHidden} />
+                           
+                        <div className={`transition-all duration-300 ${isSidebarHidden ? "w-full" : "w-4/5"} p-4`}>
+
                                 <Header />
                                 <Routes>
                                     <Route path="/admin/" element={<Dashboard />} />

@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { ReactComponent as MyIcon } from "../../../assets/icons/main_icon.svg";
 import { ReactComponent as IconAllProduct } from "../../../assets/icons/Icon_TatCaSanPham.svg";
-import { Menu, X } from "lucide-react"; // Hamburger and close icons
+import { Menu, X } from "lucide-react"; // Hamburger và nút đóng
 
 const navItems = [
     { to: "/", label: "TỔNG QUAN", icon: IconAllProduct },
@@ -13,58 +13,42 @@ const navItems = [
     { to: "/admin/users", label: "KHÁCH HÀNG", icon: IconAllProduct },
     { to: "/admin/branches", label: "CHI NHÁNH", icon: IconAllProduct },
     { to: "/admin/discounts", label: "KHUYẾN MÃI", icon: IconAllProduct }
-    // Add more items here as needed
 ];
 
-const SideBar = () => {
-    const [menuOpen, setMenuOpen] = useState(false);
-
+const SideBar = ({ isSidebarHidden, setIsSidebarHidden }) => {
     return (
-        <div className="flex min-h-screen">
-            {/* Desktop Sidebar */}
-            <nav className="bg-primary w-full min-h-screen lg:block hidden justify-items-center">
-                <div className="pt-7">
-                    <MyIcon className="block w-40 h-20 mx-auto" />
-                </div>
-                {navItems.map((item, index) => (
-                    <Link
-                        key={index}
-                        to={item.to}
-                        className="text-text_color_secondary rounded-lg flex p-4 w-4/5 mt-4 items-center group hover:bg-secondary hover:text-text_color_primary"
-                    >
-                        <item.icon className="mr-2 stroke-current group-hover:stroke-secondary" />
-                        {item.label}
-                    </Link>
-                ))}
-            </nav>
+        <div className={`fixed lg:relative bg-primary h-full transition-all duration-300 ${isSidebarHidden ? "w-0 overflow-hidden" : "w-1/5"}`}>
+            {/* Nút Toggle Sidebar */}
+            <button 
+                className="absolute top-4 right-[-45px] p-2 bg-gray-200 rounded-full shadow-lg lg:hidden"
+                onClick={() => setIsSidebarHidden(!isSidebarHidden)}
+            >
+                {isSidebarHidden ? <Menu className="w-6 h-6" /> : <X className="w-6 h-6" />}
+            </button>
 
-            {/* Mobile Sidebar */}
-            <div className="lg:hidden">
-                <button
-                    className="p-4"
-                    onClick={() => setMenuOpen(!menuOpen)}
-                >
-                    {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                </button>
-                {menuOpen && (
-                    <nav className="bg-primary w-1/5 h-full fixed top-0 left-0 z-50">
-                        <div className="pt-7">
-                            <MyIcon className="block w-40 h-20 mx-auto" />
-                        </div>
+            {/* Chỉ hiển thị menu khi sidebar mở */}
+            {!isSidebarHidden && (
+                <>
+                    {/* Logo */}
+                    <div className="pt-7">
+                        <MyIcon className="block w-40 h-20 mx-auto" />
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="mt-5">
                         {navItems.map((item, index) => (
                             <Link
                                 key={index}
                                 to={item.to}
-                                className="text-text_color_secondary rounded-lg flex p-4 w-4/5 mt-4 items-center group hover:bg-secondary hover:text-text_color_primary"
-                                onClick={() => setMenuOpen(false)}
+                                className="text-text_color_secondary flex p-4 items-center group hover:bg-secondary hover:text-text_color_primary"
                             >
                                 <item.icon className="mr-2 stroke-current group-hover:stroke-secondary" />
                                 {item.label}
                             </Link>
                         ))}
-                    </nav>
-                )}
-            </div>
+                    </div>
+                </>
+            )}
         </div>
     );
 };
