@@ -15,6 +15,7 @@ const CheckOutPage = () => {
   const [userInfo, setUserInfo] = useState(null); // Lưu thông tin giao hàng
   const [orderId, setOrderId] = useState(null); // Lưu orderId sau khi tạo đơn hàng
   const [timeLeft, setTimeLeft] = useState(10); // 15 phút (900 giây)
+  const [deliveryAddress, setDeliveryAddress] = useState(null);
 
   const { selectedItems, discountAmount, taxPercent } = location.state || {
     selectedItems: [],
@@ -61,9 +62,9 @@ const CheckOutPage = () => {
         { status: "Đã hủy" },
         { withCredentials: true }
       );
-      console.log("🚨 Đơn hàng đã bị hủy do quá thời gian thanh toán.");
+      console.log(" Đơn hàng đã bị hủy do quá thời gian thanh toán.");
     } catch (error) {
-      console.error("❌ Lỗi khi hủy đơn hàng:", error);
+      console.error(" Lỗi khi hủy đơn hàng:", error);
     }
   };
 
@@ -75,7 +76,8 @@ const CheckOutPage = () => {
           ⏳ Thanh toán trong: {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, "0")}
         </div>
       )} */}
-      <DeliveryAddress user={userInfo} />
+      <DeliveryAddress user={userInfo} setDeliveryAddress={setDeliveryAddress} />
+      {console.log("CheckOutPage - deliveryAddress:", deliveryAddress)      }
       <ProductsOrdered
         onTotalAmountChange={(amount) => {
           setTotalAmount(amount);
@@ -83,12 +85,15 @@ const CheckOutPage = () => {
         selectedItems={selectedItems}
         discountAmount={discountAmount}
         taxPercent={taxPercent}
+        deliveryAddress={deliveryAddress} 
+
       />
       <PaymentMethods
         totalAmount={totalAmount}
         userInfo={userInfo}
         selectedItems={selectedItems}
         onSelectPayment={handlePaymentSelection} 
+        deliveryAddress={deliveryAddress} 
       />
     </div>
   );

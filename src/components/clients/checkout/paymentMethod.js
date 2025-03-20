@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { FaMoneyBillWave, FaMobileAlt } from "react-icons/fa";
 import axios from "axios";
-
+import MomoBadge from "../../../assets/icons/MomoBadge.svg"
 const PaymentMethods = ({
   totalAmount,
   selectedItems,
   userInfo,
   onSelectPayment ,
+  deliveryAddress 
 }) => {
   const [selectedMethod, setSelectedMethod] = useState("cash");
   const [loading, setLoading] = useState(false);
@@ -14,7 +15,7 @@ const PaymentMethods = ({
 
   const paymentOptions = [
     { id: "cash", label: "Tiền mặt", icon: <FaMoneyBillWave size={20} /> },
-    { id: "momo", label: "MoMo", icon: <FaMobileAlt size={20} /> },
+    { id: "momo", label: "MoMo", icon: <img src={MomoBadge} alt="MoMo" width={50} height={20} /> }
   ];
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -33,73 +34,82 @@ const PaymentMethods = ({
   
     if (!userInfo || totalAmount === 0 || !Array.isArray(selectedItems) || selectedItems.length === 0) {
       alert("Thông tin đơn hàng không hợp lệ!");
-      console.log(userInfo, totalAmount, selectedItems);
+      console.log("Thông tin đơn hàng:", userInfo, totalAmount, selectedItems);
       return;
     }
   
     setLoading(true);
     try {
-      // Bước 1: Gửi yêu cầu tạo đơn hàng
+      console.log(" Gửi yêu cầu tạo đơn hàng...");
+      console.log(" deliveryAddress:",deliveryAddress);
       const orderResponse = await axios.post(
         `${URL_API}orderClient/create`,
         {
           user_id: userInfo._id,
           totalPrice: totalAmount,
           status: "Chờ xác nhận",
-          deliveryPhoneNumber: userInfo.phone,
-          deliveryAdress: `${userInfo.address.street}, ${userInfo.address.city}, ${userInfo.address.country}`,
+          deliveryAddress: {
+            name: deliveryAddress.name,
+            phone: deliveryAddress.phone,
+            street: deliveryAddress.street || "",
+            wardName: deliveryAddress.wardName || "",
+            districtName: deliveryAddress.districtName || "",
+            provinceName: deliveryAddress.provinceName || "",
+          },
           items: selectedItems,
         },
         { withCredentials: true }
       );
   
+      console.log("Phản hồi từ server:", orderResponse.data);
+  
       if (orderResponse.data.order) {
         const orderId = orderResponse.data.order._id;
-        console.log("🎉 Đơn hàng được tạo thành công!", orderResponse.data.order);
+        console.log("🎉 Đơn hàng được tạo thành công với ID:", orderId);
   
         onSelectPayment(selectedMethod, totalAmount);
   
-        // Bước 2: Nếu chọn MoMo thì tiếp tục gửi request thanh toán
         if (selectedMethod === "momo") {
-          console.log("Gửi request MoMo với orderId:", orderId);
+          console.log("🔄 Gửi request thanh toán MoMo với orderId:", orderId);
           if (!orderId) {
-            throw new Error("orderId chưa được tạo, vui lòng thử lại!");
+            throw new Error("Lỗi: orderId chưa được tạo!");
           }
   
           const momoResponse = await axios.post(
             `${URL_API}payment/momopayment`,
-            {
-              amount: totalAmount,
-              orderId: orderId,
-            },
+            { amount: totalAmount, orderId: orderId },
             { withCredentials: true }
           );
   
-          console.log("Phản hồi từ MoMo:", momoResponse.data);
+          console.log(" Phản hồi từ MoMo:", momoResponse.data);
   
-          if (momoResponse.data && momoResponse.data.resultCode === 0) {
-            console.log("Chuyển hướng tới MoMo:", momoResponse.data.payUrl);
-            window.location.href = momoResponse.data.payUrl; // Chuyển hướng tới trang thanh toán MoMo
+          if (momoResponse.data?.resultCode === 0) {
+            console.log("➡️ Chuyển hướng tới MoMo:", momoResponse.data.payUrl);
+            window.location.href = momoResponse.data.payUrl;
           } else {
             alert("Không thể tạo thanh toán MoMo, vui lòng thử lại!");
           }
         } else {
-          alert("✅ Đơn hàng đã được tạo thành công! Vui lòng thanh toán khi nhận hàng.");
+          alert("Đơn hàng đã được tạo thành công! Vui lòng thanh toán khi nhận hàng.");
         }
       } else {
         alert("Không thể tạo đơn hàng!");
       }
     } catch (error) {
-      console.error("Lỗi khi tạo đơn hàng:", error);
-      alert("Lỗi khi tạo đơn hàng!");
+      console.error("Lỗi khi tạo đơn hàng:", error?.response?.data || error.message);
+      alert("Lỗi khi tạo đơn hàng! Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
   };
-  ;
+  
 
   return (
     <div className="p-4 border rounded-lg bg-white">
+
+
+
+
       <h2 className="text-lg font-semibold mb-3">
         Chọn phương thức thanh toán
       </h2>
@@ -128,7 +138,7 @@ const PaymentMethods = ({
       </div>
 
       <button
-        className="mt-4 px-4 py-2 bg-green-500 text-white rounded w-full hover:bg-green-600 transition disabled:bg-gray-400"
+        className="mt-4 px-4 py-2 bg-primary text-white rounded w-full hover:bg-secondary hover:text-primary transition disabled:bg-gray-400"
         onClick={handlePurchase}
         disabled={loading}
       >

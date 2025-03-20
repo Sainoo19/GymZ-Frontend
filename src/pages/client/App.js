@@ -36,101 +36,147 @@ import FooterClient from "../../components/clients/layouts/FooterClient";
 import CartPage from "./cartPage";
 import AboutUs from "./aboutUs";
 import CheckOutPage from "../client/checkOutPage";
-import OrderProgressPage from "./Payment/orderProgressPage"; // Import trang tiến trình đơn hàng
+import OrderProgressPage from "./Payment/orderProgressPage";
+import RevenueAnalysis from "../admin/Analysis/RevenueAnalysis";
 
-import axios from 'axios';
+import axios from "axios";
 
 const App = () => {
-    const [userRole, setUserRole] = React.useState(null);
-    const [isSidebarHidden, setIsSidebarHidden] = useState(false); // State để ẩn/hiện Sidebar
+  const [userRole, setUserRole] = React.useState(null);
+  const [isSidebarHidden, setIsSidebarHidden] = useState(true);
+  const URL_API = process.env.REACT_APP_API_URL;
+  React.useEffect(() => {
+    axios
+      .get(`${URL_API}employees/profile`, {
+        withCredentials: true, // Ensure cookies are sent with the request
+      })
+      .then((response) => {
+        const role = response.data.data.role;
+        setUserRole(role);
+        console.log(role);
+      })
+      .catch((error) => {
+        console.error("Error fetching user role:", error);
+        setUserRole(null);
+      });
+  }, []);
 
-    React.useEffect(() => {
-        axios.get('http://localhost:3000/employees/profile', {
-            withCredentials: true // Ensure cookies are sent with the request
-        })
-            .then(response => {
-                const role = response.data.data.role;
-                setUserRole(role);
-                console.log(role);
-            })
-            .catch(error => {
-                console.error('Error fetching user role:', error);
-                setUserRole(null);
-            });
-    }, []);
+  return (
+    <BrowserRouter>
+      <div className="flex flex-col min-h-screen">
+        {userRole === "admin" ||
+        userRole === "staff" ||
+        userRole === "manager" ||
+        userRole === "Quản lí" ? (
+          <>
+            <div className="flex h-screen">
+              <SideBar
+                isSidebarHidden={isSidebarHidden}
+                setIsSidebarHidden={setIsSidebarHidden}
+              />
 
-    return (
-        <BrowserRouter>
-            <div className="flex flex-col min-h-screen">
-                {userRole === 'admin' || userRole === 'staff' || userRole === 'manager' || userRole === 'Quản lí' ? (
-                    <>
-                        <div className="flex h-screen">
-                            
-                        <SideBar isSidebarHidden={isSidebarHidden} setIsSidebarHidden={setIsSidebarHidden} />
-                           
-                        <div className={`transition-all duration-300 ${isSidebarHidden ? "w-full" : "w-4/5"} p-4`}>
+              <div className="flex-1 p-4">
+                {" "}
+                {/* Không thay đổi width khi sidebar mở */}
+                <Header
+                  isSidebarHidden={isSidebarHidden}
+                  setIsSidebarHidden={setIsSidebarHidden}
+                />
+                <Routes>
+                  <Route path="/admin/" element={<Dashboard />} />
+                  <Route path="admin/branches" element={<Branches />} />
+                  <Route
+                    path="admin/branches/create"
+                    element={<CreateBranch />}
+                  />
+                  <Route
+                    path="admin/branches/:id"
+                    element={<UpdateBranchForm />}
+                  />
+                  <Route path="admin/discounts" element={<Discounts />} />
+                  <Route
+                    path="admin/discounts/create"
+                    element={<CreateDiscount />}
+                  />
+                  <Route
+                    path="admin/discounts/:id"
+                    element={<UpdateDiscountForm />}
+                  />
+                  <Route path="admin/orders" element={<Order />} />
+                  <Route path="admin/orders/create" element={<CreateOrder />} />
+                  <Route
+                    path="admin/orders/:id"
+                    element={<UpdateOrderForm />}
+                  />
+                  <Route path="admin/payments" element={<Payment />} />
+                  <Route
+                    path="admin/payments/create"
+                    element={<CreatePayment />}
+                  />
+                  <Route
+                    path="admin/payments/:id"
+                    element={<UpdatePaymentForm />}
+                  />
+                  <Route path="admin/products" element={<Product />} />
+                  <Route path="admin/users" element={<User />} />
+                  <Route path="admin/users/:id" element={<UpdateUserForm />} />
+                  <Route path="admin/users/create" element={<AddUserForm />} />
+                  <Route path="admin/employees" element={<Employee />} />
+                  <Route path="admin/addproducts" element={<ProductDetail />} />
+                  <Route
+                    path="admin/revenueAnalysis"
+                    element={<RevenueAnalysis />}
+                  />
+                  <Route
+                    path="admin/editproduct/:productId"
+                    element={<ProductDetail />}
+                  />
+                  <Route path="/test" element={<ProductDetailTest />} />
+                  <Route
+                    path="admin/employees/create"
+                    element={<CreateEmployee />}
+                  />
+                  <Route
+                    path="admin/employees/:id"
+                    element={<UpdateEmployeeForm />}
+                  />
+                  <Route path="/login-employee" element={<LoginAdminPage />} />
 
-                                <Header />
-                                <Routes>
-                                    <Route path="/admin/" element={<Dashboard />} />
-                                    <Route path="admin/branches" element={<Branches />} />
-                                    <Route path="admin/branches/create" element={<CreateBranch />} />
-                                    <Route path="admin/branches/:id" element={<UpdateBranchForm />} />
-                                    <Route path="admin/discounts" element={<Discounts />} />
-                                    <Route path="admin/discounts/create" element={<CreateDiscount />} />
-                                    <Route path="admin/discounts/:id" element={<UpdateDiscountForm />} />
-                                    <Route path="admin/orders" element={<Order />} />
-                                    <Route path="admin/orders/create" element={<CreateOrder />} />
-                                    <Route path="admin/orders/:id" element={<UpdateOrderForm />} />
-                                    <Route path="admin/payments" element={<Payment />} />
-                                    <Route path="admin/payments/create" element={<CreatePayment />} />
-                                    <Route path="admin/payments/:id" element={<UpdatePaymentForm />} />
-                                    <Route path="admin/products" element={<Product />} />
-                                    <Route path="admin/users" element={<User />} />
-                                    <Route path="admin/users/:id" element={<UpdateUserForm />} />
-                                    <Route path="admin/users/create" element={<AddUserForm />} />
-                                    <Route path="admin/employees" element={<Employee />} />
-                                    <Route path="admin/addproducts" element={<ProductDetail />} />
-                                    <Route path="admin/editproduct/:productId" element={<ProductDetail />} />
-                                    <Route path="/test" element={<ProductDetailTest />} />
-                                    <Route path="admin/employees/create" element={<CreateEmployee />} />
-                                    <Route path="admin/employees/:id" element={<UpdateEmployeeForm />} />
-                                    <Route path="/login-employee" element={<LoginAdminPage />} /> 
-
-                                    
-                                    {/* Add this route */}
-                                    {/* Add more routes as needed */}
-                                </Routes>
-                            </div>
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <HeaderClient />
-                        <main className="flex-grow">
-                            <Routes>
-                                <Route path="/" element={<Home />} />
-                                <Route path="/login-user" element={<LoginPageUser />} />
-                                <Route path="/login-employee" element={<LoginAdminPage />} />
-                                <Route path="/sign-up" element={<SignUpPageUser />} />
-                                <Route path="/productsclient" element={<ProductsClient />} />
-                                <Route path="/about-us" element={<AboutUs />} />
-                                <Route path="/branches" element={<BranchesClient />} />
-                                <Route path="/productsclient/:productId" element={<ProductDetailClient />} />
-                                <Route path="/cart" element={<CartPage />} />
-                                <Route path="/checkout" element={<CheckOutPage />} />
-                                <Route path="/order-progress" element={<OrderProgressPage />} /> 
-                               
-                               
-                                {/* Add more routes as needed */}
-                            </Routes>
-                        </main>
-                        <FooterClient />
-                    </>
-                )}
+                  {/* Add this route */}
+                  {/* Add more routes as needed */}
+                </Routes>
+              </div>
             </div>
-        </BrowserRouter>
-    );
+          </>
+        ) : (
+          <>
+            <HeaderClient />
+            <main className="flex-grow">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/login-user" element={<LoginPageUser />} />
+                <Route path="/login-employee" element={<LoginAdminPage />} />
+                <Route path="/sign-up" element={<SignUpPageUser />} />
+                <Route path="/productsclient" element={<ProductsClient />} />
+                <Route path="/about-us" element={<AboutUs />} />
+                <Route path="/branches" element={<BranchesClient />} />
+                <Route
+                  path="/productsclient/:productId"
+                  element={<ProductDetailClient />}
+                />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/checkout" element={<CheckOutPage />} />
+                <Route path="/order-progress" element={<OrderProgressPage />} />
+
+                {/* Add more routes as needed */}
+              </Routes>
+            </main>
+            <FooterClient />
+          </>
+        )}
+      </div>
+    </BrowserRouter>
+  );
 };
 
 export default App;

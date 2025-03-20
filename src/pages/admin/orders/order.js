@@ -16,7 +16,7 @@ const Order = () => {
         { field: 'createdAt', label: 'CREATED AT' },
         { field: 'updatedAt', label: 'UPDATED AT' },
     ]);
-
+    const URL_API = process.env.REACT_APP_API_URL;
     const [data, setData] = useState([]);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedOrderId, setSelectedOrderId] = useState(null);
@@ -38,7 +38,7 @@ const Order = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/orders/all`, {
+                const response = await axios.get(`${URL_API}orders/all`, {
                     params: {
                         page: currentPage,
                         limit: 10,

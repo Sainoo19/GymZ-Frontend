@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import * as dvhcvn from "dvhcvn"; // Đảm bảo nhập đúng cách
-import { level1s, findById } from "dvhcvn";
+import { level1s, findById } from "dvhcvn"; 
 
 const AddressSelector = ({ onChange }) => {
-  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedProvince, setSelectedProvince] = useState(""); 
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedWard, setSelectedWard] = useState("");
 
@@ -18,58 +17,56 @@ const AddressSelector = ({ onChange }) => {
   const handleProvinceChange = (e) => {
     const provinceCode = e.target.value;
     const province = findById(provinceCode);
-  
-    setSelectedProvince(provinceCode);
+
+    setSelectedProvince(provinceCode); // ✅ Lưu ID để giữ giá trị hiển thị đúng
     setSelectedDistrict("");
     setSelectedWard("");
     setDistricts(province?.children || []);
     setWards([]);
-  
+
     onChange({
-      province: provinceCode,
-      provinceName: province ? province.name : "", // Lưu cả tên
+      province: province ? province.name : "",
+      provinceName: province ? province.name : "",
       district: "",
       districtName: "",
       ward: "",
       wardName: "",
     });
   };
-  
+
   const handleDistrictChange = (e) => {
     const districtCode = e.target.value;
     const district = findById(districtCode);
-  
+
     setSelectedDistrict(districtCode);
     setSelectedWard("");
     setWards(district?.children || []);
-  
+
     onChange({
-      province: selectedProvince,
+      province: findById(selectedProvince)?.name || "",
       provinceName: findById(selectedProvince)?.name || "",
-      district: districtCode,
-      districtName: district ? district.name : "", // Lưu cả tên
+      district: district ? district.name : "",
+      districtName: district ? district.name : "",
       ward: "",
       wardName: "",
     });
   };
-  
+
   const handleWardChange = (e) => {
     const wardCode = e.target.value;
     const ward = findById(wardCode);
-  
+
     setSelectedWard(wardCode);
-  
+
     onChange({
-      province: selectedProvince,
+      province: findById(selectedProvince)?.name || "",
       provinceName: findById(selectedProvince)?.name || "",
-      district: selectedDistrict,
+      district: findById(selectedDistrict)?.name || "",
       districtName: findById(selectedDistrict)?.name || "",
-      ward: wardCode,
-      wardName: ward ? ward.name : "", // Lưu cả tên
+      ward: ward ? ward.name : "",
+      wardName: ward ? ward.name : "",
     });
   };
-  
-  
 
   return (
     <div className="grid grid-cols-3 gap-4">
@@ -79,8 +76,8 @@ const AddressSelector = ({ onChange }) => {
         <select className="border p-2 w-full rounded-md" value={selectedProvince} onChange={handleProvinceChange}>
           <option value="">Chọn tỉnh/thành</option>
           {provinces.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
+            <option key={p.id} value={p.id}> {/* ✅ Lưu ID */}
+              {p.name} {/* Hiển thị tên */}
             </option>
           ))}
         </select>
@@ -92,8 +89,8 @@ const AddressSelector = ({ onChange }) => {
         <select className="border p-2 w-full rounded-md" value={selectedDistrict} onChange={handleDistrictChange} disabled={!selectedProvince}>
           <option value="">Chọn quận/huyện</option>
           {districts.map((d) => (
-            <option key={d.id} value={d.id}>
-              {d.name}
+            <option key={d.id} value={d.id}> {/* ✅ Lưu ID */}
+              {d.name} {/* Hiển thị tên */}
             </option>
           ))}
         </select>
@@ -105,8 +102,8 @@ const AddressSelector = ({ onChange }) => {
         <select className="border p-2 w-full rounded-md" value={selectedWard} onChange={handleWardChange} disabled={!selectedDistrict}>
           <option value="">Chọn phường/xã</option>
           {wards.map((w) => (
-            <option key={w.id} value={w.id}>
-              {w.name}
+            <option key={w.id} value={w.id}> {/* ✅ Lưu ID */}
+              {w.name} {/* Hiển thị tên */}
             </option>
           ))}
         </select>

@@ -26,6 +26,7 @@ import UpdateEmployeeForm from "./employees/employeesDetail";
 import ProductDetailTest from "../admin/products/productTest";
 import CartPage from "../client/cartPage";
 import OrderProgressPage from "../client/Payment/orderProgressPage";
+import RevenueAnalysisPage from "../admin/Analysis/RevenueAnalysis";
 
 
 
@@ -36,9 +37,7 @@ const AppAdmin = () => {
                 <div className="w-1/5  fixed h-full">
                     <SideBar />
                 </div>
-                <div className="w-1/5">
-
-                </div>
+                
                 <div className="w-4/5 p-4">
                     <Header />
                     <Routes>
@@ -52,7 +51,7 @@ const AppAdmin = () => {
                         <Route path="/orders" element={<Order />} />
                         <Route path="/orders/create" element={<CreateOrder />} />
                         <Route path="/orders/:id" element={<UpdateOrderForm />} />
-                        <Route path="admin/payments" element={<Payment />} />
+                        <Route path="/admin/payments" element={<Payment />} />
                         <Route path="/admin/payments/create" element={<CreatePayment />} />
                         <Route path="/admin/payments/:id" element={<UpdatePaymentForm />} />
                         <Route path="/products" element={<Product />} />
@@ -67,8 +66,8 @@ const AppAdmin = () => {
                         <Route path="/employees/:id" element={<UpdateEmployeeForm />} />
                         <Route path="/cart" element={<CartPage />} />
                         <Route path="/order-progress" element={< OrderProgressPage/>} />
+                        <Route path="/revenueAnalysis" element={< RevenueAnalysisPage/>} />
 
-                        {/* Add more routes as needed */}
                     </Routes>
                 </div>
             </div>

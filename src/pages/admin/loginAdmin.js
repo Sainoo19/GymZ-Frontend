@@ -7,11 +7,11 @@ const LoginAdminPage = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const navigate = useNavigate();
-
+    const API_URL = process.env.REACT_APP_API_URL;
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:3000/auth/login/employee", { email, password }, {
+            const response = await axios.post(`${API_URL}auth/login/employee`, { email, password }, {
                 withCredentials: true // Ensure cookies are sent with the request
             });
             if (response.data.status === "success") {

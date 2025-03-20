@@ -1,81 +1,95 @@
-import React, { useEffect, useState,useMemo  } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import formatCurrency from "../../utils/formatCurrency";
 import axios from "axios";
 
-const ProductsOrdered = ({ selectedItems, onTotalAmountChange, discountAmount, taxPercent  }) => {
-  
+const ProductsOrdered = ({ selectedItems, onTotalAmountChange, discountAmount, taxPercent, deliveryAddress }) => {
+  const API_URL = process.env.REACT_APP_API_URL;
+  const [shippingFee, setShippingFee] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [totalWeight, setTotalWeight] = useState(0);
 
+  // Tính tổng tiền trước thuế
   const totalBeforeTax = useMemo(
     () => selectedItems.reduce((sum, item) => sum + item.quantity * item.price, 0),
     [selectedItems]
   );
 
+  // Tính tổng tiền sau giảm giá
   const totalAfterDiscount = useMemo(() => totalBeforeTax - discountAmount, [totalBeforeTax, discountAmount]);
+
+  // Tính thuế
   const taxAmount = useMemo(() => (totalAfterDiscount * taxPercent) / 100, [totalAfterDiscount, taxPercent]);
-  const finalTotal = useMemo(() => totalAfterDiscount + taxAmount, [totalAfterDiscount, taxAmount]);
+
+  // Tổng tiền trước phí vận chuyển
+  const totalBeforeShipping = useMemo(() => totalAfterDiscount + taxAmount, [totalAfterDiscount, taxAmount]);
+
+  // Tổng tiền sau khi cộng phí vận chuyển
+  const finalTotal = useMemo(() => totalBeforeShipping + (shippingFee?.fee?.fee || 0), [totalBeforeShipping, shippingFee]);
 
   useEffect(() => {
-    console.log("🚀 Tổng tiền gửi lên CheckOutPage:", finalTotal);
-   
     onTotalAmountChange(finalTotal);
-  }, [selectedItems, discountAmount, taxPercent, onTotalAmountChange]);
+  }, [selectedItems, discountAmount, taxPercent, finalTotal, onTotalAmountChange]);
 
-  const [shippingFee, setShippingFee] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const API_URL =  process.env.REACT_APP_API_URL;
-  const fetchShippingFee = async () => {
-    setLoading(true);
-    setError(null);
+  useEffect(() => {
+    const fetchTotalWeight = async () => {
+      if (selectedItems.length === 0) return;
+  
+      try {
+        const response = await axios.post(`${API_URL}shipping/get-total-weight`, { selectedItems });
+        const totalWeight = response.data.totalWeight;
+  
+        setTotalWeight(totalWeight);  // Cập nhật tổng khối lượng
+      } catch (error) {
+        console.error("Lỗi khi lấy tổng khối lượng:", error);
+      }
+    };
+  
+    fetchTotalWeight();
+  }, [selectedItems]);
+  
 
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}shipping/shipping-fee`, {
-        params: {
-          pick_province: "Hồ Chí Minh",
-          pick_district: "Quận Bình Thạnh",
-          province: "Bạc Liêu",
-          district: "phường 3",
-          weight: 1000,  // Đơn vị: Gram
-          // value: 3000000, // Giá trị đơn hàng (VNĐ)
-          deliver_option: "none", 
-        },
-      });
-
-      setShippingFee(response.data);
-    } catch (error) {
-      console.error("Lỗi khi lấy phí vận chuyển:", error);
-      setError(error.response?.data?.message || "Lỗi không xác định");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
+  // Gọi API tính phí vận chuyển tự động khi có địa chỉ giao hàng
+  useEffect(() => {
+    console.log("deliveryAddress",deliveryAddress)
+    if (!deliveryAddress?.province || !deliveryAddress?.district || !deliveryAddress?.ward || totalWeight === 0) return;
+  
+    const fetchShippingFee = async () => {
+      setLoading(true);
+      setError(null);
+  
+      try {
+        const response = await axios.get(`${API_URL}shipping/shipping-fee`, {
+          params: {
+            pick_province: "Hồ Chí Minh",
+            pick_district: "Quận Bình Thạnh",
+            pick_ward: "Phường 13",
+            province: deliveryAddress.province,
+            district: deliveryAddress.district,
+            ward: deliveryAddress.ward,
+            street: deliveryAddress.street,
+            weight: totalWeight,  
+            deliver_option: "none",
+          },
+        });
+  
+        console.log("Tổng khối lượng:", totalWeight);
+        setShippingFee(response.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy phí vận chuyển:", error);
+        setError(error.response?.data?.message || "Lỗi không xác định");
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchShippingFee();
+  }, [deliveryAddress, totalWeight]);  // Thêm totalWeight vào dependency array
+  
 
   return (
     <div className="border rounded-lg p-4 bg-white">
       <h2 className="text-lg font-semibold text-center mb-4">Sản phẩm đã đặt</h2>
-      <div className="container mx-auto p-6">
-      <h2 className="text-xl font-bold mb-4">Tính phí vận chuyển</h2>
-      <button 
-        className="px-4 py-2 bg-blue-500 text-white rounded"
-        onClick={fetchShippingFee}
-        disabled={loading}
-      >
-        {loading ? "Đang tính toán..." : "Lấy phí vận chuyển"}
-      </button>
-
-      {error && <p className="text-red-500 mt-4">❌ {error}</p>}
-
-      {shippingFee && (
-        <div className="mt-4 p-4 border rounded bg-gray-100">
-          <h3 className="text-lg font-semibold">Kết quả:</h3>
-          <p>🛵 Cước vận chuyển: <strong>{shippingFee.fee?.fee.toLocaleString()} VNĐ</strong></p>
-          <p>📦 Phí bảo hiểm: <strong>{shippingFee.fee?.insurance_fee.toLocaleString()} VNĐ</strong></p>
-          <p>📍 Hỗ trợ giao: {shippingFee.fee?.delivery ? "✅ Có" : "❌ Không"}</p>
-        </div>
-      )}
-    </div>
 
       {selectedItems.length > 0 ? (
         <>
@@ -88,14 +102,20 @@ const ProductsOrdered = ({ selectedItems, onTotalAmountChange, discountAmount, t
                   <p className="text-sm text-gray-600">Phân loại: {item.category}</p>
                 </div>
               </div>
-              <span className="text-lg font-medium">{item.quantity} x {formatCurrency(item.price)}₫</span>
+              <span className="text-lg font-medium">
+                {item.quantity} x {formatCurrency(item.price)}₫
+              </span>
             </div>
           ))}
+
           {/* Tổng tiền chi tiết */}
           <div className="text-right font-bold text-lg mt-4">
-          <p>Tổng tiền: {formatCurrency(totalBeforeTax)}₫</p>
-            <p className="text-green-600">Giảm giá: -{formatCurrency(discountAmount)}₫</p>
-            <p className="text-gray-700">Thuế ({taxPercent}%): +{formatCurrency(taxAmount)}₫</p>
+            <p className="text-base">Tổng tiền hàng: {formatCurrency(totalBeforeTax)}₫</p>
+            <p className="text-green-600 text-base">Giảm giá: -{formatCurrency(discountAmount)}₫</p>
+            <p className="text-gray-700 text-base">Thuế ({taxPercent}%): +{formatCurrency(taxAmount)}₫</p>
+            <p className="text-base">
+              Cước vận chuyển: {shippingFee?.fee?.fee ? `${shippingFee.fee.fee.toLocaleString()} VNĐ` : "Chưa tính"}
+            </p>
             <p className="border-t pt-2 mt-2 text-xl text-red-600">
               Tổng thanh toán: {formatCurrency(finalTotal)}₫
             </p>
@@ -107,6 +127,5 @@ const ProductsOrdered = ({ selectedItems, onTotalAmountChange, discountAmount, t
     </div>
   );
 };
-
 
 export default ProductsOrdered;
