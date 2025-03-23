@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {useNavigate} from "react-router-dom";
 import { truncateString } from "../../utils/truncateString";
-const TopProduct = () => {
+const TopProductPage = () => {
     const URL_API = process.env.REACT_APP_API_URL;
     const [topProducts, setTopProducts] = useState([]);
     const navigate = useNavigate();
@@ -38,7 +38,7 @@ const TopProduct = () => {
     
           <button
             className="mt-6 px-4 py-2 mx-auto bg-blue-600 text-white font-semibold rounded hover:bg-blue-700"
-            onClick={() => navigate("/all-products")}
+            onClick={() => navigate("/admin/inventory/top-product-page")}
           >
             Xem Chi Tiết
           </button>
@@ -46,4 +46,4 @@ const TopProduct = () => {
       );
     };
     
-export default TopProduct;
+export default TopProductPage;

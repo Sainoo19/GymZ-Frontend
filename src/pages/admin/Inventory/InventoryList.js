@@ -48,6 +48,7 @@ const InventoryListPage = () => {
             <thead>
               <tr className="bg-gray-100">
                 <th className="border p-2 text-base">ID</th>
+                <th className="border p-2 text-base">Avatar</th>
                 <th className="border p-2 text-base">Tên sản phẩm</th>
                 <th className="border p-2 text-base">Tổng số lượng</th>
                 <th className="border p-2">Biến thể</th>
@@ -59,6 +60,7 @@ const InventoryListPage = () => {
                 item.variations.map((variant, index) => (
                   <tr key={`${item.productId}-${index}`} className="text-center border-b cursor-pointer hover:bg-gray-100" onClick={() => handleItemClick(item.productId, variant.theme)}>
                     {index === 0 && <td className="border p-1 text-sm" rowSpan={item.variations.length}>{item.productId}</td>}
+                    {index === 0 && <td className="border p-1 text-sm" rowSpan={item.variations.length}><img src={item.avatar} alt={item.name} className="w-12 h-12 rounded-md mx-auto" /></td>}
                     {index === 0 && <td className="border p-1 text-sm" rowSpan={item.variations.length}>{item.name}</td>}
                     {index === 0 && <td className="border p-1 text-sm" rowSpan={item.variations.length}>{item.totalStock}</td>}
                     <td className="border p-2 text-sm">{variant.theme} - {variant.category}</td>

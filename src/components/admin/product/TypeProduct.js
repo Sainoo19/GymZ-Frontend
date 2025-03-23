@@ -1,7 +1,5 @@
 import { useRef, useEffect, useState } from "react";
-import { x } from "lucide-react"; 
 
-import DeleteIconPNG from "../../../assets/icons/close_ring_light.png"
 export function TypeProduct({ variations, setVariations }) {
   const [items, setItems] = useState([
     { category: "", stock: "", originalPrice: "", salePrice: "", theme: "",weight: "" },

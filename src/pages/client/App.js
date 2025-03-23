@@ -38,6 +38,9 @@ import AboutUs from "./aboutUs";
 import CheckOutPage from "../client/checkOutPage";
 import OrderProgressPage from "./Payment/orderProgressPage";
 import RevenueAnalysis from "../admin/Analysis/RevenueAnalysis";
+import InventoryListPage from "../admin/Inventory/InventoryList";
+import AddInventory from "../admin/Inventory/AddInventory";
+import TopProductPage from "../../pages/admin/Analysis/TopProductPage";
 
 import axios from "axios";
 
@@ -123,6 +126,10 @@ const App = () => {
                   <Route path="admin/users/create" element={<AddUserForm />} />
                   <Route path="admin/employees" element={<Employee />} />
                   <Route path="admin/addproducts" element={<ProductDetail />} />
+                  <Route path="admin/inventory" element={<InventoryListPage />} />
+                  <Route path="admin/inventory/addinventory/:productId" element={<AddInventory />} />
+                  <Route path="admin/inventory/top-product-page" element={<TopProductPage />} />
+
                   <Route
                     path="admin/revenueAnalysis"
                     element={<RevenueAnalysis />}

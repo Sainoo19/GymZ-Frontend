@@ -4,6 +4,7 @@ import AnalysisCard from "../../components/admin/analysis/analysisCard"
 import TopProduct from '../../components/admin/analysis/topProduct'
 import { getCurrentDate  } from '../../components/utils/getCurrentDate';
 import InventoryList from "../../components/admin/analysis/InventoryList";
+import InventoryInput from '../../components/admin/analysis/InventoryInput';
 const Dashboard = () => {
     const [currentDate, setCurrentDate] = useState(getCurrentDate());
     useEffect(() => {
@@ -23,7 +24,7 @@ const Dashboard = () => {
            <InventoryList/>
            <TopProduct/>
            </div>
-           
+           {/* <InventoryInput/> */}
 
         </div>
     );

@@ -27,7 +27,9 @@ import ProductDetailTest from "../admin/products/productTest";
 import CartPage from "../client/cartPage";
 import OrderProgressPage from "../client/Payment/orderProgressPage";
 import RevenueAnalysisPage from "../admin/Analysis/RevenueAnalysis";
-
+import InventoryListPage from "../admin/Inventory/InventoryList";
+import AddInventory from "../admin/Inventory/AddInventory";
+import TopProductPage from "../../pages/admin/Analysis/TopProductPage"
 
 
 const AppAdmin = () => {
@@ -67,6 +69,9 @@ const AppAdmin = () => {
                         <Route path="/cart" element={<CartPage />} />
                         <Route path="/order-progress" element={< OrderProgressPage/>} />
                         <Route path="/revenueAnalysis" element={< RevenueAnalysisPage/>} />
+                        <Route path="/inventory" element={< InventoryListPage/>} />
+                        <Route path="/inventory/addinventory/:productId" element={< AddInventory/>} />
+                        <Route path="/inventory/top-product-page" element={< TopProductPage/>} />
 
                     </Routes>
                 </div>
