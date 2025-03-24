@@ -39,17 +39,17 @@ const CartPage = () => {
     setSelectedItems((prevSelected) => {
       const newSelected = new Set(prevSelected);
       const itemKey = `${productId}-${category}-${theme || ""}`; // Tạo key duy nhất
-  
+
       if (newSelected.has(itemKey)) {
         newSelected.delete(itemKey); // Bỏ chọn
       } else {
         newSelected.add(itemKey); // Chọn sản phẩm chính xác
       }
-  
+
       return newSelected;
     });
   };
-  
+
   const handleChangeQuantity = (e) => {
     const value = e.target.value;
     if (!isNaN(value) && Number(value) >= 1) {
@@ -63,12 +63,12 @@ const CartPage = () => {
     const selectedProducts = cart.items.filter((item) =>
       selectedItems.has(`${item.product_id}-${item.category}-${item.theme || ""}`)
     );
-  
+
     navigate("/checkout", {
       state: { selectedItems: selectedProducts, discountAmount, taxPercent },
     });
   };
-  
+
 
   const handleRemoveItem = (product_id, category, theme) => {
     axios
@@ -78,16 +78,20 @@ const CartPage = () => {
       })
       .then((response) => {
         console.log("Cart after removing item:", response.data.cart);
-  
-        // Xóa sản phẩm khỏi state ngay lập tức
+
+        // Xóa đúng sản phẩm dựa trên product_id, category và theme
         setCart((prevCart) => ({
           ...prevCart,
-          items: prevCart.items.filter((item) => item.product_id !== product_id),
+          items: prevCart.items.filter(
+            (item) =>
+              !(item.product_id === product_id &&
+                item.category === category &&
+                item.theme === theme)
+          ),
         }));
       })
       .catch((error) => console.error("Lỗi khi xoá sản phẩm:", error));
   };
-  
 
   const updateQuantity = (productId, category, theme, newQuantity) => {
     if (!productId || !category || newQuantity < 1) {
@@ -123,7 +127,9 @@ const CartPage = () => {
         setCart((prevCart) => ({
           ...prevCart,
           items: prevCart.items.map((item) =>
-            item.product_id === productId
+            item.product_id === productId &&
+              item.category === category &&
+              item.theme === theme
               ? { ...item, quantity: newQuantity }
               : item
           ),
@@ -176,8 +182,7 @@ const CartPage = () => {
         setMaxDiscountAmount(data.maxDiscountAmount || 0); // Lưu maxDiscountAmount
         setApplicableProducts(new Set(data.applicableProducts || []));
         alert(
-          `✅ Mã giảm giá đã được áp dụng! Giảm ${
-            data.discountPercent
+          `✅ Mã giảm giá đã được áp dụng! Giảm ${data.discountPercent
           }%, giảm tối đa ${formatCurrency(data.maxDiscountAmount)}đ`
         );
         console.log(
@@ -205,7 +210,7 @@ const CartPage = () => {
     );
     return sum + (item ? item.price * item.quantity : 0);
   }, 0);
-  
+
 
   // Tổng tiền chỉ cho các sản phẩm được áp dụng giảm giá
   const totalApplicableProductPrice = Array.from(selectedItems).reduce((sum, key) => {
@@ -221,7 +226,7 @@ const CartPage = () => {
     }
     return sum;
   }, 0);
-  
+
 
   const discountAmount = Math.min(
     (totalApplicableProductPrice * discountPercent) / 100,
@@ -252,12 +257,12 @@ const CartPage = () => {
               className="grid grid-cols-5 items-center py-4 border-b"
             >
               <div className="flex items-center gap-4">
-              <input
-  type="checkbox"
-  className="w-5 h-5"
-  checked={selectedItems.has(`${item.product_id}-${item.category}-${item.theme || ""}`)}
-  onChange={() => handleCheckBoxChange(item.product_id, item.category, item.theme)}
-/>
+                <input
+                  type="checkbox"
+                  className="w-5 h-5"
+                  checked={selectedItems.has(`${item.product_id}-${item.category}-${item.theme || ""}`)}
+                  onChange={() => handleCheckBoxChange(item.product_id, item.category, item.theme)}
+                />
 
                 <img
                   src={item.productAvatar}
@@ -295,7 +300,7 @@ const CartPage = () => {
               <button
                 onClick={() =>
                   handleRemoveItem(item.product_id, item.category, item.theme)
-                  
+
                 }
                 className="text-red-500 text-xl"
               >
