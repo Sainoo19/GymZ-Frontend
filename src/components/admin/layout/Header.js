@@ -38,7 +38,8 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
       });
 
       socket.on("newOrder", (order) => {
-        console.log("Đơn hàng mới:", order);
+        console.log("🔔 Nhận thông báo đơn hàng mới:", order);
+        setNewOrders((prev) => prev + 1); // Tăng số lượng thông báo
         setNotifications((prev) => [
           ...prev,
           {
@@ -48,7 +49,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
           },
         ]);
       });
-  
+    
       return () => {
         socket.off("newOrder");
       };
@@ -96,27 +97,27 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
       <div className="flex items-center space-x-4">
         {/* 🔔 Biểu tượng thông báo */}
         <div className="relative">
-          <FaBell className="text-xl cursor-pointer" />
-          {notifications.length > 0 && (
-            <span className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-              {notifications.length}
-            </span>
-          )}
+  <FaBell className="text-xl cursor-pointer" onClick={() => setNewOrders(0)} />
+  {newOrders > 0 && (
+    <span className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+      {newOrders}
+    </span>
+  )}
 
-          {/* Danh sách thông báo */}
-          <div className="absolute right-0 mt-2 w-64 bg-white text-black rounded shadow-lg">
-            {notifications.length === 0 ? (
-              <p className="p-4">Không có thông báo</p>
-            ) : (
-              notifications.map((order, index) => (
-                <p key={index} className="p-4 border-b">
-                  🛒 Đơn hàng mới từ <strong>{order.customer}</strong>, tổng tiền:{" "}
-                  <strong>{order.total} đ</strong>
-                </p>
-              ))
-            )}
-          </div>
-        </div>
+  {/* Danh sách thông báo */}
+  <div className="absolute right-0 mt-2 w-64 bg-white text-black rounded shadow-lg">
+    {notifications.length === 0 ? (
+      <p className="p-4">Không có thông báo</p>
+    ) : (
+      notifications.map((order, index) => (
+        <p key={index} className="p-4 border-b">
+          🛒 Đơn hàng mới từ <strong>{order.customer}</strong>, tổng tiền:{" "}
+          <strong>{order.total} đ</strong>
+        </p>
+      ))
+    )}
+  </div>
+</div>
 
 
         <div className="relative">
