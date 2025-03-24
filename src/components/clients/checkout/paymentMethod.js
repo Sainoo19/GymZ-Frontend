@@ -80,7 +80,7 @@ const PaymentMethods = ({
           // ✅ Nếu chọn COD, cập nhật trạng thái đơn hàng là "Chờ xác nhận"
           await axios.put(`${URL_API}orderClient/update-status`, {
             orderId,
-            status: "Chờ xác nhận",
+            status: "Đặt hàng thành công",
           });
   
           alert("Đơn hàng đã được tạo thành công! Vui lòng thanh toán khi nhận hàng.");
@@ -99,7 +99,7 @@ const PaymentMethods = ({
   
 
   return (
-    <div className="p-4 border rounded-lg bg-white">
+    <div className="p-4 border  mt-3 rounded-lg bg-white">
       <h2 className="text-lg font-semibold mb-3">Chọn phương thức thanh toán</h2>
       <div className="flex flex-col gap-3">
         {paymentOptions.map((option) => (

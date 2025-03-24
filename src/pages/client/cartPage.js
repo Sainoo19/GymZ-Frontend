@@ -162,7 +162,7 @@ const CartPage = () => {
     const trimmedCode = discountCode.trim();
 
     if (!trimmedCode) {
-      alert("⚠️ Vui lòng nhập mã giảm giá!");
+      alert("Vui lòng nhập mã giảm giá!");
       return;
     }
 
@@ -234,8 +234,7 @@ const CartPage = () => {
   );
 
   const discountedTotal = totalAllProdctCartPrice - discountAmount;
-  const tax = (totalAllProdctCartPrice * taxPercent) / 100;
-  totalPrice = discountedTotal + tax;
+  totalPrice = discountedTotal;
 
   return (
     <div className="container mx-auto  w-4/5 ">
@@ -327,18 +326,9 @@ const CartPage = () => {
               Nhập
             </button>
           </div>
-          <div className="border-t pt-4">
-            <p className="text-sm">
-              Tạm Tính:{" "}
-              <span className="float-right">
-                {" "}
-                {formatCurrency(totalAllProdctCartPrice)}₫
-              </span>
-            </p>
-            <p className="text-sm mt-2">
-              Thuế (5%):{" "}
-              <span className="float-right"> + {formatCurrency(tax)}₫</span>
-            </p>
+          <div className=" pt-4">
+            
+           
             {discountPercent > 0 && (
               <p className="text-sm  mt-2">
                 Khuyến Mãi: -{discountPercent}%
@@ -348,7 +338,7 @@ const CartPage = () => {
               </p>
             )}
             <p className="font-semibold  mt-2 text-lg border-t pt-2">
-              Tổng Tiền:{" "}
+              Tạm tính:{" "}
               <span className="float-right">{formatCurrency(totalPrice)}₫</span>
             </p>
           </div>

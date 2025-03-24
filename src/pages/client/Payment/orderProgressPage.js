@@ -17,7 +17,7 @@ const OrderProgressPage = () => {
       );
 
       const processOrder = async () => {
-        await updateOrderStatus(); // Cập nhật trạng thái đơn hàng
+        // await updateOrderStatus(); // Cập nhật trạng thái đơn hàng
         await createPayment(); // Tạo payment
         await updateStockAfterPayment(); // Trừ stock sau khi thanh toán
         await clearPaidItemsFromCart(orderId); 
@@ -31,19 +31,19 @@ const OrderProgressPage = () => {
     }
   }, [orderId]);
 
-  const updateOrderStatus = async () => {
-    try {
-      await axios.put(`${URL_API}orderClient/update-status`, {
-        orderId,
-        status: "Đã thanh toán",
-      });
-      console.log(
-        "✅ Trạng thái đơn hàng đã được cập nhật thành 'Đã thanh toán'"
-      );
-    } catch (error) {
-      console.error("❌ Lỗi cập nhật trạng thái đơn hàng:", error);
-    }
-  };
+  // const updateOrderStatus = async () => {
+  //   try {
+  //     await axios.put(`${URL_API}orderClient/update-status`, {
+  //       orderId,
+  //       status: "Đã thanh toán",
+  //     });
+  //     console.log(
+  //       "✅ Trạng thái đơn hàng đã được cập nhật thành 'Đã thanh toán'"
+  //     );
+  //   } catch (error) {
+  //     console.error("❌ Lỗi cập nhật trạng thái đơn hàng:", error);
+  //   }
+  // };
 
   const clearPaidItemsFromCart = async (orderId) => {
     try {
@@ -95,7 +95,7 @@ const OrderProgressPage = () => {
         response.data
       );
     } catch (error) {
-      console.error("❌ Lỗi cập nhật số lượng sản phẩm:", error);
+      console.error("Lỗi cập nhật số lượng sản phẩm:", error);
     }
   };
 

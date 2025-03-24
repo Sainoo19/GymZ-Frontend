@@ -77,7 +77,8 @@ const CheckOutPage = () => {
         </div>
       )} */}
       <DeliveryAddress user={userInfo} setDeliveryAddress={setDeliveryAddress} />
-      {console.log("CheckOutPage - deliveryAddress:", deliveryAddress)      }
+    
+      
       <ProductsOrdered
         onTotalAmountChange={(amount) => {
           setTotalAmount(amount);
