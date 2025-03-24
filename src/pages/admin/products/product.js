@@ -1,59 +1,70 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { MoreHorizontal } from "lucide-react";
-import { FaFilter } from 'react-icons/fa';
+import { FaFilter } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { PlusCircle } from "lucide-react";
-import Pagination from '../../components/admin/layout/Pagination';
-
+import Pagination from "../../../components/admin/layout/Pagination";
+import ImportStockModal from "../../../components/admin/product/ImportStockModal";
 const ProductCard = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [minMaxPrices, setMinMaxPrices] = useState({});
   const [stocks, setStocks] = useState({}); // Thêm state lưu trữ stock
   const [isMenuVisible, setMenuVisible] = useState(null);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
   const [filters, setFilters] = useState({
-    category: '',
-    minPrice: '',
-    maxPrice: ''
+    category: "",
+    minPrice: "",
+    maxPrice: "",
   });
+
   //Tạo biến cho "Sản phẩm BÁN"
   const Selling = 100;
 
+  const handleOpenImportModal = (product) => {
+    setSelectedProduct(product);
+    setMenuVisible(null); // Ẩn menu khi mở modal nhập hàng
+
+  };
+
+  const handleCloseImportModal = () => {
+    setSelectedProduct(null);
+  };
+
+  const URL_API = process.env.REACT_APP_API_URL;
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/products/all', {
+        const response = await axios.get(`${URL_API}products/all`, {
           params: {
             page: currentPage, // Đã có biến này nhưng useEffect chưa theo dõi nó
             limit: 12,
             search,
-            ...filters
-          }
+            ...filters,
+          },
         });
-        if (response.data.status === 'success') {
+        if (response.data.status === "success") {
           setProducts(response.data.data.products);
           setTotalPages(response.data.metadata.totalPages);
         } else {
-          console.error('API response error:', response.data.message);
+          console.error("API response error:", response.data.message);
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
 
     const fetchMinMaxPrices = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3000/products/minmaxprice",
-          {
-            headers: { "Cache-Control": "no-cache" },
-          }
-        );
+        const response = await axios.get(`${URL_API}products/minmaxprice`, {
+          headers: { "Cache-Control": "no-cache" },
+        });
         const priceMap = response.data.data.reduce((acc, item) => {
           acc[item.productId] = {
             min: item.minSalePrice,
@@ -80,7 +91,7 @@ const ProductCard = () => {
         const stockData = {};
         for (const product of products) {
           const response = await axios.get(
-            `http://localhost:3000/products/stock/${product._id}`
+            `${URL_API}products/stock/${product._id}`
           );
           stockData[product._id] = response.data.totalStock;
         }
@@ -112,9 +123,7 @@ const ProductCard = () => {
   const handleDeleteProduct = async (productId) => {
     if (window.confirm("Bạn có chắc chắn muốn xoá sản phẩm này?")) {
       try {
-        await axios.delete(
-          `http://localhost:3000/products/delete/${productId}`
-        );
+        await axios.delete(`${URL_API}products/delete/${productId}`);
         setProducts((prevProducts) =>
           prevProducts.filter((product) => product._id !== productId)
         );
@@ -124,18 +133,17 @@ const ProductCard = () => {
     }
   };
   const handleEditProduct = (productId) => {
-    navigate(`/editproduct/${productId}`);
-  }
-  //tìm kiếm 
+    navigate(`/admin/editproduct/${productId}`);
+  };
+  //tìm kiếm
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearch(value);
 
-    if (value === '') {
-      setFilters({ category: '', minPrice: '', maxPrice: '' }); // Reset bộ lọc
+    if (value === "") {
+      setFilters({ category: "", minPrice: "", maxPrice: "" }); // Reset bộ lọc
     }
   };
-
 
   const toggleFilterModal = () => {
     setIsFilterModalOpen(!isFilterModalOpen);
@@ -146,7 +154,7 @@ const ProductCard = () => {
   const handleFilterChange = (e) => {
     setFilters({
       ...filters,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -156,7 +164,7 @@ const ProductCard = () => {
   };
 
   return (
-    <div className="mt-4 mb-5">
+    <div className="mt-24 mb-5">
       <div className="flex justify-between items-center mb-4 w-full">
         <h1 className="text-2xl font-bold">Tất Cả Sản Phẩm</h1>
         <div className="flex items-center space-x-2">
@@ -175,7 +183,7 @@ const ProductCard = () => {
           </button>
           <button
             className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all flex items-center"
-            onClick={() => navigate("/addproducts")}
+            onClick={() => navigate("/admin/addproducts")}
           >
             <PlusCircle size={20} className="mr-2" />
             THÊM SẢN PHẨM
@@ -195,11 +203,16 @@ const ProductCard = () => {
 
             if (!priceData && product.variations?.length > 0) {
               const prices = product.variations.map((v) => v.salePrice);
-              priceText = `${Math.min(...prices).toLocaleString()}đ - ${Math.max(...prices).toLocaleString()}đ`;
+              priceText = `${Math.min(
+                ...prices
+              ).toLocaleString()}đ - ${Math.max(...prices).toLocaleString()}đ`;
             }
 
             return (
-              <div key={product._id} className="p-4 rounded-2xl shadow-md bg-white relative flex flex-col min-h-[320px] justify-between">
+              <div
+                key={product._id}
+                className="p-4 rounded-2xl shadow-md bg-white relative flex flex-col min-h-[320px] justify-between"
+              >
                 <div className="absolute top-2 right-2 cursor-pointer">
                   <MoreHorizontal
                     size={20}
@@ -212,15 +225,25 @@ const ProductCard = () => {
                 </div>
 
                 {isMenuVisible === product._id && (
-                  <div className="absolute top-10 right-2 bg-white shadow-md rounded-md w-40 z-10 menu-container">
+                  <div className="absolute top-10 right-2 bg-gray-100 shadow-md rounded-md w-40 z-10 menu-container">
                     <ul className="text-sm text-gray-700">
                       <li
-                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        className="px-4 py-2 hover:bg-primary hover:text-white cursor-pointer"
+                        onClick={() => handleOpenImportModal(product)}
+                      >
+                        Nhập hàng
+                      </li>
+
+                      <li
+                        className="px-4 py-2  hover:bg-primary hover:text-white cursor-pointer"
                         onClick={() => handleEditProduct(product._id)}
                       >
                         Chỉnh sửa
                       </li>
-                      <li className="px-4 py-2 hover:bg-red-100 text-red-600 cursor-pointer" onClick={() => handleDeleteProduct(product._id)}>
+                      <li
+                        className="px-4 py-2 hover:bg-red-100 text-red-600 cursor-pointer"
+                        onClick={() => handleDeleteProduct(product._id)}
+                      >
                         Xóa
                       </li>
                     </ul>
@@ -228,7 +251,11 @@ const ProductCard = () => {
                 )}
 
                 <div className="flex items-start gap-4">
-                  <img src={product.avatar || "/whey.png"} alt={product.name} className="w-20 h-20 object-cover rounded-md" />
+                  <img
+                    src={product.avatar || "/whey.png"}
+                    alt={product.name}
+                    className="w-20 h-20 object-cover rounded-md"
+                  />
                   <div className="flex flex-col justify-between h-full flex-grow">
                     <p className="font-semibold text-[30px]">{product.name}</p>
                     <p className="font-base text-[30px]">{product.category}</p>
@@ -249,7 +276,6 @@ const ProductCard = () => {
                       <span>{stock - Selling >= 0 ? stock - Selling : 0}</span>
                     </div>
                   </div>
-
                 </div>
               </div>
             );
@@ -261,7 +287,11 @@ const ProductCard = () => {
 
       {/* Di chuyển phân trang xuống cuối */}
       <div className="mt-6">
-        <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+        />
       </div>
 
       {isFilterModalOpen && (
@@ -311,8 +341,22 @@ const ProductCard = () => {
           </div>
         </div>
       )}
+      {selectedProduct && (
+  <ImportStockModal
+    product={selectedProduct}
+    onClose={handleCloseImportModal}
+    onStockUpdate={(updatedProduct) => {
+      setStocks((prevStocks) => ({
+        ...prevStocks,
+        [updatedProduct._id]: updatedProduct.totalStock,
+      }));
+    }}
+  />
+)}
+
     </div>
+    
   );
-}
+};
 
 export default ProductCard;

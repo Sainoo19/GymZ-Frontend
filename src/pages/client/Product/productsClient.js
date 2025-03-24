@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import ProductCard from "../../components/clients/product/ProductCard";
-import Search from "../../components/clients/product/Search";
-import Pagination from "../../components/admin/layout/Pagination";
+import ProductCard from "../../../components/clients/product/ProductCard";
+import Search from "../../../components/clients/product/Search";
+import Pagination from "../../../components/admin/layout/Pagination";
 // import Banner from "../../components/clients/product/Banner"
 
 const ProductsClient = () => {

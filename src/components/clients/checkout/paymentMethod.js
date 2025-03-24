@@ -3,6 +3,7 @@ import { FaMoneyBillWave, FaMobileAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";  // Import useNavigate
 import axios from "axios";
 import MomoBadge from "../../../assets/icons/MomoBadge.svg";
+import CODShipmentBadge from "../../../assets/icons/CODShipmentBadge.svg";
 
 const PaymentMethods = ({
   totalAmount,
@@ -17,7 +18,7 @@ const PaymentMethods = ({
   const URL_API = process.env.REACT_APP_API_URL;
 
   const paymentOptions = [
-    { id: "cash", label: "Thanh toán khi nhận hàng (COD)", icon: <FaMoneyBillWave size={20} /> },
+    { id: "cash", label: "Thanh toán khi nhận hàng (COD)", icon: <img src={CODShipmentBadge} alt="MoMo" width={50} height={20}  /> },
     { id: "momo", label: "MoMo", icon: <img src={MomoBadge} alt="MoMo" width={50} height={20} /> },
   ];
 

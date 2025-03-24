@@ -6,7 +6,7 @@ import { Menu, X } from "lucide-react";
 
 const navItems = [
     { to: "/admin/", label: "TỔNG QUAN", icon: IconAllProduct },
-    { to: "/admin/inventory", label: "NHẬP KHO", icon: IconAllProduct },
+    // { to: "/admin/inventory", label: "NHẬP KHO", icon: IconAllProduct },
     { to: "/admin/orders", label: "ĐƠN HÀNG", icon: IconAllProduct },
     { to: "/admin/payments", label: "HOÁ ĐƠN", icon: IconAllProduct },
     { to: "/admin/products", label: "SẢN PHẨM", icon: IconAllProduct },

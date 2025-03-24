@@ -8,7 +8,7 @@ import CreateOrder from "../admin/orders/createOrder";
 import Payment from "../admin/payments/payment";
 import CreatePayment from "../admin/payments/createPayments";
 import UpdatePaymentForm from "../admin/payments/paymentsDetail";
-import Product from "./product";
+import Product from "../admin/products/product";
 import Branches from "../admin/branches/branches";
 import CreateBranch from "../admin/branches/branchesCreate";
 import UpdateBranchForm from "../admin/branches/branchesDetail";
