@@ -41,7 +41,7 @@ const PaymentMethods = ({
     setLoading(true);
     try {
       console.log(" Gửi yêu cầu tạo đơn hàng...");
-      console.log(" deliveryAddress:",deliveryAddress);
+      console.log(" deliveryAddress1:",deliveryAddress);
       const orderResponse = await axios.post(
         `${URL_API}orderClient/create`,
         {
@@ -52,9 +52,9 @@ const PaymentMethods = ({
             name: deliveryAddress.name,
             phone: deliveryAddress.phone,
             street: deliveryAddress.street || "",
-            wardName: deliveryAddress.wardName || "",
-            districtName: deliveryAddress.districtName || "",
-            provinceName: deliveryAddress.provinceName || "",
+            wardName: deliveryAddress.ward || "",
+            districtName: deliveryAddress.district || "",
+            provinceName: deliveryAddress.province || "",
           },
           items: selectedItems,
         },
@@ -65,12 +65,12 @@ const PaymentMethods = ({
   
       if (orderResponse.data.order) {
         const orderId = orderResponse.data.order._id;
-        console.log("🎉 Đơn hàng được tạo thành công với ID:", orderId);
+        console.log("Đơn hàng được tạo thành công với ID:", orderId);
   
         onSelectPayment(selectedMethod, totalAmount);
   
         if (selectedMethod === "momo") {
-          console.log("🔄 Gửi request thanh toán MoMo với orderId:", orderId);
+          console.log("gửi request thanh toán MoMo với orderId:", orderId);
           if (!orderId) {
             throw new Error("Lỗi: orderId chưa được tạo!");
           }

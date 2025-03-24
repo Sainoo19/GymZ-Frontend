@@ -51,7 +51,7 @@ const ProductsOrdered = ({ selectedItems, onTotalAmountChange, discountAmount, t
 
   // Gọi API tính phí vận chuyển tự động khi có địa chỉ giao hàng
   useEffect(() => {
-    console.log("deliveryAddress",deliveryAddress)
+    console.log("deliveryAddress api",deliveryAddress)
     if (!deliveryAddress?.province || !deliveryAddress?.district || !deliveryAddress?.ward || totalWeight === 0) return;
   
     const fetchShippingFee = async () => {
