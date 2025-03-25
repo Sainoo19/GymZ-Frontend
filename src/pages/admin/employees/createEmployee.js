@@ -174,11 +174,12 @@ const CreateEmployee = () => {
             placeholder="Nhập lương"
           />
         </div>
+
         {/* Chọn Chi Nhánh */}
         <div>
           <label className="block text-sm font-medium">Chi nhánh</label>
           <select
-            value={employee.branch_id}
+            value={userRole === 'manager' ? userBranchId : employee.branch_id}
             onChange={(e) =>
               setEmployee({ ...employee, branch_id: e.target.value })
             }
@@ -188,10 +189,15 @@ const CreateEmployee = () => {
             <option value="">Chọn chi nhánh</option>
             {branches.map((branch) => (
               <option key={branch._id} value={branch._id}>
-                {branch._id}
+                {branch.name} ({branch._id})
               </option>
             ))}
           </select>
+          {userRole === 'manager' && (
+            <p className="text-sm text-gray-500 mt-1">
+              Bạn chỉ có thể thêm nhân viên vào chi nhánh của mình.
+            </p>
+          )}
         </div>
 
         {/* Chọn Vai Trò */}
@@ -206,6 +212,7 @@ const CreateEmployee = () => {
             <option value="admin">Quản trị viên</option>
             <option value="manager">Quản lý</option>
             <option value="staff">Nhân viên</option>
+            <option value="PT">PT</option>
           </select>
         </div>
 

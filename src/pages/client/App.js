@@ -41,6 +41,12 @@ import RevenueAnalysis from "../admin/Analysis/RevenueAnalysis";
 import InventoryListPage from "../admin/Inventory/InventoryList";
 import AddInventory from "../admin/Inventory/AddInventory";
 import TopProductPage from "../../pages/admin/Analysis/TopProductPage";
+import ProfilePage from "./profile/profile";
+import ChangePasswordPage from "./profile/privacy";
+import ForgotPasswordPage from "../../components/clients/users/ForgotPasswordPage";
+import Members from "../admin/members/members";
+import CreateMember from "../admin/members/memberCreate";
+import UpdateMemberForm from "../admin/members/memberDetail";
 
 import axios from "axios";
 
@@ -68,9 +74,9 @@ const App = () => {
     <BrowserRouter>
       <div className="flex flex-col min-h-screen">
         {userRole === "admin" ||
-        userRole === "staff" ||
-        userRole === "manager" ||
-        userRole === "Quản lí" ? (
+          userRole === "staff" ||
+          userRole === "manager" ||
+          userRole === "Quản lí" ? (
           <>
             <div className="flex h-screen">
               <SideBar
@@ -85,6 +91,7 @@ const App = () => {
                   isSidebarHidden={isSidebarHidden}
                   setIsSidebarHidden={setIsSidebarHidden}
                 />
+                <div className="mt-20"></div>
                 <Routes>
                   <Route path="/admin/" element={<Dashboard />} />
                   <Route path="admin/branches" element={<Branches />} />
@@ -125,6 +132,7 @@ const App = () => {
                   <Route path="admin/users/:id" element={<UpdateUserForm />} />
                   <Route path="admin/users/create" element={<AddUserForm />} />
                   <Route path="admin/employees" element={<Employee />} />
+                  <Route path="admin/members" element={<Members />} />
                   <Route path="admin/addproducts" element={<ProductDetail />} />
                   <Route path="admin/inventory" element={<InventoryListPage />} />
                   <Route path="admin/inventory/addinventory/:productId" element={<AddInventory />} />
@@ -144,8 +152,20 @@ const App = () => {
                     element={<CreateEmployee />}
                   />
                   <Route
+                    path="admin/employees/create"
+                    element={<CreateEmployee />}
+                  />
+                  <Route
                     path="admin/employees/:id"
                     element={<UpdateEmployeeForm />}
+                  />
+                  <Route
+                    path="admin/members/create"
+                    element={<CreateMember />}
+                  />
+                  <Route
+                    path="admin/members/:id"
+                    element={<UpdateMemberForm />}
                   />
                   <Route path="/login-employee" element={<LoginAdminPage />} />
 
@@ -174,7 +194,9 @@ const App = () => {
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckOutPage />} />
                 <Route path="/order-progress" element={<OrderProgressPage />} />
-
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/change-password" element={<ChangePasswordPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 {/* Add more routes as needed */}
               </Routes>
             </main>

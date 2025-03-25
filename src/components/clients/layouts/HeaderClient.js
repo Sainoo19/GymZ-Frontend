@@ -112,7 +112,7 @@ const HeaderClient = () => {
               Chi Nhánh
             </a>
             <a
-              href="/about"
+              href="/about-us"
               className="text-sm/6 font-semibold text-white  px-3 py-2 rounded-lg hover:bg-secondary hover:text-primary"
             >
               Về chúng tôi
@@ -298,14 +298,14 @@ const HeaderClient = () => {
                   Về chúng tôi
                 </a>
                 {!isLoggedIn && (
-                  
-                    <button
-                  className="-mx-3 w-full text-left block rounded-lg px-3  py-2 text-base font-semibold text-white hover:bg-secondary hover:text-primary"
-                  onClick={handleLoginClick}
-                    >
-                      Đăng nhập
-                    </button>
-                  
+
+                  <button
+                    className="-mx-3 w-full text-left block rounded-lg px-3  py-2 text-base font-semibold text-white hover:bg-secondary hover:text-primary"
+                    onClick={handleLoginClick}
+                  >
+                    Đăng nhập
+                  </button>
+
                 )}
               </div>
             </div>

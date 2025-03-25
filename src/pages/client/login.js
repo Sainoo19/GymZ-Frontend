@@ -69,7 +69,7 @@ const LoginPageUser = () => {
                         </div>
                         {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
                         <div className="flex items-center justify-between mb-6">
-                            <a className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="#">
+                            <a className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="/forgot-password">
                                 Quên mật khẩu?
                             </a>
                         </div>
