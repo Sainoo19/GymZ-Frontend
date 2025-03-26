@@ -3,7 +3,8 @@ import { FaBell, FaBars, FaTimes } from "react-icons/fa";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import { io } from "socket.io-client";
+import { onMessage } from "firebase/messaging";
+import { messaging } from "../../../firebase"; // Đảm bảo đường dẫn đúng với tệp firebase.js của bạn
 
 const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
   const [accountMenuVisible, setAccountMenuVisible] = useState(false);
@@ -12,20 +13,13 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
   const [newOrders, setNewOrders] = useState(0); // Số đơn hàng mới
   const [notifications, setNotifications] = useState([]);
 
-  const URL_SOCKET = process.env.REACT_APP_SOCKET;
-  const socket = io("http://localhost:3000", {
-    transports: ["websocket", "polling"] // Đảm bảo WebSocket và Polling đều được bật
-  });
-  
-  socket.on("connect", () => {
-    console.log("Connected to WebSocket server");
-  });
-  
-  socket.on("disconnect", () => {
-    console.log("Disconnected from WebSocket server");
-  });
-
   useEffect(() => {
+
+    onMessage(messaging, (payload) => {
+      setNotifications((prev) => [...prev, payload.notification]);
+      setNewOrders((prev) => prev + 1); // Tăng số đơn hàng mới
+    });
+    
     axios
       .get("http://localhost:3000/employees/profile", {
         withCredentials: true,
@@ -36,24 +30,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
       .catch((error) => {
         console.error("Error fetching employee data:", error);
       });
-
-      socket.on("newOrder", (order) => {
-        console.log("🔔 Nhận thông báo đơn hàng mới:", order);
-        setNewOrders((prev) => prev + 1); // Tăng số lượng thông báo
-        setNotifications((prev) => [
-          ...prev,
-          {
-            orderId: order.orderId,
-            customer: order.customer || "Khách hàng ẩn danh",
-            total: order.totalPrice || 0,
-          },
-        ]);
-      });
-    
-      return () => {
-        socket.off("newOrder");
-      };
-    }, []);
+  }, []);
 
   const toggleAccountMenu = () => {
     setAccountMenuVisible(!accountMenuVisible);
@@ -96,8 +73,11 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
       {/* Phần phải */}
       <div className="flex items-center space-x-4">
         {/* 🔔 Biểu tượng thông báo */}
-        <div className="relative">
-  <FaBell className="text-xl cursor-pointer" onClick={() => setNewOrders(0)} />
+       <div className="relative">
+  <FaBell
+    className="text-xl cursor-pointer"
+    onClick={() => setNewOrders(0)} // Reset số đơn hàng mới khi mở thông báo
+  />
   {newOrders > 0 && (
     <span className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
       {newOrders}
@@ -111,8 +91,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
     ) : (
       notifications.map((order, index) => (
         <p key={index} className="p-4 border-b">
-          🛒 Đơn hàng mới từ <strong>{order.customer}</strong>, tổng tiền:{" "}
-          <strong>{order.total} đ</strong>
+          🛒 Đơn hàng mới từ <strong>{order.title}</strong>
         </p>
       ))
     )}

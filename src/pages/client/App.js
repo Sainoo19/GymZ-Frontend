@@ -41,6 +41,7 @@ import RevenueAnalysis from "../admin/Analysis/RevenueAnalysis";
 import InventoryListPage from "../admin/Inventory/InventoryList";
 import AddInventory from "../admin/Inventory/AddInventory";
 import TopProductPage from "../../pages/admin/Analysis/TopProductPage";
+import { requestNotificationPermission,getFCMToken } from "../../firebase";
 
 import axios from "axios";
 
@@ -48,6 +49,28 @@ const App = () => {
   const [userRole, setUserRole] = React.useState(null);
   const [isSidebarHidden, setIsSidebarHidden] = useState(true);
   const URL_API = process.env.REACT_APP_API_URL;
+
+  
+  useEffect(() => {
+    requestNotificationPermission().then((granted) => {
+      if (granted) {
+        getFCMToken();
+      }
+    });
+  
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/firebase-messaging-sw.js")
+        .then((registration) => {
+          console.log("✅ Service Worker đăng ký thành công:", registration);
+        })
+        .catch((error) => {
+          console.error("⚠️ Service Worker đăng ký thất bại:", error);
+        });
+    }
+  }, []);
+  
+
   React.useEffect(() => {
     axios
       .get(`${URL_API}employees/profile`, {
