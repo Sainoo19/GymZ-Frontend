@@ -12,13 +12,24 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
   const navigate = useNavigate();
   const [newOrders, setNewOrders] = useState(0); // Số đơn hàng mới
   const [notifications, setNotifications] = useState([]);
-
+  const URL_API = process.env.REACT_APP_API_URL;
   useEffect(() => {
 
     onMessage(messaging, (payload) => {
       setNotifications((prev) => [...prev, payload.notification]);
-      setNewOrders((prev) => prev + 1); // Tăng số đơn hàng mới
+      setNewOrders((prev) => prev + 1);
     });
+  
+    // 🟢 Lấy danh sách thông báo từ server khi nhân viên đăng nhập
+    axios
+      .get(`${URL_API}notifications`, { withCredentials: true })
+      .then((response) => {
+        setNotifications(response.data.data);
+        setNewOrders(response.data.data.length);
+      })
+      .catch((error) => {
+        console.error("Error fetching notifications:", error);
+      });
     
     axios
       .get("http://localhost:3000/employees/profile", {
