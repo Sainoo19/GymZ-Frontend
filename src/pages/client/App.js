@@ -47,6 +47,9 @@ import ForgotPasswordPage from "../../components/clients/users/ForgotPasswordPag
 import Members from "../admin/members/members";
 import CreateMember from "../admin/members/memberCreate";
 import UpdateMemberForm from "../admin/members/memberDetail";
+import TrainSessions from "../admin/trainSession/trainSessions";
+import TrainSessionCreate from "../admin/trainSession/trainSessionCreate";
+import TrainSessionDetail from "../admin/trainSession/trainSessionDetail";
 
 import axios from "axios";
 
@@ -133,6 +136,7 @@ const App = () => {
                   <Route path="admin/users/create" element={<AddUserForm />} />
                   <Route path="admin/employees" element={<Employee />} />
                   <Route path="admin/members" element={<Members />} />
+                  <Route path="admin/train-sessions" element={<TrainSessions />} />
                   <Route path="admin/addproducts" element={<ProductDetail />} />
                   <Route path="admin/inventory" element={<InventoryListPage />} />
                   <Route path="admin/inventory/addinventory/:productId" element={<AddInventory />} />
@@ -166,6 +170,15 @@ const App = () => {
                   <Route
                     path="admin/members/:id"
                     element={<UpdateMemberForm />}
+                  />
+
+                  <Route
+                    path="admin/trainingSessions/create"
+                    element={<TrainSessionCreate />}
+                  />
+                  <Route
+                    path="admin/trainingSessions/:id"
+                    element={<TrainSessionDetail />}
                   />
                   <Route path="/login-employee" element={<LoginAdminPage />} />
 

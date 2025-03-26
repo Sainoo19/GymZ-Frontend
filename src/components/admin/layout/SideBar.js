@@ -14,7 +14,8 @@ const navItems = [
     { to: "/admin/users", label: "KHÁCH HÀNG", icon: IconAllProduct },
     { to: "/admin/branches", label: "CHI NHÁNH", icon: IconAllProduct },
     { to: "/admin/discounts", label: "KHUYẾN MÃI", icon: IconAllProduct },
-    { to: "/admin/members", label: "HỘI VIÊN", icon: IconAllProduct }
+    { to: "/admin/members", label: "HỘI VIÊN", icon: IconAllProduct },
+    { to: "/admin/train-sessions", label: "LỊCH TẬP", icon: IconAllProduct }
 ];
 
 const SideBar = ({ isSidebarHidden, setIsSidebarHidden }) => {
