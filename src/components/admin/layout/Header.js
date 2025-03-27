@@ -4,7 +4,10 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { onMessage } from "firebase/messaging";
-import { messaging } from "../../../firebase"; // Đảm bảo đường dẫn đúng với tệp firebase.js của bạn
+import { messaging } from "../../../firebase"; 
+import { db } from "../../../firebase"; // Import Firestore
+
+import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 
 const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
   const [accountMenuVisible, setAccountMenuVisible] = useState(false);
@@ -14,39 +17,11 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
   const [notifications, setNotifications] = useState([]);
   const URL_API = process.env.REACT_APP_API_URL;
 
+  const [showNotifications, setShowNotifications] = useState(false);
 
 
   useEffect(() => {
-    const unsubscribe = onMessage(messaging, async (payload) => {
-      console.log("📩 Nhận thông báo từ Firebase:", payload);
-
-      // Cập nhật state ngay khi có thông báo mới
-      setNotifications((prev) => [payload.notification, ...prev]);
-      setNewOrders((prev) => prev + 1);
-
-      // Gọi API lấy danh sách thông báo mới nhất từ backend
-      try {
-        const response = await axios.get(`${URL_API}notifications`, {
-          withCredentials: true,
-        });
-        setNotifications(response.data.data);
-        setNewOrders(response.data.data.length);
-      } catch (error) {
-        console.error("❌ Lỗi khi cập nhật thông báo:", error);
-      }
-    });
-
-    // 🟢 Lấy danh sách thông báo từ server khi nhân viên đăng nhập
-    axios
-      .get(`${URL_API}notifications`, { withCredentials: true })
-      .then((response) => {
-        setNotifications(response.data.data);
-        setNewOrders(response.data.data.length);
-      })
-      .catch((error) => {
-        console.error("Error fetching notifications:", error);
-      });
-
+    // Kiểm tra xem người dùng đã đăng nhập chưa
     axios
       .get("http://localhost:3000/employees/profile", {
         withCredentials: true,
@@ -59,9 +34,36 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
       });
 
       
-      return () => {
-        unsubscribe(); // Cleanup listener khi component unmount
-      };
+     
+  }, []);
+
+  useEffect(() => {
+    if (!employee) return;
+
+    const q = query(
+      collection(db, "notifications"),
+      where("employee_id", "==", employee._id),
+      orderBy("timestamp", "desc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const notiList = snapshot.docs.map((doc) => doc.data());
+      setNotifications(notiList);
+      setNewOrders(notiList.length);
+    });
+
+    return () => unsubscribe();
+  }, [employee]);
+
+
+  useEffect(() => {
+    const unsubscribeFCM = onMessage(messaging, (payload) => {
+      console.log("📩 Nhận thông báo từ Firebase:", payload);
+      setNotifications((prev) => [payload.notification, ...prev]);
+      setNewOrders((prev) => prev + 1);
+    });
+
+    return () => unsubscribeFCM();
   }, []);
 
   const toggleAccountMenu = () => {
@@ -87,7 +89,13 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
         console.error("Error logging out:", error);
       });
   };
+  
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+    setNewOrders(0);
+  };
 
+  
   const defaultAvatar = "/assets/images/avatar.png";
 
   return (
@@ -105,27 +113,29 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
       {/* Phần phải */}
       <div className="flex items-center space-x-4">
         {/* 🔔 Biểu tượng thông báo */}
-        <div className="relative">
-          <FaBell
-            className="text-xl cursor-pointer"
-            onClick={() => setNewOrders(0)}
-          />
+ <div className="relative">
+          <FaBell className="text-xl cursor-pointer" onClick={toggleNotifications} />
           {newOrders > 0 && (
             <span className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
               {newOrders}
             </span>
           )}
-          <div className="absolute right-0 mt-2 w-64 bg-white text-black rounded shadow-lg">
-            {notifications.length === 0 ? (
-              <p className="p-4">Không có thông báo</p>
-            ) : (
-              notifications.map((noti, index) => (
-                <p key={index} className="p-4 border-b">
-                  {noti.message}
-                </p>
-              ))
-            )}
-          </div>
+          {showNotifications && (
+            <div className="absolute right-0 mt-2 w-64 bg-white text-black shadow-lg rounded-lg p-2">
+              <h3 className="text-lg font-semibold border-b pb-2">Thông báo</h3>
+              {notifications.length > 0 ? (
+                <ul>
+                  {notifications.map((noti, index) => (
+                    <li key={index} className="p-2 hover:bg-gray-100 rounded">
+                      <strong>{noti.title}</strong>: {noti.message}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-gray-500 p-2">Không có thông báo mới</p>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="relative">
