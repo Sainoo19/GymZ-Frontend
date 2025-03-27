@@ -38,22 +38,23 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
   }, []);
 
   useEffect(() => {
-    if (!employee) return;
-
+    if (!employee?._id) return; // Kiểm tra nếu employee chưa load xong
+  
     const q = query(
       collection(db, "notifications"),
       where("employee_id", "==", employee._id),
       orderBy("timestamp", "desc")
     );
-
+  
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const notiList = snapshot.docs.map((doc) => doc.data());
+      const notiList = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setNotifications(notiList);
       setNewOrders(notiList.length);
     });
-
+  
     return () => unsubscribe();
   }, [employee]);
+  
 
 
   useEffect(() => {
@@ -89,7 +90,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
         console.error("Error logging out:", error);
       });
   };
-  
+
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
     setNewOrders(0);
@@ -113,30 +114,35 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
       {/* Phần phải */}
       <div className="flex items-center space-x-4">
         {/* 🔔 Biểu tượng thông báo */}
- <div className="relative">
-          <FaBell className="text-xl cursor-pointer" onClick={toggleNotifications} />
-          {newOrders > 0 && (
-            <span className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-              {newOrders}
-            </span>
-          )}
-          {showNotifications && (
-            <div className="absolute right-0 mt-2 w-64 bg-white text-black shadow-lg rounded-lg p-2">
-              <h3 className="text-lg font-semibold border-b pb-2">Thông báo</h3>
-              {notifications.length > 0 ? (
-                <ul>
-                  {notifications.map((noti, index) => (
-                    <li key={index} className="p-2 hover:bg-gray-100 rounded">
-                      <strong>{noti.title}</strong>: {noti.message}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-gray-500 p-2">Không có thông báo mới</p>
-              )}
-            </div>
-          )}
-        </div>
+
+
+        <div className="relative">
+  <button onClick={toggleNotifications} className="relative">
+    <FaBell className="text-2xl cursor-pointer" />
+    {newOrders > 0 && (
+      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+        {newOrders}
+      </span>
+    )}
+  </button>
+  {showNotifications && (
+    <div className="absolute right-0 mt-2 w-72 bg-white text-black shadow-lg rounded-lg p-2">
+      <h3 className="text-lg font-semibold border-b pb-2">Đơn hàng mới</h3>
+      {notifications.length > 0 ? (
+        <ul className="max-h-60 overflow-y-auto">
+          {notifications.map((order, index) => (
+            <li key={index} className="p-2 hover:bg-gray-100 rounded">
+              <strong>{order.title}</strong>: {order.message}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-sm text-gray-500 p-2">Không có đơn hàng mới</p>
+      )}
+    </div>
+  )}
+</div>
+
 
         <div className="relative">
           <img
