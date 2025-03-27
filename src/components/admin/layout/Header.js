@@ -13,13 +13,29 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
   const [newOrders, setNewOrders] = useState(0); // Số đơn hàng mới
   const [notifications, setNotifications] = useState([]);
   const URL_API = process.env.REACT_APP_API_URL;
-  useEffect(() => {
 
-    onMessage(messaging, (payload) => {
-      setNotifications((prev) => [...prev, payload.notification]);
+
+
+  useEffect(() => {
+    const unsubscribe = onMessage(messaging, async (payload) => {
+      console.log("📩 Nhận thông báo từ Firebase:", payload);
+
+      // Cập nhật state ngay khi có thông báo mới
+      setNotifications((prev) => [payload.notification, ...prev]);
       setNewOrders((prev) => prev + 1);
+
+      // Gọi API lấy danh sách thông báo mới nhất từ backend
+      try {
+        const response = await axios.get(`${URL_API}notifications`, {
+          withCredentials: true,
+        });
+        setNotifications(response.data.data);
+        setNewOrders(response.data.data.length);
+      } catch (error) {
+        console.error("❌ Lỗi khi cập nhật thông báo:", error);
+      }
     });
-  
+
     // 🟢 Lấy danh sách thông báo từ server khi nhân viên đăng nhập
     axios
       .get(`${URL_API}notifications`, { withCredentials: true })
@@ -30,7 +46,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
       .catch((error) => {
         console.error("Error fetching notifications:", error);
       });
-    
+
     axios
       .get("http://localhost:3000/employees/profile", {
         withCredentials: true,
@@ -41,6 +57,11 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
       .catch((error) => {
         console.error("Error fetching employee data:", error);
       });
+
+      
+      return () => {
+        unsubscribe(); // Cleanup listener khi component unmount
+      };
   }, []);
 
   const toggleAccountMenu = () => {
@@ -84,31 +105,28 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
       {/* Phần phải */}
       <div className="flex items-center space-x-4">
         {/* 🔔 Biểu tượng thông báo */}
-       <div className="relative">
-  <FaBell
-    className="text-xl cursor-pointer"
-    onClick={() => setNewOrders(0)} // Reset số đơn hàng mới khi mở thông báo
-  />
-  {newOrders > 0 && (
-    <span className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-      {newOrders}
-    </span>
-  )}
-
-  {/* Danh sách thông báo */}
-  <div className="absolute right-0 mt-2 w-64 bg-white text-black rounded shadow-lg">
-    {notifications.length === 0 ? (
-      <p className="p-4">Không có thông báo</p>
-    ) : (
-      notifications.map((order, index) => (
-        <p key={index} className="p-4 border-b">
-          🛒 Đơn hàng mới từ <strong>{order.title}</strong>
-        </p>
-      ))
-    )}
-  </div>
-</div>
-
+        <div className="relative">
+          <FaBell
+            className="text-xl cursor-pointer"
+            onClick={() => setNewOrders(0)}
+          />
+          {newOrders > 0 && (
+            <span className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+              {newOrders}
+            </span>
+          )}
+          <div className="absolute right-0 mt-2 w-64 bg-white text-black rounded shadow-lg">
+            {notifications.length === 0 ? (
+              <p className="p-4">Không có thông báo</p>
+            ) : (
+              notifications.map((noti, index) => (
+                <p key={index} className="p-4 border-b">
+                  {noti.message}
+                </p>
+              ))
+            )}
+          </div>
+        </div>
 
         <div className="relative">
           <img
