@@ -66,7 +66,7 @@ const Order = () => {
     }, [currentPage, search, filters]);
 
     const handleEdit = (id) => {
-        navigate(`orders/${id}`);
+        navigate(`/admin/orders/${id}`);
     };
 
     const handleDelete = async (id) => {
@@ -114,7 +114,7 @@ const Order = () => {
     };
 
     return (
-        <div className="mt-4">
+        <div className="mt-20">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">Tất Cả Đơn Hàng</h1>
                 <div className="flex items-center space-x-2">

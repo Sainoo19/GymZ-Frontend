@@ -31,19 +31,6 @@ const OrderProgressPage = () => {
     }
   }, [orderId]);
 
-  // const updateOrderStatus = async () => {
-  //   try {
-  //     await axios.put(`${URL_API}orderClient/update-status`, {
-  //       orderId,
-  //       status: "Đã thanh toán",
-  //     });
-  //     console.log(
-  //       "✅ Trạng thái đơn hàng đã được cập nhật thành 'Đã thanh toán'"
-  //     );
-  //   } catch (error) {
-  //     console.error("❌ Lỗi cập nhật trạng thái đơn hàng:", error);
-  //   }
-  // };
 
   const clearPaidItemsFromCart = async (orderId) => {
     try {
@@ -57,9 +44,8 @@ const OrderProgressPage = () => {
             withCredentials: true, // Đảm bảo gửi cookie/token nếu có
         });
 
-        console.log("✅ Xoá thành công:", response.data);
     } catch (error) {
-        console.error("❌ Lỗi khi xoá sản phẩm trong giỏ hàng:", error.response?.data || error);
+        console.error("Lỗi khi xoá sản phẩm trong giỏ hàng:", error.response?.data || error);
     }
 };
 
@@ -90,10 +76,7 @@ const OrderProgressPage = () => {
       const response = await axios.put(`${URL_API}productClient/update-stock`, {
         orderId,
       });
-      console.log(
-        "✅ Đã cập nhật số lượng sản phẩm sau khi thanh toán",
-        response.data
-      );
+     
     } catch (error) {
       console.error("Lỗi cập nhật số lượng sản phẩm:", error);
     }

@@ -78,7 +78,7 @@ const PaymentMethods = ({
             alert("Không thể tạo thanh toán MoMo, vui lòng thử lại!");
           }
         } else {
-          // ✅ Nếu chọn COD, cập nhật trạng thái đơn hàng là "Chờ xác nhận"
+          // ✅ Nếu chọn COD, cập nhật trạng thái đơn hàng là "Đặt hàng thành công"
           await axios.put(`${URL_API}orderClient/update-status`, {
             orderId,
             status: "Đặt hàng thành công",
