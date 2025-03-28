@@ -42,6 +42,7 @@ import InventoryListPage from "../admin/Inventory/InventoryList";
 import AddInventory from "../admin/Inventory/AddInventory";
 import TopProductPage from "../../pages/admin/Analysis/TopProductPage";
 import { requestNotificationPermission,getFCMToken } from "../../firebase";
+import { CartProvider } from "../../components/clients/contexts/CartContext";
 
 import axios from "axios";
 
@@ -180,6 +181,7 @@ const App = () => {
           </>
         ) : (
           <>
+          <CartProvider>
             <HeaderClient />
             <main className="flex-grow">
               <Routes>
@@ -202,6 +204,7 @@ const App = () => {
               </Routes>
             </main>
             <FooterClient />
+            </CartProvider>
           </>
         )}
       </div>

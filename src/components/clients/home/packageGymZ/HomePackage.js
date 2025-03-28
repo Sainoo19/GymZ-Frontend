@@ -3,7 +3,7 @@ import CartPackage from "./CardPackage";
 const HomePackage = () => {
     return(
         <div>
-            <div className="w-full px-4 ml-16">
+            <div className="w-11/12 px-4 ml-16">
                 <p className="text-4xl font-bold text-secondary">CÁC GÓI TẬP TẠI GYMZ</p>
                 <p className="text-4xl font-bold">GYM & FITNESS</p>
             </div>

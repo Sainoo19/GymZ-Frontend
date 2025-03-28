@@ -1,7 +1,8 @@
-import { React, useEffect, useState } from "react";
+import { React, useEffect, useState, useContext  } from "react";
 import formatCurrency from "../../utils/formatCurrency";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { CartContext } from "../../../components/clients/contexts/CartContext";
 
 const ProductImage = ({
   avatar,
@@ -18,6 +19,7 @@ const ProductImage = ({
     const decrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
   const { productId } = useParams();
   const URL_API = process.env.REACT_APP_API_URL;
+  const { addToCart } = useContext(CartContext);
 
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -123,6 +125,8 @@ const ProductImage = ({
       );
 
       alert("Thêm vào giỏ hàng thành công!");
+
+      addToCart(quantity);
       console.log("Response:", response.data);
     } catch (error) {
       console.error("Lỗi khi thêm vào giỏ hàng:", error);
