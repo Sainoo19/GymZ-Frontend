@@ -19,7 +19,7 @@ const OrderProgressPage = () => {
       const processOrder = async () => {
         // await updateOrderStatus(); // Cập nhật trạng thái đơn hàng
         await createPayment(); // Tạo payment
-        await updateStockAfterPayment(); // Trừ stock sau khi thanh toán
+        // await updateStockAfterPayment(); // Trừ stock sau khi thanh toán
         await clearPaidItemsFromCart(orderId); 
         fetchOrderStatus(); // Lấy trạng thái đơn hàng
       };
