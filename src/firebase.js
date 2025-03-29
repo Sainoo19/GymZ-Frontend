@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { getStorage } from "firebase/storage";
 import { getFirestore, collection, addDoc, onSnapshot } from "firebase/firestore";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 
 import axios from "axios";  
 
@@ -19,6 +20,11 @@ const firebaseConfig = {
 
 // Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+export { auth, provider, signInWithPopup, signOut };
+
 export const db = getFirestore(app);
 
 export const storage = getStorage(app);
