@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { level1s, findById } from "dvhcvn";
+import { ReactComponent as ViewHideLight } from "../../assets/icons/View_hide_light.svg";
+import { ReactComponent as ViewLight } from "../../assets/icons/View_light.svg";
+
 
 const SignUpPageUser = () => {
   const [email, setEmail] = useState("");
@@ -20,12 +23,23 @@ const SignUpPageUser = () => {
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
 
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+
   useEffect(() => {
     setProvinces(level1s); // Lấy danh sách tỉnh/thành phố
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (password !== confirmPassword) {
+      setError("Mật khẩu không khớp!");
+      return;
+    }
+
     try {
       const response = await axios.post(`${URL_API}auth/register/user`, {
         email,
@@ -39,7 +53,7 @@ const SignUpPageUser = () => {
           street: address.street,
         },
       });
-      console.log("check", address);
+
       if (response.data.status === "success") {
         navigate("/login-user");
       } else {
@@ -48,7 +62,8 @@ const SignUpPageUser = () => {
     } catch (error) {
       setError("Lỗi đăng ký, vui lòng thử lại!");
     }
-  };
+};
+
 
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
@@ -145,22 +160,48 @@ const SignUpPageUser = () => {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            <div className="mb-4">
-              <label
-                className="block text-gray-700 text-sm font-bold mb-2"
-                htmlFor="password"
-              >
-                Mật khẩu
-              </label>
-              <input
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                id="password"
-                type="password"
-                placeholder="Mật khẩu"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+            <div className="mb-4 relative">
+  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+    Mật khẩu
+  </label>
+  <input
+    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+    id="password"
+    type={showPassword ? "text" : "password"}
+    placeholder="Mật khẩu"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+  />
+  <button
+    type="button"
+    className="absolute right-3 top-10 text-gray-500"
+    onClick={() => setShowPassword(!showPassword)}
+  >
+  {showPassword ? <ViewLight className="w-5 h-5" /> : <ViewHideLight className="w-5 h-5" />}
+  </button>
+</div>
+
+<div className="mb-4 relative">
+  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmPassword">
+    Nhập lại mật khẩu
+  </label>
+  <input
+    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+    id="confirmPassword"
+    type={showConfirmPassword ? "text" : "password"}
+    placeholder="Nhập lại mật khẩu"
+    value={confirmPassword}
+    onChange={(e) => setConfirmPassword(e.target.value)}
+  />
+  <button
+    type="button"
+    className="absolute right-3 top-10 text-gray-500"
+    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+  >
+  {showConfirmPassword ? <ViewLight className="w-5 h-5" /> : <ViewHideLight className="w-5 h-5" />}
+  </button>
+</div>
+
             <div className="mb-4">
               <label
                 className="block text-gray-700 text-sm font-bold mb-2"

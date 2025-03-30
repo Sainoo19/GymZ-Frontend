@@ -121,7 +121,7 @@ const User = () => {
 
     return (
         <div>
-            <div className="mt-4">
+            <div className="mt-20">
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-2xl font-bold">Tất cả khách hàng</h1>
                     <div className='flex items-center space-x-2'>
@@ -157,7 +157,7 @@ const User = () => {
                         data={users.map(user => ({
                             ...user,
                             address: user.address
-                                ? `${user.address.street}, ${user.address.city}, ${user.address.country}`
+                                ? `${user.address.street}, ${user.address.ward}, ${user.address.district}, ${user.address.province}`
                                 : 'N/A',
                             createdAt: reformDateTime(user.createdAt),
                             updatedAt: reformDateTime(user.updatedAt)
