@@ -62,66 +62,78 @@ function ProfileContent() {
     }
 
     return (
-        <div className="w-3/4 bg-white p-8">
-            <h1 className="text-2xl font-bold mb-2">Hồ Sơ Của Tôi</h1>
-            <p className="text-gray-600 mb-6">
+        <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+            <h1 className="text-4xl font-bold mb-4 text-gray-800 text-center">Hồ Sơ Của Tôi</h1>
+            <p className="text-gray-500 mb-6 text-center">
                 Quản lý thông tin hồ sơ để bảo mật tài khoản
             </p>
-            <div className="flex">
-                <div className="w-2/3">
-                    <div className="mb-4">
-                        <label className="block text-gray-700">Tên</label>
+            <div className="flex flex-col md:flex-row gap-8">
+                <div className="flex flex-col items-center w-full md:w-1/3 bg-gray-100 p-4 rounded-lg shadow-md">
+                    <img
+                        src={avatar}
+                        alt="User avatar"
+                        className="rounded-full w-32 h-32 border-2 border-gray-300 shadow-sm mb-4"
+                    />
+                    <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
+                        Chọn Ảnh
+                    </button>
+                    <p className="text-gray-500 text-xs mt-3">
+                        Dụng lượng file tối đa 1 MB
+                    </p>
+                    <p className="text-gray-500 text-xs">Định dạng: .JPEG, .PNG</p>
+                </div>
+                <div className="flex-1 bg-gray-50 p-8 rounded-lg shadow-lg space-y-4">
+                    <div>
+                        <label className="block text-gray-700 font-medium">Tên</label>
                         <input
-                            className="w-full border border-gray-300 p-2"
+                            className="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                         />
                     </div>
-                    <div className="mb-4">
-                        <label className="block text-gray-700">Email</label>
-                        <p className="text-gray-900">
+                    <div>
+                        <label className="block text-gray-700 font-medium">Email</label>
+                        <p className="text-gray-900 flex items-center">
                             {email}
-                            <a href="#" className="text-blue-500 ml-2" onClick={() => setIsModalOpen(true)}>
+                            {/* <a href="#" className="text-blue-500 ml-2" onClick={() => setIsModalOpen(true)}>
                                 Thay Đổi
-                            </a>
+                            </a> */}
+                            {/* Đổi <a> thành <button> */}
+                            <button href="#" className="ml-3 text-blue-500 hover:underline font-semibold" onClick={() => setIsModalOpen(true)}>
+                                Thay Đổi
+                            </button>
                         </p>
                     </div>
-                    <div className="mb-4">
-                        <label className="block text-gray-700">Số điện thoại</label>
-                        <p className="text-gray-900">
+                    <div>
+                        <label className="block text-gray-700 font-medium">Số điện thoại</label>
+                        <p className="text-gray-900 ">
                             {phone}
-                            <a href="#" className="text-blue-500 ml-2">
+                            {/* <a href="#" className="text-blue-500 ml-2">
                                 Thay Đổi
-                            </a>
+                            </a> */}
+                            {/* Đổi <a> thành <button> */}
+                            <button href="#" className="ml-3 text-blue-500 hover:underline font-semibold">
+                                Thay Đổi
+                            </button>
                         </p>
                     </div>
-                    <div className="mb-4">
-                        <label className="block text-gray-700">Địa chỉ</label>
+                    <div>
+                        <label className="block text-gray-700 font-medium">Địa chỉ</label>
                         <p className="text-gray-900">
                             {address.street}, {address.city}, {address.country}
-                            <a href="#" className="text-blue-500 ml-2">
+                            {/* <a href="#" className="text-blue-500 ml-2">
                                 Thay Đổi
-                            </a>
+                            </a> */}
+                            {/* Đổi <a> thành <button> */}
+                            <button href="#" className="ml-3 text-blue-500 hover:underline font-semibold">
+                                Thay Đổi
+                            </button>
                         </p>
                     </div>
-                    <button className="bg-red-500 text-white px-4 py-2 rounded" onClick={handleSave}>
+                    <button className="w-full bg-red-500 text-white py-2 rounded-md font-bold hover:bg-red-600 transition" onClick={handleSave}>
                         Lưu
                     </button>
-                </div>
-                <div className="w-1/3 flex flex-col items-center">
-                    <img
-                        src={avatar}
-                        alt="User avatar"
-                        className="rounded-[40px] mb-4 w-[100px] h-[100px]"
-                    />
-                    <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded">
-                        Chọn Ảnh
-                    </button>
-                    <p className="text-gray-600 text-sm mt-2">
-                        Dụng lượng file tối đa 1 MB
-                    </p>
-                    <p className="text-gray-600 text-sm">Định dạng: .JPEG, .PNG</p>
                 </div>
             </div>
             <EmailChangeModal
