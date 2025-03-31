@@ -4,13 +4,13 @@ import axios from "axios";
 const FrequentlyBoughtTogether = () => {
   const [products, setProducts] = useState([]);
   const [selectedCombos, setSelectedCombos] = useState([]);
-  const [discount, setDiscount] = useState(0);
-  const [maxDiscount, setMaxDiscount] = useState(0);
+  const [discount, setDiscount] = useState("");
+  const [maxDiscount, setMaxDiscount] = useState("");
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
   const [validFrom, setValidFrom] = useState("");
   const [validUntil, setValidUntil] = useState("");
-  const [usageLimit, setUsageLimit] = useState(1);
+  const [usageLimit, setUsageLimit] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const API_URL = process.env.REACT_APP_API_URL;
@@ -44,22 +44,22 @@ const FrequentlyBoughtTogether = () => {
     }
   
     try {
-      // Chuyển danh sách combo thành danh sách sản phẩm áp dụng
-      const applicableProducts = selectedCombos.flatMap(combo => combo.split("-"));
+      // Chuyển danh sách combo thành danh sách sản phẩm áp dụng, loại bỏ ID trùng lặp
+      const applicableProducts = [...new Set(selectedCombos.flatMap(combo => combo.split("-")))];
   
       const response = await axios.post(
         `${API_URL}discounts/create-discount-combo`,
         {
           selectedCombos,  // Giữ lại để đối chiếu nếu cần debug
-          applicableProducts, // Đúng format API yêu cầu
+          applicableProducts, // Đã loại bỏ ID trùng
           discountPercent: discount,
-          maxDiscount, // Đã thêm maxDiscount
+          maxDiscount,
           code,
           description,
           validFrom,
           validUntil,
           usageLimit,
-          status: "active", // Thêm status mặc định
+          status: "active",
         },
         { withCredentials: true }
       );
@@ -79,6 +79,7 @@ const FrequentlyBoughtTogether = () => {
       alert(error.response?.data?.error || "Lỗi khi tạo khuyến mãi, vui lòng thử lại!");
     }
   };
+  
   
 
   return (

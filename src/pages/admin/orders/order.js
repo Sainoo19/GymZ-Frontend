@@ -71,13 +71,43 @@ const Order = () => {
 
     const handleDelete = async (id) => {
         try {
+            // Gửi yêu cầu xóa đơn hàng
             await axios.delete(`http://localhost:3000/orders/delete/${id}`);
-            setData(data.filter(order => order._id !== id));
-            setIsDeleteModalOpen(false);
+            
+            // Cập nhật lại dữ liệu sau khi xóa
+            const response = await axios.get(`${URL_API}orders/all`, {
+                params: {
+                    page: currentPage,
+                    limit: 10,
+                    search,
+                    ...filters
+                }
+            });
+    
+            if (response.data.status === 'success') {
+                const orders = response.data.data.orders.map(order => ({
+                    ...order,
+                    createdAt: reformDateTime(order.createdAt),
+                    updatedAt: reformDateTime(order.updatedAt)
+                }));
+    
+                // Nếu số trang lớn hơn tổng số trang sau khi xóa, điều chỉnh về trang trước đó
+                if (data.length === 1 && currentPage > 1) {
+                    setCurrentPage(currentPage - 1);
+                }
+    
+                setData(orders);
+                setTotalPages(response.data.metadata.totalPages);
+            } else {
+                console.error('API response error:', response.data.message);
+            }
+    
+            setIsDeleteModalOpen(false); // Đóng modal
         } catch (error) {
             console.error('Error deleting order:', error);
         }
     };
+    
 
     const openDeleteModal = (id) => {
         setSelectedOrderId(id);

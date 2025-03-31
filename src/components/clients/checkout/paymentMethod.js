@@ -11,32 +11,32 @@ const PaymentMethods = ({
   userInfo,
   onSelectPayment,
   deliveryAddress,
+  shippingFee
 }) => {
   const [selectedMethod, setSelectedMethod] = useState("cash");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();  // Hook điều hướng
   const URL_API = process.env.REACT_APP_API_URL;
-
   const paymentOptions = [
     { id: "cash", label: "Thanh toán khi nhận hàng (COD)", icon: <img src={CODShipmentBadge} alt="MoMo" width={50} height={20}  /> },
     { id: "momo", label: "MoMo", icon: <img src={MomoBadge} alt="MoMo" width={50} height={20} /> },
   ];
-
+  
   const handleSelect = (method) => {
     setSelectedMethod(method);
   };
-
+  
   const handlePurchase = async () => {
     if (!selectedMethod) {
       alert("Vui lòng chọn phương thức thanh toán!");
       return;
     }
-  
+    
     if (!userInfo || totalAmount === 0 || !Array.isArray(selectedItems) || selectedItems.length === 0) {
       alert("Thông tin đơn hàng không hợp lệ!");
       return;
     }
-  
+    let localFee = totalAmount - shippingFee.fee.fee;
     setLoading(true);
     try {
       console.log("Gửi yêu cầu tạo đơn hàng...");
@@ -45,7 +45,7 @@ const PaymentMethods = ({
         `${URL_API}orderClient/create`,
         {
           user_id: userInfo._id,
-          totalPrice: totalAmount,
+          totalPrice: localFee,
           status: "Đặt hàng thành công",
           paymentMethod: selectedMethod,  
           deliveryAddress: {
@@ -57,6 +57,7 @@ const PaymentMethods = ({
             provinceName: deliveryAddress.province || "",
           },
           items: selectedItems,
+          shippingFee: shippingFee.fee.fee,
         },
         { withCredentials: true }
       );
@@ -78,7 +79,6 @@ const PaymentMethods = ({
             alert("Không thể tạo thanh toán MoMo, vui lòng thử lại!");
           }
         } else {
-          // ✅ Nếu chọn COD, cập nhật trạng thái đơn hàng là "Đặt hàng thành công"
           await axios.put(`${URL_API}orderClient/update-status`, {
             orderId,
             status: "Đặt hàng thành công",
@@ -125,12 +125,13 @@ const PaymentMethods = ({
       </div>
 
       <button
-        className="mt-4 px-4 py-2 bg-primary text-white rounded w-full hover:bg-secondary hover:text-primary transition disabled:bg-gray-400"
-        onClick={handlePurchase}
-        disabled={loading}
-      >
-        {loading ? "Đang xử lý..." : "Thanh Toán"}
-      </button>
+  className="mt-4 px-4 py-2 bg-primary text-white rounded w-full hover:bg-secondary hover:text-primary transition disabled:bg-gray-400"
+  onClick={handlePurchase}
+  disabled={loading || !shippingFee?.fee?.fee}  // Vô hiệu hóa nếu chưa có cước vận chuyển
+>
+  {loading ? "Đang xử lý..." : !shippingFee?.fee?.fee ? "Đang tính cước vận chuyển" : "Thanh Toán"}
+</button>
+
     </div>
   );
 };

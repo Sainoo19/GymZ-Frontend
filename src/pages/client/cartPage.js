@@ -78,7 +78,6 @@ const CartPage = () => {
         withCredentials: true,
       })
       .then((response) => {
-        console.log("Cart after removing item:", response.data.cart);
 
         // Xóa đúng sản phẩm dựa trên product_id, category và theme
         setCart((prevCart) => ({
@@ -182,7 +181,7 @@ const CartPage = () => {
         data?.usageLimit > 0
       ) {
         setDiscountPercent(data.discountPercent);
-        setMaxDiscountAmount(data.maxDiscountAmount || 0); // Lưu maxDiscountAmount
+        setMaxDiscountAmount(data.maxDiscountAmount ); 
         setApplicableProducts(new Set(data.applicableProducts || []));
         alert(
           `Mã giảm giá đã được áp dụng! Giảm ${
@@ -219,25 +218,23 @@ const CartPage = () => {
   // Tổng tiền chỉ cho các sản phẩm được áp dụng giảm giá
   const totalApplicableProductPrice = Array.from(selectedItems).reduce(
     (sum, key) => {
-      if (applicableProducts.has(key)) {
-        const [productId, category, theme] = key.split("-");
-        const item = cart.items.find(
-          (item) =>
-            item.product_id === productId &&
-            item.category === category &&
-            (item.theme || "") === theme
-        );
+      const [productId] = key.split("-"); // Chỉ lấy productId
+      if (applicableProducts.has(productId)) { // So sánh productId với applicableProducts
+        const item = cart.items.find((item) => item.product_id === productId);
         return sum + (item ? item.price * item.quantity : 0);
       }
       return sum;
     },
     0
   );
+  
+  
 
   let discountAmount = (totalApplicableProductPrice * discountPercent) / 100;
   console.log("totalApplicableProductPrice",totalApplicableProductPrice)
   console.log("discountPercent",discountPercent)
   console.log("discountAmount",discountAmount)
+  console.log("applicableProducts",applicableProducts)
   console.log("--")
 
 // Nếu discountAmount lớn hơn maxDiscountAmount, thì set lại discountAmount
@@ -248,7 +245,6 @@ if (discountAmount > maxDiscountAmount) {
   console.log("maxDiscountAmount",maxDiscountAmount)
   const discountedTotal = totalAllProdctCartPrice - discountAmount;
   totalPrice = discountedTotal;
-
   return (
     <div className="container mx-auto  w-4/5 ">
       <h1 className="text-2xl font-bold text-center mt-6 mb-6">
@@ -350,7 +346,7 @@ if (discountAmount > maxDiscountAmount) {
           <div className=" pt-4">
             {discountPercent > 0 && (
               <p className="text-sm  mt-2">
-                Khuyến Mãi: -{discountPercent}%
+                Khuyến Mãi: 
                 <span className="float-right">
                   - {formatCurrency(discountAmount)}₫
                 </span>
