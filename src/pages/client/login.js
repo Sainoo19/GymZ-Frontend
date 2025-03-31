@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { auth, provider, signInWithPopup, signOut } from "../../firebase"; // Import Firebase
+import GoogleLoginButton from "../../components/clients/login/GoogleLoginButton";
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
 const LoginPageUser = () => {
   const [email, setEmail] = useState("");
@@ -9,6 +11,7 @@ const LoginPageUser = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,20 +36,17 @@ const LoginPageUser = () => {
       setError("Invalid email or password");
     }
   };
-  const handleGoogleLogin = async () => {
+
+  const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      // Gửi token lên backend để xử lý xác thực
-      const response = await axios.post("http://localhost:3000/auth/google", {
-        email: user.email,
-        name: user.displayName,
-        avatar: user.photoURL,
-      });
-
+      const response = await axios.post("http://localhost:3000/auth/google/token", {
+        token: credentialResponse.credential, // Gửi token đến backend để xác thực
+      },{ withCredentials: true });
+  
       if (response.data.status === "success") {
-        navigate(location.state?.from?.pathname || "/");
+        const from = location.state?.from?.pathname || "/";
+        navigate(from);
+        // Refresh the page to ensure the user data is correctly displayed
         window.location.reload();
       } else {
         setError(response.data.message);
@@ -55,6 +55,7 @@ const LoginPageUser = () => {
       setError("Đăng nhập Google thất bại");
     }
   };
+  
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
       <div className="bg-white shadow-lg rounded-lg flex max-w-4xl w-full">
@@ -120,7 +121,7 @@ const LoginPageUser = () => {
             </div>
             <div className="text-center text-gray-500 mb-4">Hoặc</div>
             <div className="flex flex-col space-y-2">
-              <button
+              {/* <button
                 onClick={handleGoogleLogin}
                 className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow flex items-center justify-center"
               >
@@ -132,7 +133,15 @@ const LoginPageUser = () => {
                   height="20"
                 />
                 Đăng nhập bằng Google
-              </button>
+              </button> */}
+              <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => console.error("Google Login Failed")}
+                  redirectUri="http://localhost:3000/auth/google/callback"
+                />
+              </GoogleOAuthProvider>
+
               <button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow flex items-center justify-center">
                 <img
                   src="https://storage.googleapis.com/a1aa/image/6lzJ7maaihIFrFKf1Me1IPWlwwdov-O5fONRPrmMWsM.jpg"

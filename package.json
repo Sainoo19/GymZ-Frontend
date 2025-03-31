@@ -6,6 +6,7 @@
     "@ckeditor/ckeditor5-build-decoupled-document": "^44.2.0",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
+    "@react-oauth/google": "^0.12.1",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/postcss": "^4.0.0",
     "axios": "^1.7.9",
