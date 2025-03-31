@@ -1,0 +1,591 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { format, parseISO } from 'date-fns';
+import { vi } from 'date-fns/locale';
+import { FaCalendarAlt, FaUser, FaClock, FaFilter, FaSpinner, FaPlus, FaCheck, FaTimes, FaMapMarkerAlt } from 'react-icons/fa';
+
+const TrainScheduleContent = () => {
+    const [sessions, setSessions] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [filters, setFilters] = useState({
+        status: '',
+        startDate: '',
+        endDate: ''
+    });
+    const [showFilters, setShowFilters] = useState(false);
+
+    // States for booking feature
+    const [showBookingModal, setShowBookingModal] = useState(false);
+    const [bookingData, setBookingData] = useState({
+        employeeID: '',
+        date: '',
+        startHour: '',
+        endHour: ''
+    });
+    const [bookingLoading, setBookingLoading] = useState(false);
+    const [bookingError, setBookingError] = useState('');
+    const [trainers, setTrainers] = useState([]);
+
+    // Status options
+    const statusOptions = [
+        { value: '', label: 'Tất cả' },
+        { value: 'scheduled', label: 'Đã lên lịch' },
+        { value: 'completed', label: 'Đã hoàn thành' },
+        { value: 'cancelled', label: 'Đã hủy' }
+    ];
+
+    useEffect(() => {
+        fetchTrainingSessions();
+    }, [currentPage, filters]);
+
+    const fetchTrainingSessions = async () => {
+        try {
+            setLoading(true);
+
+            // Build query params
+            const params = {
+                page: currentPage,
+                limit: 10,
+                ...filters
+            };
+
+            // Remove empty filters
+            Object.keys(params).forEach(key =>
+                params[key] === '' && delete params[key]
+            );
+
+            const response = await axios.get('http://localhost:3000/membership/trainingSessions', {
+                params,
+                withCredentials: true
+            });
+
+            if (response.data.status === 'success') {
+                // Process sessions data
+                const formattedSessions = response.data.data.sessions.map(session => ({
+                    ...session,
+                    formattedDate: formatDate(session.date),
+                    formattedTime: `${session.startHour} - ${session.endHour}`,
+                    statusLabel: getStatusLabel(session.status),
+                    statusClass: getStatusClass(session.status)
+                }));
+
+                setSessions(formattedSessions);
+                setTotalPages(response.data.metadata.totalPages);
+            } else {
+                setError('Không thể tải danh sách buổi tập.');
+            }
+
+            setLoading(false);
+        } catch (err) {
+            console.error('Error fetching training sessions:', err);
+            setError('Đã xảy ra lỗi khi tải danh sách buổi tập.');
+            setLoading(false);
+        }
+    };
+
+    // Format date to Vietnamese format
+    const formatDate = (dateString) => {
+        if (!dateString) return "";
+        try {
+            return format(new Date(dateString), 'EEEE, dd/MM/yyyy', { locale: vi });
+        } catch (error) {
+            return dateString;
+        }
+    };
+
+    // Get status label in Vietnamese
+    const getStatusLabel = (status) => {
+        switch (status) {
+            case 'scheduled': return 'Đã lên lịch';
+            case 'completed': return 'Đã hoàn thành';
+            case 'cancelled': return 'Đã hủy';
+            default: return status;
+        }
+    };
+
+    // Get CSS class based on status
+    const getStatusClass = (status) => {
+        switch (status) {
+            case 'scheduled': return 'bg-blue-100 text-blue-800';
+            case 'completed': return 'bg-green-100 text-green-800';
+            case 'cancelled': return 'bg-red-100 text-red-800';
+            default: return 'bg-gray-100 text-gray-800';
+        }
+    };
+
+    // Handle page change
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    // Handle filter change
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+        setFilters(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    // Apply filters
+    const applyFilters = () => {
+        setCurrentPage(1);
+        fetchTrainingSessions();
+        setShowFilters(false);
+    };
+
+    // Reset filters
+    const resetFilters = () => {
+        setFilters({
+            status: '',
+            startDate: '',
+            endDate: ''
+        });
+        setCurrentPage(1);
+    };
+
+    // Toggle filter panel
+    const toggleFilters = () => {
+        setShowFilters(!showFilters);
+    };
+
+    // Fetch trainers for booking modal
+    const fetchTrainers = async () => {
+        try {
+            // Get the current member profile to get the assigned trainer
+            const memberResponse = await axios.get('http://localhost:3000/membership/profile', {
+                withCredentials: true
+            });
+
+            let trainersArray = [];
+
+            if (memberResponse.data.status === 'success') {
+                const memberData = memberResponse.data.data;
+
+                // If member has an assigned trainer, add it to the array
+                if (memberData.employeeID) {
+                    // No need to fetch trainer details, just use the ID and a default name
+                    trainersArray.push({
+                        _id: memberData.employeeID,
+                        name: 'Huấn luyện viên của bạn',
+                    });
+
+                    // Pre-select the member's assigned trainer
+                    setBookingData(prev => ({
+                        ...prev,
+                        employeeID: memberData.employeeID
+                    }));
+                }
+            }
+
+            // If no trainers are available, show error
+            if (trainersArray.length === 0) {
+                setBookingError('Bạn cần đăng ký dịch vụ PT để có thể đặt lịch tập. Vui lòng liên hệ nhân viên tại quầy.');
+                return;
+            }
+
+            // Set trainers
+            setTrainers(trainersArray);
+
+        } catch (err) {
+            console.error('Error in trainer setup:', err);
+            setBookingError('Không thể tải thông tin huấn luyện viên. Vui lòng liên hệ nhân viên tại quầy để đặt lịch tập.');
+        }
+    };
+
+    // Handle startHour selection - automatically calculate endHour
+    const handleTimeChange = (e) => {
+        const { name, value } = e.target;
+
+        if (name === 'startHour') {
+            // Parse the hours and minutes
+            const [hours, minutes] = value.split(':').map(Number);
+
+            // Calculate end time (start time + 1 hour)
+            let endHours = hours + 1;
+            if (endHours > 23) endHours = 23; // Cap at 23:00
+
+            const endHour = `${endHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+            // Update both startHour and endHour
+            setBookingData(prev => ({
+                ...prev,
+                startHour: value,
+                endHour: endHour
+            }));
+        } else {
+            // For other inputs, just update normally
+            setBookingData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
+    };
+
+    // Update the openBookingModal function to handle the error case
+    const openBookingModal = () => {
+        setBookingError('');
+        setBookingData({
+            employeeID: '',
+            date: '',
+            startHour: '',
+            endHour: ''
+        });
+        setTrainers([]); // Clear trainers before fetching
+        fetchTrainers();
+        setShowBookingModal(true);
+    };
+
+    const handleBookingChange = (e) => {
+        const { name, value } = e.target;
+
+        if (name === 'startHour') {
+            handleTimeChange(e);
+        } else {
+            setBookingData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
+    };
+
+    // Handle session booking submission
+    const handleBookSession = async () => {
+        try {
+            setBookingLoading(true);
+            setBookingError('');
+
+            // Validate inputs
+            if (!bookingData.employeeID || !bookingData.date || !bookingData.startHour || !bookingData.endHour) {
+                setBookingError('Vui lòng điền đầy đủ thông tin.');
+                setBookingLoading(false);
+                return;
+            }
+
+            const response = await axios.post(
+                'http://localhost:3000/membership/book-session',
+                bookingData,
+                { withCredentials: true }
+            );
+
+            if (response.data.status === 'success') {
+                setShowBookingModal(false);
+                // Refresh the sessions list
+                fetchTrainingSessions();
+                // Show success notification
+                alert('Đăng ký lịch tập thành công!');
+            } else {
+                setBookingError(response.data.message || 'Không thể đặt lịch tập.');
+            }
+
+            setBookingLoading(false);
+        } catch (err) {
+            console.error('Error booking session:', err);
+            setBookingError(err.response?.data?.message || 'Đã xảy ra lỗi khi đặt lịch tập.');
+            setBookingLoading(false);
+        }
+    };
+
+    return (
+        <div className="flex-1 p-6">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-bold">Lịch Tập Của Tôi</h1>
+                <div className="flex space-x-2">
+                    <button
+                        onClick={toggleFilters}
+                        className="flex items-center px-4 py-2 bg-primary text-white rounded hover:bg-secondary transition-colors"
+                    >
+                        <FaFilter className="mr-2" /> Lọc
+                    </button>
+                    <button
+                        onClick={openBookingModal}
+                        className="flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                    >
+                        <FaPlus className="mr-2" /> Đăng Ký Lịch Tập
+                    </button>
+                </div>
+            </div>
+
+            {/* Filter panel */}
+            {showFilters && (
+                <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+                    <h2 className="font-semibold mb-3">Lọc buổi tập</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
+                            <select
+                                name="status"
+                                value={filters.status}
+                                onChange={handleFilterChange}
+                                className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-primary"
+                            >
+                                {statusOptions.map(option => (
+                                    <option key={option.value} value={option.value}>{option.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Từ ngày</label>
+                            <input
+                                type="date"
+                                name="startDate"
+                                value={filters.startDate}
+                                onChange={handleFilterChange}
+                                className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-primary"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Đến ngày</label>
+                            <input
+                                type="date"
+                                name="endDate"
+                                value={filters.endDate}
+                                onChange={handleFilterChange}
+                                className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-primary"
+                            />
+                        </div>
+                    </div>
+                    <div className="flex justify-end space-x-2 mt-4">
+                        <button
+                            onClick={resetFilters}
+                            className="px-4 py-2 text-gray-700 border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                        >
+                            Đặt lại
+                        </button>
+                        <button
+                            onClick={applyFilters}
+                            className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary transition-colors"
+                        >
+                            Áp dụng
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Sessions list */}
+            {loading ? (
+                <div className="flex justify-center items-center py-12">
+                    <FaSpinner className="animate-spin text-4xl text-primary" />
+                </div>
+            ) : error ? (
+                <div className="bg-red-100 text-red-700 p-4 rounded mb-6">
+                    <p>{error}</p>
+                    <button
+                        onClick={() => fetchTrainingSessions()}
+                        className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                    >
+                        Thử lại
+                    </button>
+                </div>
+            ) : (
+                <>
+                    {sessions.length > 0 ? (
+                        <div className="space-y-4">
+                            {sessions.map((session) => (
+                                <div key={session._id} className="bg-white rounded-lg shadow-md p-4 border-l-4 border-primary">
+                                    <div className="flex flex-col sm:flex-row justify-between">
+                                        <div className="mb-2 sm:mb-0">
+                                            <h3 className="font-semibold text-lg">Buổi tập #{session._id}</h3>
+                                            <div className="text-sm text-gray-500">
+                                                {session.dayOfWeek && <span className="capitalize">{session.dayOfWeek}</span>}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${session.statusClass}`}>
+                                                {session.statusLabel}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                                        <div className="flex items-center">
+                                            <FaCalendarAlt className="text-gray-500 mr-2" />
+                                            <div>
+                                                <p className="text-sm text-gray-500">Ngày</p>
+                                                <p className="capitalize">{session.formattedDate}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <FaClock className="text-gray-500 mr-2" />
+                                            <div>
+                                                <p className="text-sm text-gray-500">Thời gian</p>
+                                                <p>{session.formattedTime}</p>
+                                            </div>
+                                        </div>
+                                        {session.trainer && (
+                                            <div className="flex items-center">
+                                                <FaUser className="text-gray-500 mr-2" />
+                                                <div>
+                                                    <p className="text-sm text-gray-500">Huấn luyện viên</p>
+                                                    <p>{session.trainer.name || 'Chưa có thông tin'}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+
+                            {/* Pagination */}
+                            {totalPages > 1 && (
+                                <div className="flex justify-center mt-6">
+                                    <div className="flex space-x-1">
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                            <button
+                                                key={page}
+                                                onClick={() => handlePageChange(page)}
+                                                className={`px-4 py-2 rounded ${currentPage === page ? 'bg-primary text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+                                            >
+                                                {page}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="bg-white rounded-lg shadow-md p-8 text-center">
+                            <div className="text-gray-500 text-lg mb-3">Bạn chưa có buổi tập nào.</div>
+                            <p className="text-gray-600 mb-4">Bạn có thể đăng ký lịch tập mới bằng cách nhấn vào nút "Đăng Ký Lịch Tập".</p>
+                            <button
+                                onClick={openBookingModal}
+                                className="px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors"
+                            >
+                                <FaPlus className="inline mr-2" /> Đăng Ký Ngay
+                            </button>
+                        </div>
+                    )}
+                </>
+            )}
+
+            {/* Booking Modal */}
+            {showBookingModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold">Đăng Ký Lịch Tập</h3>
+                            <button
+                                onClick={() => setShowBookingModal(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <FaTimes />
+                            </button>
+                        </div>
+
+                        {bookingError && (
+                            <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+                                {bookingError}
+                            </div>
+                        )}
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Huấn Luyện Viên *
+                                </label>
+                                <select
+                                    name="employeeID"
+                                    value={bookingData.employeeID}
+                                    onChange={handleBookingChange}
+                                    className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-primary"
+                                    disabled={bookingLoading}
+                                >
+                                    <option value="">Chọn huấn luyện viên</option>
+                                    {trainers.map(trainer => (
+                                        <option key={trainer._id} value={trainer._id}>
+                                            {trainer.name} {trainer.specialization ? `- ${trainer.specialization}` : ''}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Ngày Tập *
+                                </label>
+                                <input
+                                    type="date"
+                                    name="date"
+                                    value={bookingData.date}
+                                    onChange={handleBookingChange}
+                                    className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-primary"
+                                    min={new Date().toISOString().split('T')[0]} // Disable past dates
+                                    disabled={bookingLoading}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Giờ Bắt Đầu *
+                                    </label>
+                                    <input
+                                        type="time"
+                                        name="startHour"
+                                        value={bookingData.startHour}
+                                        onChange={handleBookingChange}
+                                        className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-primary"
+                                        disabled={bookingLoading}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Giờ Kết Thúc *
+                                    </label>
+                                    <input
+                                        type="time"
+                                        name="endHour"
+                                        value={bookingData.endHour}
+                                        onChange={handleBookingChange}
+                                        className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-primary"
+                                        disabled={bookingLoading}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="bg-blue-50 p-3 rounded text-sm text-blue-700">
+                                <p className="font-medium mb-1">Lưu ý:</p>
+                                <ul className="list-disc pl-5 space-y-1">
+                                    <li>Vui lòng chọn thời gian trong khung giờ hoạt động (8:00 - 22:00)</li>
+                                    <li>Mỗi buổi tập nên kéo dài từ 30 phút đến 2 giờ</li>
+                                    <li>Đặt lịch trước ít nhất 24 giờ so với thời gian tập</li>
+                                    <li>Huấn luyện viên có thể thay đổi trong trường hợp bất khả kháng</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end space-x-2 mt-6">
+                            <button
+                                onClick={() => setShowBookingModal(false)}
+                                className="px-4 py-2 text-gray-700 border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                                disabled={bookingLoading}
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                onClick={handleBookSession}
+                                className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary transition-colors flex items-center"
+                                disabled={bookingLoading}
+                            >
+                                {bookingLoading ? (
+                                    <>
+                                        <FaSpinner className="animate-spin mr-2" /> Đang xử lý...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FaCheck className="mr-2" /> Đăng Ký
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default TrainScheduleContent;

@@ -12,6 +12,7 @@
     "chart.js": "^4.4.8",
     "cra-template": "1.2.0",
     "cropperjs": "^1.6.2",
+    "date-fns": "^4.1.0",
     "dvhcvn": "^1.2.20250301",
     "firebase": "^11.3.0",
     "framer-motion": "^12.4.7",

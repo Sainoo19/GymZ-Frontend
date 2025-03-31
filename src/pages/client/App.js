@@ -50,6 +50,9 @@ import UpdateMemberForm from "../admin/members/memberDetail";
 import TrainSessions from "../admin/trainSession/trainSessions";
 import TrainSessionCreate from "../admin/trainSession/trainSessionCreate";
 import TrainSessionDetail from "../admin/trainSession/trainSessionDetail";
+import MemberBills from "../admin/memberBill/memberBills";
+import MembershipPage from "./profile/membership";
+import TrainSchedulePage from "./profile/trainSchedule";
 
 import axios from "axios";
 
@@ -136,6 +139,7 @@ const App = () => {
                   <Route path="admin/users/create" element={<AddUserForm />} />
                   <Route path="admin/employees" element={<Employee />} />
                   <Route path="admin/members" element={<Members />} />
+                  <Route path="admin/member-bills" element={<MemberBills />} />
                   <Route path="admin/train-sessions" element={<TrainSessions />} />
                   <Route path="admin/addproducts" element={<ProductDetail />} />
                   <Route path="admin/inventory" element={<InventoryListPage />} />
@@ -208,6 +212,8 @@ const App = () => {
                 <Route path="/checkout" element={<CheckOutPage />} />
                 <Route path="/order-progress" element={<OrderProgressPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/my-membership" element={<MembershipPage />} />
+                <Route path="/membership/schedule" element={<TrainSchedulePage />} />
                 <Route path="/change-password" element={<ChangePasswordPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 {/* Add more routes as needed */}
