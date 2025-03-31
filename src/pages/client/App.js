@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./Home";
 import HeaderClient from "../../components/clients/layouts/HeaderClient";
@@ -47,14 +47,9 @@ import ForgotPasswordPage from "../../components/clients/users/ForgotPasswordPag
 import Members from "../admin/members/members";
 import CreateMember from "../admin/members/memberCreate";
 import UpdateMemberForm from "../admin/members/memberDetail";
-import TrainSessions from "../admin/trainSession/trainSessions";
-import TrainSessionCreate from "../admin/trainSession/trainSessionCreate";
-import TrainSessionDetail from "../admin/trainSession/trainSessionDetail";
-import MemberBills from "../admin/memberBill/memberBills";
-import MembershipPage from "./profile/membership";
-import TrainSchedulePage from "./profile/trainSchedule";
 
 import axios from "axios";
+import ProductFeedbackReview from "../admin/products/productFeedback";
 
 const App = () => {
   const [userRole, setUserRole] = React.useState(null);
@@ -62,13 +57,13 @@ const App = () => {
   const URL_API = process.env.REACT_APP_API_URL;
   React.useEffect(() => {
     axios
-      .get(`${URL_API}employees/profile`, {
-        withCredentials: true, // Ensure cookies are sent with the request
+      .get(`${URL_API}employees/profile`, 
+        {withCredentials: true, // Ensure cookies are sent with the request
       })
       .then((response) => {
         const role = response.data.data.role;
         setUserRole(role);
-        console.log(role);
+        console.log('role:',role);
       })
       .catch((error) => {
         console.error("Error fetching user role:", error);
@@ -82,7 +77,7 @@ const App = () => {
         {userRole === "admin" ||
           userRole === "staff" ||
           userRole === "manager" ||
-          userRole === "PT" ? (
+          userRole === "Quản lí" ? (
           <>
             <div className="flex h-screen">
               <SideBar
@@ -139,8 +134,6 @@ const App = () => {
                   <Route path="admin/users/create" element={<AddUserForm />} />
                   <Route path="admin/employees" element={<Employee />} />
                   <Route path="admin/members" element={<Members />} />
-                  <Route path="admin/member-bills" element={<MemberBills />} />
-                  <Route path="admin/train-sessions" element={<TrainSessions />} />
                   <Route path="admin/addproducts" element={<ProductDetail />} />
                   <Route path="admin/inventory" element={<InventoryListPage />} />
                   <Route path="admin/inventory/addinventory/:productId" element={<AddInventory />} />
@@ -153,6 +146,10 @@ const App = () => {
                   <Route
                     path="admin/editproduct/:productId"
                     element={<ProductDetail />}
+                  />
+                  <Route
+                    path="admin/feedbackReview/:productId"
+                    element={<ProductFeedbackReview />}
                   />
                   <Route path="/test" element={<ProductDetailTest />} />
                   <Route
@@ -175,16 +172,9 @@ const App = () => {
                     path="admin/members/:id"
                     element={<UpdateMemberForm />}
                   />
-
-                  <Route
-                    path="admin/trainingSessions/create"
-                    element={<TrainSessionCreate />}
-                  />
-                  <Route
-                    path="admin/trainingSessions/:id"
-                    element={<TrainSessionDetail />}
-                  />
                   <Route path="/login-employee" element={<LoginAdminPage />} />
+
+
 
                   {/* Add this route */}
                   {/* Add more routes as needed */}
@@ -212,8 +202,6 @@ const App = () => {
                 <Route path="/checkout" element={<CheckOutPage />} />
                 <Route path="/order-progress" element={<OrderProgressPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/my-membership" element={<MembershipPage />} />
-                <Route path="/membership/schedule" element={<TrainSchedulePage />} />
                 <Route path="/change-password" element={<ChangePasswordPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 {/* Add more routes as needed */}

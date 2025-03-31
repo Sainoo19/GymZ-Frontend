@@ -58,7 +58,7 @@ const HeaderClient = () => {
         console.error("Error logging out:", error);
       });
   };
-  console.log(user);
+  // console.log(user);
   const defaultAvatar = "/assets/images/avatar.png";
 
   const handleCartClick = (event) => {

@@ -6,8 +6,6 @@ import Pagination from '../../../components/admin/layout/Pagination';
 import DeleteDiscountModal from './discountsDelete';
 import { FaFilter } from 'react-icons/fa';
 import reformDateTime from '../../../components/utils/reformDateTime';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
 
 const Discounts = () => {
     const [columns] = useState([
@@ -24,7 +22,6 @@ const Discounts = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState('');
-    const [isExportModalOpen, setIsExportModalOpen] = useState(false);
     const [filters, setFilters] = useState({
         status: '',
         startDate: '',
@@ -33,26 +30,7 @@ const Discounts = () => {
     const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedDiscountId, setSelectedDiscountId] = useState(null);
-    
     const navigate = useNavigate();
-
-    const [exportFilters, setExportFilters] = useState({
-        branchId: '',
-        type: '',
-        startDate: '',
-        endDate: ''
-    });
-    const toggleExportModal = () => {
-        setIsExportModalOpen(!isExportModalOpen);
-    };
-    
-    const handleExportFilterChange = (e) => {
-        setExportFilters({
-            ...exportFilters,
-            [e.target.name]: e.target.value
-        });
-    };
-
 
     useEffect(() => {
         const fetchData = async () => {
@@ -62,8 +40,7 @@ const Discounts = () => {
                         page: currentPage,
                         limit: 10,
                         search,
-                        ...filters,
-                        ...exportFilters
+                        ...filters
                     }
                 });
                 if (response.data.status === 'success') {
@@ -83,7 +60,7 @@ const Discounts = () => {
         };
 
         fetchData();
-    }, [currentPage, search, filters, exportFilters]);
+    }, [currentPage, search, filters]);
 
     const handleEdit = (id) => {
         navigate(`/discounts/${id}`);
@@ -132,54 +109,7 @@ const Discounts = () => {
         setCurrentPage(1);
         setIsFilterModalOpen(false);
     };
-    const handleExport = async () => {
-        try {
-            const response = await axios.get('http://localhost:3000/discounts/all', {
-                params: {
-                    ...exportFilters, // Giữ lại các filter hiện tại như status, validFrom, validUntil, search
-                    limit: 1000 // Giới hạn dữ liệu xuất
-                },
-                withCredentials: true
-            });
-    
-            if (response.data.status === 'success') {
-                const discounts = response.data.data.discounts.map(discount => ({
-                    'DISCOUNT ID': discount._id,
-                    'CODE': discount.code,
-                    'STATUS': discount.status,
-                    'VALID FROM': reformDateTime(discount.validFrom),
-                    'VALID UNTIL': reformDateTime(discount.validUntil),
-                    'CREATED AT': reformDateTime(discount.createdAt),
-                    'UPDATED AT': reformDateTime(discount.updatedAt)
-                }));
-    
-                const ws = XLSX.utils.json_to_sheet(discounts);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, 'Discounts_Report');
-    
-                const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    
-                saveAs(data, 'discounts_report.xlsx');
-                alert('Xuất báo cáo thành công!');
-                
-                // Đóng modal và reset filters
-                toggleExportModal(); // Đóng modal
-                setExportFilters({
-                    status: '',
-                    validFrom: '',
-                    validUntil: '',
-                    search: ''
-                }); // Reset filters về giá trị mặc định (trống)
-            } else {
-                alert('Lỗi khi xuất báo cáo: ' + response.data.message);
-            }
-        } catch (error) {
-            console.error('Lỗi khi xuất báo cáo:', error);
-            alert('Xuất báo cáo thất bại!');
-        }
-    };
-    
+
     return (
         <div className="mt-4">
             <div className="flex justify-between items-center mb-4">
@@ -204,13 +134,6 @@ const Discounts = () => {
                     >
                         Thêm Khuyến Mãi
                     </button>
-                    <button
-                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-all"
-                        onClick={toggleExportModal}
-                    >
-                        Xuất Báo Cáo
-                    </button>
-
                 </div>
             </div>
             <Table columns={columns} data={data} onEdit={handleEdit} onDelete={openDeleteModal} />
@@ -275,80 +198,6 @@ const Discounts = () => {
                     </div>
                 </div>
             )}
-            {isExportModalOpen && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div className="bg-white p-6 rounded shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Lọc Dữ Liệu Xuất Báo Cáo</h2>
-            {/* Bộ lọc Status của Discount */}
-            <div className="mb-4">
-                <label className="block mb-2">Trạng Thái Discount</label>
-                <select
-                    name="status"
-                    value={exportFilters.status}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                >
-                    <option value="">Tất cả</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
-            </div>
-
-            {/* Tìm kiếm theo mã Discount hoặc ID */}
-            <div className="mb-4">
-                <label className="block mb-2">Tìm kiếm Discount ID hoặc Mã Discount</label>
-                <input
-                    type="text"
-                    name="search"
-                    value={exportFilters.search}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                    placeholder="Nhập Discount ID hoặc Mã Discount"
-                />
-            </div>
-
-            {/* Ngày bắt đầu của Discount */}
-            <div className="mb-4">
-                <label className="block mb-2">Ngày Bắt Đầu</label>
-                <input
-                    type="date"
-                    name="validFrom"
-                    value={exportFilters.validFrom}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                />
-            </div>
-
-            {/* Ngày kết thúc của Discount */}
-            <div className="mb-4">
-                <label className="block mb-2">Ngày Kết Thúc</label>
-                <input
-                    type="date"
-                    name="validUntil"
-                    value={exportFilters.validUntil}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                />
-            </div>
-
-            <div className="flex justify-end space-x-2">
-                <button
-                    className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
-                    onClick={toggleExportModal}
-                >
-                    Hủy
-                </button>
-                <button
-                    className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
-                    onClick={handleExport}
-                >
-                    Xuất Báo Cáo
-                </button>
-            </div>
-        </div>
-    </div>
-)}
-
         </div>
     );
 };

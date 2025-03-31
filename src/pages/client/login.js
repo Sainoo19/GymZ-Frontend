@@ -16,6 +16,7 @@ const LoginPageUser = () => {
                 withCredentials: true // Ensure cookies are sent with the request
             });
             if (response.data.status === "success") {
+                // localStorage.setItem("accessToken", response.data.data.accessToken);
                 // Redirect to the previous page or home page
                 const from = location.state?.from?.pathname || "/";
                 navigate(from);

@@ -11,8 +11,9 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
   const navigate = useNavigate();
   const [newOrders, setNewOrders] = useState(0); // Số đơn hàng mới
   const [notifications, setNotifications] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const URL_SOCKET = process.env.REACT_APP_SOCKET;
+  // const URL_SOCKET = process.env.REACT_APP_SOCKET;
   const socket = io("http://localhost:3000", {
     transports: ["websocket", "polling"] // Đảm bảo WebSocket và Polling đều được bật
   });
@@ -24,6 +25,10 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
   socket.on("disconnect", () => {
     console.log("Disconnected from WebSocket server");
   });
+  const toggleNotifications = () => {
+    setIsOpen(!isOpen); // Bật/tắt danh sách thông báo
+    setNewOrders(0); // Reset số lượng thông báo mới
+  };
 
   useEffect(() => {
     axios
@@ -97,27 +102,29 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
       <div className="flex items-center space-x-4">
         {/* 🔔 Biểu tượng thông báo */}
         <div className="relative">
-  <FaBell className="text-xl cursor-pointer" onClick={() => setNewOrders(0)} />
-  {newOrders > 0 && (
-    <span className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-      {newOrders}
-    </span>
-  )}
+        <FaBell className="text-xl cursor-pointer" onClick={toggleNotifications} />
+        {newOrders > 0 && (
+          <span className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+            {newOrders}
+          </span>
+        )}
 
-  {/* Danh sách thông báo */}
-  <div className="absolute right-0 mt-2 w-64 bg-white text-black rounded shadow-lg">
-    {notifications.length === 0 ? (
-      <p className="p-4">Không có thông báo</p>
-    ) : (
-      notifications.map((order, index) => (
-        <p key={index} className="p-4 border-b">
-          🛒 Đơn hàng mới từ <strong>{order.customer}</strong>, tổng tiền:{" "}
-          <strong>{order.total} đ</strong>
-        </p>
-      ))
-    )}
-  </div>
-</div>
+      {/* Danh sách thông báo */}
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-64 bg-white text-black rounded shadow-lg">
+          {notifications.length === 0 ? (
+            <p className="p-4">Không có thông báo</p>
+          ) : (
+            notifications.map((order, index) => (
+              <p key={index} className="p-4 border-b">
+                🛒 Đơn hàng mới từ <strong>{order.customer}</strong>, tổng tiền:{" "}
+                <strong>{order.total} đ</strong>
+              </p>
+            ))
+          )}
+        </div>
+      )}
+      </div>
 
 
         <div className="relative">

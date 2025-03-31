@@ -6,9 +6,6 @@ import { FaFilter } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Pagination from '../../../components/admin/layout/Pagination';
 import { jwtDecode } from 'jwt-decode';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
-import reformDateTime from '../../../components/utils/reformDateTime';
 
 const Employee = () => {
     const [columns] = useState([
@@ -29,7 +26,6 @@ const Employee = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState('');
-    const [isExportModalOpen, setIsExportModalOpen] = useState(false);
     const [filters, setFilters] = useState({
         branchId: '',
         role: '',
@@ -39,23 +35,6 @@ const Employee = () => {
     const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
     const navigate = useNavigate();
     const [userRole, setUserRole] = useState(null);
-
-    const [exportFilters, setExportFilters] = useState({
-        branchId: '',
-        type: '',
-        startDate: '',
-        endDate: ''
-    });
-    const toggleExportModal = () => {
-        setIsExportModalOpen(!isExportModalOpen);
-    };
-    
-    const handleExportFilterChange = (e) => {
-        setExportFilters({
-            ...exportFilters,
-            [e.target.name]: e.target.value
-        });
-    };
 
     useEffect(() => {
         const fetchUserRole = async () => {
@@ -83,8 +62,7 @@ const Employee = () => {
                         page: currentPage,
                         limit: 10,
                         search,
-                        ...filters,
-                        ...exportFilters
+                        ...filters
                     },
                     withCredentials: true // Ensure cookies are sent with the request
                 });
@@ -115,7 +93,7 @@ const Employee = () => {
 
         fetchBranches();
         fetchData();
-    }, [currentPage, search, filters, exportFilters]);
+    }, [currentPage, search, filters]);
 
     const handleEdit = (id) => {
         if (userRole === 'admin' || userRole === 'manager') {
@@ -197,55 +175,6 @@ const Employee = () => {
         )
     }));
 
-    const handleExport = async () => {
-        try {
-            const response = await axios.get('http://localhost:3000/employees/all', {
-                params: {
-                    ...exportFilters, // Giữ lại các filter hiện tại
-                    limit: 1000 // Giới hạn dữ liệu xuất
-                },
-                withCredentials: true
-            });
-    
-            if (response.data.status === 'success') {
-                const employees = response.data.data.employees.map(employee => ({
-                    'EMPLOYEE ID': employee._id,
-                    'NAME': employee.name,
-                    'ROLE': employee.role,
-                    'BRANCH ID': employee.branch_id,
-                    'AVATAR': employee.avatar, // Thêm avatar vào báo cáo
-                    'CREATED AT': reformDateTime(employee.createdAt),
-                    'UPDATED AT': reformDateTime(employee.updatedAt)
-                }));
-    
-                const ws = XLSX.utils.json_to_sheet(employees);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, 'Employees_Report');
-    
-                const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    
-                saveAs(data, 'employees_report.xlsx');
-                alert('Xuất báo cáo thành công!');
-                
-                // Đóng modal và reset filters
-                toggleExportModal(); // Đóng modal
-                setExportFilters({
-                    branchId: '', // Reset branch filter
-                    role: '', // Reset role filter
-                    startDate: '', // Reset startDate filter
-                    endDate: '' // Reset endDate filter
-                }); // Reset filters về giá trị mặc định (trống)
-            } else {
-                alert('Lỗi khi xuất báo cáo: ' + response.data.message);
-            }
-        } catch (error) {
-            console.error('Lỗi khi xuất báo cáo:', error);
-            alert('Xuất báo cáo thất bại!');
-        }
-    };
-    
-    
     return (
         <div className="mt-4">
             <div className="flex justify-between items-center mb-4">
@@ -271,15 +200,7 @@ const Employee = () => {
                         >
                             Thêm Nhân Viên
                         </button>
-
-                        
                     )}
-                     <button
-                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-all"
-                        onClick={toggleExportModal}
-                    >
-                        Xuất Báo Cáo
-                    </button>
                 </div>
             </div>
             <Table columns={columns} data={formattedData} onEdit={handleEdit} onDelete={openDeleteModal} />
@@ -367,74 +288,6 @@ const Employee = () => {
                     </div>
                 </div>
             )}
-
-{isExportModalOpen && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div className="bg-white p-6 rounded shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Lọc Dữ Liệu Xuất Báo Cáo Nhân Viên</h2>
-            <div className="mb-4">
-                <label className="block mb-2">Chức Vụ</label>
-                <select
-                    name="role"
-                    value={exportFilters.role}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                >
-                    <option value="">Tất cả</option>
-                    <option value="admin">Admin</option>
-                    <option value="manager">Manager</option>
-                    <option value="staff">Staff</option>
-                </select>
-            </div>
-            <div className="mb-4">
-                <label className="block mb-2">Chi Nhánh</label>
-                <input
-                    type="text"
-                    name="branchId"
-                    value={exportFilters.branchId}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                    placeholder="Nhập ID chi nhánh"
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block mb-2">Ngày Bắt Đầu</label>
-                <input
-                    type="date"
-                    name="startDate"
-                    value={exportFilters.startDate}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block mb-2">Ngày Kết Thúc</label>
-                <input
-                    type="date"
-                    name="endDate"
-                    value={exportFilters.endDate}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                />
-            </div>
-            <div className="flex justify-end space-x-2">
-                <button
-                    className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
-                    onClick={toggleExportModal}
-                >
-                    Hủy
-                </button>
-                <button
-                    className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
-                    onClick={handleExport}
-                >
-                    Xuất Báo Cáo
-                </button>
-            </div>
-        </div>
-    </div>
-)}
-
         </div>
     );
 };

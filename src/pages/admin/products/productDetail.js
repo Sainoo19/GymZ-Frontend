@@ -1,8 +1,8 @@
-import { useRef, useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import { FileDrop } from "../../../components/admin/product/FileDrop";
 import axios from "axios";
 import { TypeProduct } from "../../../components/admin/product/TypeProduct";
-import { v4 as uuidv4 } from "uuid";
+// import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import ReactQuill from "react-quill";
@@ -12,7 +12,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL + "products";
 
 const ProductDetail = ({ onClose }) => {
   const { productId } = useParams();
-  const [selected, setSelected] = useState("");
+  // const [selected, setSelected] = useState("");
   const [productData, setProductData] = useState({
     name: "",
     description: "",
@@ -29,10 +29,10 @@ const ProductDetail = ({ onClose }) => {
   const [description, setDescription] = useState("");
   const [content, setContent] = useState(""); // Initialize content with an empty string
   const [brand, setBrand] = useState("");
-  const [avatar, setAvatar] = useState("");
+  // const [avatar, setAvatar] = useState("");
   const [variations, setVariations] = useState([]);
   const [images, setImages] = useState([]);
-  const [isUploading, setIsUploading] = useState(false); // Thêm trạng thái tải lên
+  // const [isUploading, setIsUploading] = useState(false); // Thêm trạng thái tải lên
 
   useEffect(() => {
     if (!productId) {
@@ -57,6 +57,7 @@ const ProductDetail = ({ onClose }) => {
   }, [productId]);
 
   useEffect(() => {
+    window.scrollTo(0, 0)
     const fetchProductCategory = async () => {
       try {
         const res = await axios.get(

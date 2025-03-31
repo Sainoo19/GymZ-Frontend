@@ -12,9 +12,7 @@
     "chart.js": "^4.4.8",
     "cra-template": "1.2.0",
     "cropperjs": "^1.6.2",
-    "date-fns": "^4.1.0",
     "dvhcvn": "^1.2.20250301",
-    "file-saver": "^2.0.5",
     "firebase": "^11.3.0",
     "framer-motion": "^12.4.7",
     "js-cookie": "^3.0.5",
@@ -36,8 +34,7 @@
     "socket.io-client": "^4.8.1",
     "sweetalert2": "^11.16.0",
     "swiper": "^11.2.4",
-    "web-vitals": "^4.2.4",
-    "xlsx": "^0.18.5"
+    "web-vitals": "^4.2.4"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -67,11 +64,6 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@tailwindcss/postcss7-compat": "^2.2.17",
     "autoprefixer": "^10.4.20",
-    "axe-core": "^4.10.3",
-    "eslint": "^8.57.1",
-    "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-react": "^7.37.4",
-    "eslint-plugin-react-hooks": "^5.2.0",
     "postcss": "^8.5.1",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17"
   }

@@ -21,7 +21,7 @@ import axios from 'axios';
 //   { id: 8, image: "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg", name: "Product 8", price: "89.99", rating: 5 },
 // ];
 
-const price = '22.222';
+// const price = '22.222';
 const rating = 3;
 
 const HomeTopProduct = () => {
@@ -39,7 +39,7 @@ const HomeTopProduct = () => {
                 topProducts.map(async (product) => {
                   try {
                     const productResponse = await axios.get(`http://localhost:3000/products/${product._id}`);
-                    console.log("Dữ liệu sản phẩm lấy được:", productResponse.data); 
+                    // console.log("Dữ liệu sản phẩm lấy được:", productResponse.data); 
                     return productResponse.data.data;
                   } catch (productError) {
                     console.error("Lỗi khi lấy dữ liệu sản phẩm:", productError);

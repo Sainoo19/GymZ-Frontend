@@ -12,7 +12,7 @@ const navItems = [
     { to: "#", label: "Cài Đặt Thông Báo", icon: FaCog, textColor: "text-black" },
     { to: "#", label: "Những Thiết Lập Riêng Tư", icon: FaLock, textColor: "text-black" },
     { to: "/my-orders", label: "Đơn Mua", icon: FaBox, textColor: "text-black" },
-    { to: "/my-membership", label: "Hội Viên", icon: FaBox, textColor: "text-black" },
+    { to: "#", label: "Kho Voucher", icon: FaTicketAlt, textColor: "text-black" },
     { to: "/gymz-coin", label: "Shopee Xu", icon: FaCoins, textColor: "text-black" }
 ];
 
