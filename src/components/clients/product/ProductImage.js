@@ -3,7 +3,8 @@ import formatCurrency from "../../utils/formatCurrency";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { CartContext } from "../../../components/clients/contexts/CartContext";
-
+import Cookies from 'js-cookie';
+import { useNavigate, useLocation } from 'react-router-dom';
 const ProductImage = ({
   avatar,
   images,
@@ -20,13 +21,14 @@ const ProductImage = ({
   const { productId } = useParams();
   const URL_API = process.env.REACT_APP_API_URL;
   const { addToCart } = useContext(CartContext);
-
+  const navigate = useNavigate(); 
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedOriginalPrice, setSelectedOriginalPrice] = useState(null);
   const [selectedSalePrice, setSelectedSalePrice] = useState(null);
   const [percentDiscount, setPercentDiscount] = useState(0);
   const [stock, setStock] = useState(null);
+  const location = useLocation();
 
   const roundNumber = (num) => Math.round(num);
 
@@ -108,6 +110,14 @@ const ProductImage = ({
   
 
   const handleAddToCart = async () => {
+    const token = Cookies.get('accessToken'); // Lấy accessToken từ cookie
+  
+    if (!token) {
+      alert("Vui lòng đăng nhập trước khi thêm sản phẩm vào giỏ hàng");
+      navigate("/login-user", { state: { from: location } }); 
+      return;
+    }
+  
     if (!selectedTheme || !selectedCategory) {
       alert("Vui lòng chọn phân loại và loại hàng trước khi thêm vào giỏ hàng");
       return;
