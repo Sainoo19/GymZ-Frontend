@@ -53,6 +53,10 @@ import TrainSessionDetail from "../admin/trainSession/trainSessionDetail";
 import MemberBills from "../admin/memberBill/memberBills";
 import MembershipPage from "./profile/membership";
 import TrainSchedulePage from "./profile/trainSchedule";
+import ProductCategory from "../admin/ProductCategory/productCategory";
+import CreateProductCategory from "../admin/ProductCategory/addProductCategory";
+import UpdateProductCategory from "../admin/ProductCategory/productCategoryDetail";
+import PurchaseOrder from "../../components/clients/users/Purchase History/PurchaseOrder";
 
 import axios from "axios";
 
@@ -186,6 +190,9 @@ const App = () => {
                   />
                   <Route path="/login-employee" element={<LoginAdminPage />} />
 
+                  <Route path="/admin/productCategories" element={<ProductCategory />} />
+                  <Route path="/productCategories/create" element={<CreateProductCategory />} />
+                  <Route path="/productCategory/:id" element={<UpdateProductCategory />} />
                   {/* Add this route */}
                   {/* Add more routes as needed */}
                 </Routes>
@@ -216,6 +223,7 @@ const App = () => {
                 <Route path="/membership/schedule" element={<TrainSchedulePage />} />
                 <Route path="/change-password" element={<ChangePasswordPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/my-orders" element={<PurchaseOrder />} />
                 {/* Add more routes as needed */}
               </Routes>
             </main>
