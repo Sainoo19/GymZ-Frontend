@@ -9,12 +9,14 @@ const navItems = [
     // { to: "/admin/inventory", label: "NHẬP KHO", icon: IconAllProduct },
     { to: "/admin/orders", label: "ĐƠN HÀNG", icon: IconAllProduct },
     { to: "/admin/payments", label: "HOÁ ĐƠN", icon: IconAllProduct },
+    { to: "/admin/productCategories", label: "DANH MỤC SẢN PHẨM", icon: IconAllProduct },
     { to: "/admin/products", label: "SẢN PHẨM", icon: IconAllProduct },
     { to: "/admin/employees", label: "NHÂN VIÊN", icon: IconAllProduct },
     { to: "/admin/users", label: "KHÁCH HÀNG", icon: IconAllProduct },
     { to: "/admin/branches", label: "CHI NHÁNH", icon: IconAllProduct },
     { to: "/admin/discounts", label: "KHUYẾN MÃI", icon: IconAllProduct },
     { to: "/admin/members", label: "HỘI VIÊN", icon: IconAllProduct }
+    
 ];
 
 const SideBar = ({ isSidebarHidden, setIsSidebarHidden }) => {

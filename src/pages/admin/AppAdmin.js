@@ -9,6 +9,7 @@ import Payment from "../admin/payments/payment";
 import CreatePayment from "../admin/payments/createPayments";
 import UpdatePaymentForm from "../admin/payments/paymentsDetail";
 import Product from "../admin/products/product";
+import ProductCategory from "../admin/ProductCategory/productCategory";
 import Branches from "../admin/branches/branches";
 import CreateBranch from "../admin/branches/branchesCreate";
 import UpdateBranchForm from "../admin/branches/branchesDetail";
@@ -72,7 +73,7 @@ const AppAdmin = () => {
                         <Route path="/inventory" element={< InventoryListPage/>} />
                         <Route path="/inventory/addinventory/:productId" element={< AddInventory/>} />
                         <Route path="/inventory/top-product-page" element={< TopProductPage/>} />
-
+                        <Route path="/productCategories" element={<ProductCategory />} />     
                     </Routes>
                 </div>
             </div>

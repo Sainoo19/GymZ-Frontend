@@ -47,6 +47,10 @@ import ForgotPasswordPage from "../../components/clients/users/ForgotPasswordPag
 import Members from "../admin/members/members";
 import CreateMember from "../admin/members/memberCreate";
 import UpdateMemberForm from "../admin/members/memberDetail";
+import ProductCategory from "../admin/ProductCategory/productCategory";
+import CreateProductCategory from "../admin/ProductCategory/addProductCategory";
+import UpdateProductCategory from "../admin/ProductCategory/productCategoryDetail";
+import PurchaseOrder from "../../components/clients/users/Purchase History/PurchaseOrder";
 
 import axios from "axios";
 
@@ -169,6 +173,9 @@ const App = () => {
                   />
                   <Route path="/login-employee" element={<LoginAdminPage />} />
 
+                  <Route path="/admin/productCategories" element={<ProductCategory />} />
+                  <Route path="/productCategories/create" element={<CreateProductCategory />} />     
+                  <Route path="/productCategory/:id" element={<UpdateProductCategory />} />
                   {/* Add this route */}
                   {/* Add more routes as needed */}
                 </Routes>
@@ -197,6 +204,7 @@ const App = () => {
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/change-password" element={<ChangePasswordPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/my-orders" element={<PurchaseOrder />} />
                 {/* Add more routes as needed */}
               </Routes>
             </main>
