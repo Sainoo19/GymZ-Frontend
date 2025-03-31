@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { FaCalendarAlt, FaUser, FaClock, FaFilter, FaSpinner, FaPlus, FaCheck, FaTimes, FaMapMarkerAlt } from 'react-icons/fa';
+import {
+    FaCalendarAlt, FaUser, FaClock, FaFilter, FaSpinner,
+    FaPlus, FaCheck, FaTimes, FaEdit, FaExclamationTriangle
+} from 'react-icons/fa';
 
 const TrainScheduleContent = () => {
     const [sessions, setSessions] = useState([]);
@@ -17,6 +20,17 @@ const TrainScheduleContent = () => {
     });
     const [showFilters, setShowFilters] = useState(false);
 
+    // Add new state for update modal
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [updateSessionData, setUpdateSessionData] = useState({
+        id: '',
+        date: '',
+        startHour: '',
+        endHour: ''
+    });
+    const [updateLoading, setUpdateLoading] = useState(false);
+    const [updateError, setUpdateError] = useState('');
+
     // States for booking feature
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [bookingData, setBookingData] = useState({
@@ -28,6 +42,8 @@ const TrainScheduleContent = () => {
     const [bookingLoading, setBookingLoading] = useState(false);
     const [bookingError, setBookingError] = useState('');
     const [trainers, setTrainers] = useState([]);
+
+
 
     // Status options
     const statusOptions = [
@@ -289,6 +305,130 @@ const TrainScheduleContent = () => {
         }
     };
 
+    // Add a function to handle opening the update modal
+    const openUpdateModal = (session) => {
+        // Only allow updating scheduled sessions
+        if (session.status !== 'scheduled') {
+            alert('Chỉ có thể cập nhật buổi tập ở trạng thái "Đã lên lịch"');
+            return;
+        }
+
+        // Parse the date into YYYY-MM-DD format
+        const sessionDate = new Date(session.date);
+        const formattedDate = sessionDate.toISOString().split('T')[0];
+
+        setUpdateError('');
+        setUpdateSessionData({
+            id: session._id,
+            date: formattedDate,
+            startHour: session.startHour,
+            endHour: session.endHour
+        });
+        setShowUpdateModal(true);
+    };
+
+    // Add function to handle update form input changes
+    const handleUpdateChange = (e) => {
+        const { name, value } = e.target;
+
+        if (name === 'startHour') {
+            // Parse the hours and minutes
+            const [hours, minutes] = value.split(':').map(Number);
+
+            // Calculate end time (start time + 1 hour)
+            let endHours = hours + 1;
+            if (endHours > 23) endHours = 23; // Cap at 23:00
+
+            const endHour = `${endHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+            // Update both startHour and endHour
+            setUpdateSessionData(prev => ({
+                ...prev,
+                startHour: value,
+                endHour: endHour
+            }));
+        } else {
+            setUpdateSessionData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
+    };
+
+    // Add function to handle session update submission
+    const handleUpdateSession = async () => {
+        try {
+            setUpdateLoading(true);
+            setUpdateError('');
+
+            // Validate inputs
+            if (!updateSessionData.date || !updateSessionData.startHour || !updateSessionData.endHour) {
+                setUpdateError('Vui lòng điền đầy đủ thông tin.');
+                setUpdateLoading(false);
+                return;
+            }
+
+            const response = await axios.patch(
+                `http://localhost:3000/membership/update-session/${updateSessionData.id}`,
+                {
+                    date: updateSessionData.date,
+                    startHour: updateSessionData.startHour,
+                    endHour: updateSessionData.endHour
+                },
+                { withCredentials: true }
+            );
+
+            if (response.data.status === 'success') {
+                setShowUpdateModal(false);
+                // Refresh the sessions list
+                fetchTrainingSessions();
+                // Show success notification
+                alert('Cập nhật lịch tập thành công!');
+            } else {
+                setUpdateError(response.data.message || 'Không thể cập nhật lịch tập.');
+            }
+
+            setUpdateLoading(false);
+        } catch (err) {
+            console.error('Error updating session:', err);
+            setUpdateError(err.response?.data?.message || 'Đã xảy ra lỗi khi cập nhật lịch tập.');
+            setUpdateLoading(false);
+        }
+    };
+
+    // Add a function to handle cancel session
+    const handleCancelSession = async (sessionId) => {
+        // Confirm with the user before cancellation
+        if (!window.confirm('Bạn có chắc chắn muốn hủy buổi tập này không?')) {
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            const response = await axios.post(
+                `http://localhost:3000/membership/cancel-session/${sessionId}`,
+                {},
+                { withCredentials: true }
+            );
+
+            if (response.data.status === 'success') {
+                // Refresh the sessions list
+                fetchTrainingSessions();
+                // Show success notification
+                alert('Hủy buổi tập thành công!');
+            } else {
+                alert(response.data.message || 'Không thể hủy buổi tập.');
+            }
+
+            setLoading(false);
+        } catch (err) {
+            console.error('Error cancelling session:', err);
+            alert(err.response?.data?.message || 'Đã xảy ra lỗi khi hủy buổi tập.');
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="flex-1 p-6">
             <div className="flex justify-between items-center mb-6">
@@ -393,10 +533,28 @@ const TrainScheduleContent = () => {
                                                 {session.dayOfWeek && <span className="capitalize">{session.dayOfWeek}</span>}
                                             </div>
                                         </div>
-                                        <div>
+                                        <div className="flex items-center space-x-2">
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${session.statusClass}`}>
                                                 {session.statusLabel}
                                             </span>
+                                            {session.status === 'scheduled' && (
+                                                <>
+                                                    <button
+                                                        onClick={() => openUpdateModal(session)}
+                                                        className="bg-blue-500 hover:bg-blue-600 text-white rounded p-1"
+                                                        title="Cập nhật lịch tập"
+                                                    >
+                                                        <FaEdit className="text-sm" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleCancelSession(session._id)}
+                                                        className="bg-red-500 hover:bg-red-600 text-white rounded p-1"
+                                                        title="Hủy buổi tập"
+                                                    >
+                                                        <FaTimes className="text-sm" />
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
 
@@ -459,7 +617,105 @@ const TrainScheduleContent = () => {
                     )}
                 </>
             )}
+            {/* Update Modal */}
+            {showUpdateModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold">Cập Nhật Lịch Tập</h3>
+                            <button
+                                onClick={() => setShowUpdateModal(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <FaTimes />
+                            </button>
+                        </div>
 
+                        {updateError && (
+                            <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+                                {updateError}
+                            </div>
+                        )}
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Ngày Tập *
+                                </label>
+                                <input
+                                    type="date"
+                                    name="date"
+                                    value={updateSessionData.date}
+                                    onChange={handleUpdateChange}
+                                    className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-primary"
+                                    min={new Date().toISOString().split('T')[0]} // Disable past dates
+                                    disabled={updateLoading}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Giờ Bắt Đầu *
+                                    </label>
+                                    <input
+                                        type="time"
+                                        name="startHour"
+                                        value={updateSessionData.startHour}
+                                        onChange={handleUpdateChange}
+                                        className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-primary"
+                                        disabled={updateLoading}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Giờ Kết Thúc
+                                    </label>
+                                    <div className="w-full p-2 border rounded bg-gray-100 text-gray-700">
+                                        {updateSessionData.endHour}
+                                    </div>
+                                    <p className="text-xs text-gray-500 mt-1">Tự động tính (bắt đầu + 1 giờ)</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-yellow-50 p-3 rounded text-sm text-yellow-700">
+                                <p className="font-medium mb-1">Lưu ý:</p>
+                                <ul className="list-disc pl-5 space-y-1">
+                                    <li>Chỉ có thể cập nhật các buổi tập diễn ra sau 24 giờ kể từ hiện tại</li>
+                                    <li>Vui lòng chọn thời gian trong khung giờ hoạt động (8:00 - 22:00)</li>
+                                    <li>Việc cập nhật sẽ thay đổi thời gian trong lịch của huấn luyện viên</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end space-x-2 mt-6">
+                            <button
+                                onClick={() => setShowUpdateModal(false)}
+                                className="px-4 py-2 text-gray-700 border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                                disabled={updateLoading}
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                onClick={handleUpdateSession}
+                                className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary transition-colors flex items-center"
+                                disabled={updateLoading}
+                            >
+                                {updateLoading ? (
+                                    <>
+                                        <FaSpinner className="animate-spin mr-2" /> Đang xử lý...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FaCheck className="mr-2" /> Cập Nhật
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Booking Modal */}
             {showBookingModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">

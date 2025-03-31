@@ -82,7 +82,7 @@ const App = () => {
         {userRole === "admin" ||
           userRole === "staff" ||
           userRole === "manager" ||
-          userRole === "Quản lí" ? (
+          userRole === "PT" ? (
           <>
             <div className="flex h-screen">
               <SideBar

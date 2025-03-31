@@ -239,7 +239,7 @@ const TrainSessionDetail = () => {
             );
 
             alert("Cập nhật lịch tập thành công!");
-            navigate("admin/train-sessions");
+            navigate("/admin/train-sessions");
         } catch (error) {
             console.error("Lỗi khi cập nhật lịch tập:", error);
             alert(error.response?.data?.message || "Lỗi khi cập nhật lịch tập");
@@ -426,7 +426,7 @@ const TrainSessionDetail = () => {
                     <button
                         type="button"
                         className="w-1/3 bg-gray-400 text-white py-2 rounded hover:bg-gray-500"
-                        onClick={() => navigate("admin/train-sessions")}
+                        onClick={() => navigate("/admin/train-sessions")}
                     >
                         Hủy
                     </button>
