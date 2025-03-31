@@ -28,7 +28,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
   useEffect(() => {
     // Kiểm tra xem người dùng đã đăng nhập chưa
     axios
-      .get("http://localhost:3000/employees/profile", {
+      .get(`${URL_API}employees/profile`, {
         withCredentials: true,
       })
       .then((response) => {
@@ -53,7 +53,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
         id: doc.id,
         ...doc.data(),
       }));
-      setNotifications(notiList);
+      setNotifications(notiList.filter(noti => !noti.isHandled));
       setNewOrders(notiList.length);
     });
 
@@ -77,7 +77,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
   const handleLogoutClick = () => {
     axios
       .post(
-        "http://localhost:3000/auth/logout",
+        `${URL_API}auth/logout`,
         {},
         {
           withCredentials: true,
@@ -96,7 +96,6 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
 
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
-    setNewOrders(0);
   };
 
   const defaultAvatar = "/assets/images/avatar.png";

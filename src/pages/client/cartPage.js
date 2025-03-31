@@ -61,14 +61,15 @@ const CartPage = () => {
 
   const handleCheckOutClick = () => {
     const selectedProducts = cart.items.filter((item) =>
-      selectedItems.has(`${item.product_id}-${item.category}-${item.theme || ""}`)
+      selectedItems.has(
+        `${item.product_id}-${item.category}-${item.theme || ""}`
+      )
     );
 
     navigate("/checkout", {
       state: { selectedItems: selectedProducts, discountAmount, taxPercent },
     });
   };
-
 
   const handleRemoveItem = (product_id, category, theme) => {
     axios
@@ -84,9 +85,11 @@ const CartPage = () => {
           ...prevCart,
           items: prevCart.items.filter(
             (item) =>
-              !(item.product_id === product_id &&
+              !(
+                item.product_id === product_id &&
                 item.category === category &&
-                item.theme === theme)
+                item.theme === theme
+              )
           ),
         }));
       })
@@ -128,8 +131,8 @@ const CartPage = () => {
           ...prevCart,
           items: prevCart.items.map((item) =>
             item.product_id === productId &&
-              item.category === category &&
-              item.theme === theme
+            item.category === category &&
+            item.theme === theme
               ? { ...item, quantity: newQuantity }
               : item
           ),
@@ -182,39 +185,25 @@ const CartPage = () => {
         setMaxDiscountAmount(data.maxDiscountAmount || 0); // Lưu maxDiscountAmount
         setApplicableProducts(new Set(data.applicableProducts || []));
         alert(
-          `✅ Mã giảm giá đã được áp dụng! Giảm ${data.discountPercent
+          `Mã giảm giá đã được áp dụng! Giảm ${
+            data.discountPercent
           }%, giảm tối đa ${formatCurrency(data.maxDiscountAmount)}đ`
         );
-        console.log(
-          `Mã giảm giá đã được áp dụng! Giảm ${data.discountPercent}%`
-        );
+       
       } else {
-        alert("❌ Mã giảm giá không hợp lệ, đã hết hạn hoặc hết lượt sử dụng.");
+        alert("Mã giảm giá không hợp lệ, đã hết hạn hoặc hết lượt sử dụng.");
       }
     } catch (error) {
       console.error("Lỗi khi lấy mã giảm giá:", error);
 
       const errorMessage =
-        error.response?.data?.message || "❌ Lỗi hệ thống, vui lòng thử lại!";
+        error.response?.data?.message || "Lỗi hệ thống, vui lòng thử lại!";
       alert(errorMessage);
     }
   };
 
-  const totalAllProdctCartPrice = Array.from(selectedItems).reduce((sum, key) => {
-    const [productId, category, theme] = key.split("-");
-    const item = cart.items.find(
-      (item) =>
-        item.product_id === productId &&
-        item.category === category &&
-        (item.theme || "") === theme
-    );
-    return sum + (item ? item.price * item.quantity : 0);
-  }, 0);
-
-
-  // Tổng tiền chỉ cho các sản phẩm được áp dụng giảm giá
-  const totalApplicableProductPrice = Array.from(selectedItems).reduce((sum, key) => {
-    if (applicableProducts.has(key)) {
+  const totalAllProdctCartPrice = Array.from(selectedItems).reduce(
+    (sum, key) => {
       const [productId, category, theme] = key.split("-");
       const item = cart.items.find(
         (item) =>
@@ -223,16 +212,40 @@ const CartPage = () => {
           (item.theme || "") === theme
       );
       return sum + (item ? item.price * item.quantity : 0);
-    }
-    return sum;
-  }, 0);
-
-
-  const discountAmount = Math.min(
-    (totalApplicableProductPrice * discountPercent) / 100,
-    maxDiscountAmount // Giới hạn không vượt quá maxDiscountAmount
+    },
+    0
   );
 
+  // Tổng tiền chỉ cho các sản phẩm được áp dụng giảm giá
+  const totalApplicableProductPrice = Array.from(selectedItems).reduce(
+    (sum, key) => {
+      if (applicableProducts.has(key)) {
+        const [productId, category, theme] = key.split("-");
+        const item = cart.items.find(
+          (item) =>
+            item.product_id === productId &&
+            item.category === category &&
+            (item.theme || "") === theme
+        );
+        return sum + (item ? item.price * item.quantity : 0);
+      }
+      return sum;
+    },
+    0
+  );
+
+  let discountAmount = (totalApplicableProductPrice * discountPercent) / 100;
+  console.log("totalApplicableProductPrice",totalApplicableProductPrice)
+  console.log("discountPercent",discountPercent)
+  console.log("discountAmount",discountAmount)
+  console.log("--")
+
+// Nếu discountAmount lớn hơn maxDiscountAmount, thì set lại discountAmount
+if (discountAmount > maxDiscountAmount) {
+  discountAmount = maxDiscountAmount;
+}
+
+  console.log("maxDiscountAmount",maxDiscountAmount)
   const discountedTotal = totalAllProdctCartPrice - discountAmount;
   totalPrice = discountedTotal;
 
@@ -245,6 +258,7 @@ const CartPage = () => {
         {/* Danh sách sản phẩm */}
         <div className="w-11/12 border rounded-lg p-4 bg-white">
           <div className="grid grid-cols-5 text-base font-semibold border-b pb-2">
+            <span>Hình ảnh</span>
             <span>Sản Phẩm</span>
             <span>Giá</span>
             <span>Số Lượng</span>
@@ -259,8 +273,16 @@ const CartPage = () => {
                 <input
                   type="checkbox"
                   className="w-5 h-5"
-                  checked={selectedItems.has(`${item.product_id}-${item.category}-${item.theme || ""}`)}
-                  onChange={() => handleCheckBoxChange(item.product_id, item.category, item.theme)}
+                  checked={selectedItems.has(
+                    `${item.product_id}-${item.category}-${item.theme || ""}`
+                  )}
+                  onChange={() =>
+                    handleCheckBoxChange(
+                      item.product_id,
+                      item.category,
+                      item.theme
+                    )
+                  }
                 />
 
                 <img
@@ -299,7 +321,6 @@ const CartPage = () => {
               <button
                 onClick={() =>
                   handleRemoveItem(item.product_id, item.category, item.theme)
-
                 }
                 className="text-red-500 text-xl"
               >
@@ -327,8 +348,6 @@ const CartPage = () => {
             </button>
           </div>
           <div className=" pt-4">
-            
-           
             {discountPercent > 0 && (
               <p className="text-sm  mt-2">
                 Khuyến Mãi: -{discountPercent}%

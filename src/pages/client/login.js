@@ -121,19 +121,7 @@ const LoginPageUser = () => {
             </div>
             <div className="text-center text-gray-500 mb-4">Hoặc</div>
             <div className="flex flex-col space-y-2">
-              {/* <button
-                onClick={handleGoogleLogin}
-                className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow flex items-center justify-center"
-              >
-                <img
-                  src="https://storage.googleapis.com/a1aa/image/Vq-GJAgnMrN6sohMET-Vkrkgchd1Ey8WRHUOCkm2hQA.jpg"
-                  alt="Google logo"
-                  className="mr-2"
-                  width="20"
-                  height="20"
-                />
-                Đăng nhập bằng Google
-              </button> */}
+             
               <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
