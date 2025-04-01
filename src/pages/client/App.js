@@ -57,6 +57,8 @@ import ProductCategory from "../admin/ProductCategory/productCategory";
 import CreateProductCategory from "../admin/ProductCategory/addProductCategory";
 import UpdateProductCategory from "../admin/ProductCategory/productCategoryDetail";
 // import PurchaseOrder from "../../components/clients/users/Purchase History/PurchaseOrder";
+import { requestNotificationPermission,getFCMToken } from "../../firebase";
+import { CartProvider } from "../../components/clients/contexts/CartContext";
 
 import axios from "axios";
 
@@ -64,6 +66,28 @@ const App = () => {
   const [userRole, setUserRole] = React.useState(null);
   const [isSidebarHidden, setIsSidebarHidden] = useState(true);
   const URL_API = process.env.REACT_APP_API_URL;
+
+  
+  useEffect(() => {
+    requestNotificationPermission().then((granted) => {
+      if (granted) {
+        getFCMToken();
+      }
+    });
+  
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/firebase-messaging-sw.js")
+        .then((registration) => {
+          console.log("✅ Service Worker đăng ký thành công:", registration);
+        })
+        .catch((error) => {
+          console.error("⚠️ Service Worker đăng ký thất bại:", error);
+        });
+    }
+  }, []);
+  
+
   React.useEffect(() => {
     axios
       .get(`${URL_API}employees/profile`, {
@@ -201,6 +225,7 @@ const App = () => {
           </>
         ) : (
           <>
+          <CartProvider>
             <HeaderClient />
             <main className="flex-grow">
               <Routes>
@@ -228,6 +253,7 @@ const App = () => {
               </Routes>
             </main>
             <FooterClient />
+            </CartProvider>
           </>
         )}
       </div>

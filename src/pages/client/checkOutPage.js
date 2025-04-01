@@ -14,8 +14,8 @@ const CheckOutPage = () => {
   const location = useLocation();
   const [userInfo, setUserInfo] = useState(null); // Lưu thông tin giao hàng
   const [orderId, setOrderId] = useState(null); // Lưu orderId sau khi tạo đơn hàng
-  const [timeLeft, setTimeLeft] = useState(10); // 15 phút (900 giây)
   const [deliveryAddress, setDeliveryAddress] = useState(null);
+  const [shippingFee, setShippingFee] = useState(null);
 
   const { selectedItems, discountAmount, taxPercent } = location.state || {
     selectedItems: [],
@@ -87,7 +87,8 @@ const CheckOutPage = () => {
         discountAmount={discountAmount}
         taxPercent={taxPercent}
         deliveryAddress={deliveryAddress} 
-
+        shippingFee={shippingFee}
+        setShippingFee={setShippingFee}
       />
       <PaymentMethods
         totalAmount={totalAmount}
@@ -95,6 +96,7 @@ const CheckOutPage = () => {
         selectedItems={selectedItems}
         onSelectPayment={handlePaymentSelection} 
         deliveryAddress={deliveryAddress} 
+        shippingFee={shippingFee}
       />
     </div>
   );

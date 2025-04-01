@@ -9,6 +9,7 @@ import ImportStockModal from "../../../components/admin/product/ImportStockModal
 import reformDateTime from '../../../components/utils/reformDateTime';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import truncateString from "../../../components/utils/truncateString"
 
 const ProductCard = () => {
   const navigate = useNavigate();
@@ -288,9 +289,9 @@ const handleExportFilterChange = (e) => {
             return (
               <div
                 key={product._id}
-                className="p-4 rounded-2xl shadow-md bg-white relative flex flex-col min-h-[320px] justify-between"
+                className="p-4 border rounded-2xl shadow-md bg-white relative flex flex-col min-h-[320px] justify-between"
               >
-                <div className="absolute top-2 right-2 cursor-pointer">
+                <div className="absolute top-3 right-5 cursor-pointer">
                   <MoreHorizontal
                     size={20}
                     className="text-gray-500 hover:text-gray-700"

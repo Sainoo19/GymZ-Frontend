@@ -5,6 +5,7 @@ import TopProduct from '../../components/admin/analysis/topProduct'
 import { getCurrentDate  } from '../../components/utils/getCurrentDate';
 import InventoryList from "../../components/admin/analysis/InventoryList";
 import InventoryInput from '../../components/admin/analysis/InventoryInput';
+import  FrequentlyBoughtTogether  from "../../components/admin/analysis/FrequentlyBoughtTogether";
 const Dashboard = () => {
     const [currentDate, setCurrentDate] = useState(getCurrentDate());
     useEffect(() => {
@@ -23,7 +24,9 @@ const Dashboard = () => {
            {/* <Chart /> */}
            <InventoryList/>
            <TopProduct/>
+
            </div>
+           <FrequentlyBoughtTogether/>
            {/* <InventoryInput/> */}
 
         </div>

@@ -2,9 +2,9 @@ import React, { useEffect, useState, useMemo } from "react";
 import formatCurrency from "../../utils/formatCurrency";
 import axios from "axios";
 
-const ProductsOrdered = ({ selectedItems, onTotalAmountChange, discountAmount, deliveryAddress }) => {
+const ProductsOrdered = ({ selectedItems, onTotalAmountChange, discountAmount, deliveryAddress,  shippingFee, setShippingFee   }) => {
   const API_URL = process.env.REACT_APP_API_URL;
-  const [shippingFee, setShippingFee] = useState(null);
+  const [localShippingFee, setLocalShippingFee] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [totalWeight, setTotalWeight] = useState(0);
@@ -39,9 +39,7 @@ const ProductsOrdered = ({ selectedItems, onTotalAmountChange, discountAmount, d
       }
     };
     fetchTotalWeight();
-  }, [selectedItems]);
 
-  useEffect(() => {
     if (!deliveryAddress?.province || !deliveryAddress?.district || !deliveryAddress?.ward || totalWeight === 0) return;
 
     const fetchShippingFee = async () => {
@@ -63,6 +61,7 @@ const ProductsOrdered = ({ selectedItems, onTotalAmountChange, discountAmount, d
           },
         });
 
+        setLocalShippingFee(response.data);
         setShippingFee(response.data);
       } catch (error) {
         console.error("Lỗi khi lấy phí vận chuyển:", error);
@@ -73,7 +72,7 @@ const ProductsOrdered = ({ selectedItems, onTotalAmountChange, discountAmount, d
     };
 
     fetchShippingFee();
-  }, [deliveryAddress, totalWeight]);
+  }, [deliveryAddress, totalWeight,selectedItems]);
 
   return (
     <div className="border rounded-lg p-4 mt-3 bg-white">

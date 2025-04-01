@@ -1,8 +1,10 @@
-import { React, useEffect, useState } from "react";
+import { React, useEffect, useState, useContext } from "react";
 import formatCurrency from "../../utils/formatCurrency";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
+import { CartContext } from "../../../components/clients/contexts/CartContext";
+import Cookies from "js-cookie";
+import { useNavigate, useLocation } from "react-router-dom";
 const ProductImage = ({
   avatar,
   images,
@@ -15,16 +17,18 @@ const ProductImage = ({
   const increase = () => {
     setQuantity((prev) => (stock !== null && prev < stock ? prev + 1 : prev));
   };
-    const decrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  const decrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
   const { productId } = useParams();
   const URL_API = process.env.REACT_APP_API_URL;
-
+  const { addToCart } = useContext(CartContext);
+  const navigate = useNavigate();
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedOriginalPrice, setSelectedOriginalPrice] = useState(null);
   const [selectedSalePrice, setSelectedSalePrice] = useState(null);
   const [percentDiscount, setPercentDiscount] = useState(0);
   const [stock, setStock] = useState(null);
+  const location = useLocation();
 
   const roundNumber = (num) => Math.round(num);
 
@@ -98,14 +102,16 @@ const ProductImage = ({
   const handleChangeQuantity = (e) => {
     const value = e.target.value;
     if (!isNaN(value) && Number(value) >= 1) {
-      setQuantity(stock !== null && Number(value) > stock ? stock : Number(value));
+      setQuantity(
+        stock !== null && Number(value) > stock ? stock : Number(value)
+      );
     } else if (value === "") {
       setQuantity(1);
     }
   };
-  
 
   const handleAddToCart = async () => {
+  
     if (!selectedTheme || !selectedCategory) {
       alert("Vui lòng chọn phân loại và loại hàng trước khi thêm vào giỏ hàng");
       return;
@@ -123,10 +129,22 @@ const ProductImage = ({
       );
 
       alert("Thêm vào giỏ hàng thành công!");
-      console.log("Response:", response.data);
+
+      addToCart(quantity);
     } catch (error) {
-      console.error("Lỗi khi thêm vào giỏ hàng:", error);
+      const token = Cookies.get("accessToken"); 
+      console.log("accessToken:", token);
+      if (!token) {
+        alert("Vui lòng đăng nhập trước khi thêm sản phẩm vào giỏ hàng");
+        navigate("/login-user", { state: { from: location } });
+        return;
+      }
+      else{
+         console.error("Lỗi khi thêm vào giỏ hàng:", error);
       alert("Có lỗi xảy ra, vui lòng thử lại.");
+      }
+
+     
     }
   };
   return (
@@ -175,7 +193,9 @@ const ProductImage = ({
           </div>
 
           {stock !== null && (
-            <p className="text-gray-600 text-sm mt-2">Số lượng còn lại: {stock}</p>
+            <p className="text-gray-600 text-sm mt-2">
+              Số lượng còn lại: {stock}
+            </p>
           )}
           <div className="border-b border-gray-300 my-3 rounded-lg"></div>
 
@@ -224,10 +244,13 @@ const ProductImage = ({
           )}
 
           <div className="border-b border-gray-300 my-3 rounded-lg"></div>
-          
+
           <div className="flex items-center my-7 w-11/12 justify-start">
             <div className="flex px-3  bg-gray-200  h-9  rounded-2xl items-center">
-              <button className="font-medium  px-3 border  text-2xl" onClick={decrease}>
+              <button
+                className="font-medium  px-3 border  text-2xl"
+                onClick={decrease}
+              >
                 -
               </button>
               <input
@@ -236,7 +259,10 @@ const ProductImage = ({
                 onChange={handleChangeQuantity}
                 className="font-medium text-base w-16 border   bg-transparent text-center focus:outline-none"
               />
-              <button className="font-medium  px-3 border  text-xl" onClick={increase}>
+              <button
+                className="font-medium  px-3 border  text-xl"
+                onClick={increase}
+              >
                 +
               </button>
             </div>

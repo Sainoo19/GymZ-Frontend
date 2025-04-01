@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -14,10 +14,20 @@ const HeaderClient = () => {
   const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  const [cartCount, setCartCount] = useState(0);
+  const URL_API = process.env.REACT_APP_API_URL;
   const navigate = useNavigate();
 
   useEffect(() => {
+    axios
+      .get(`${URL_API}cartClient/count-item`, { withCredentials: true })
+      .then((response) => {
+        setCartCount(response.data.count);
+      })
+      .catch((error) => {
+        console.error("Error logging out:", error);
+      });
+
     // Check if the user is logged in by checking the token in cookies
     axios
       .get("http://localhost:3000/users/profile", {
@@ -138,8 +148,17 @@ const HeaderClient = () => {
           <div className="hidden lg:flex items-center space-x-4">
             {isLoggedIn && (
               <>
-                <button className="" onClick={handleCartClick}>
-                  <img src={ShoppingCart} alt="Cart" className="h-7 w-7" />
+                <button onClick={handleCartClick} className="relative">
+                  <img
+                    src={ShoppingCart}
+                    alt="Cart"
+                    className="h-7 w-7"
+                  />
+                  {cartCount > 0 && (
+                    <span className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                      {cartCount}
+                    </span>
+                  )}
                 </button>
 
                 <div className="relative">
@@ -298,14 +317,12 @@ const HeaderClient = () => {
                   Về chúng tôi
                 </a>
                 {!isLoggedIn && (
-
                   <button
                     className="-mx-3 w-full text-left block rounded-lg px-3  py-2 text-base font-semibold text-white hover:bg-secondary hover:text-primary"
                     onClick={handleLoginClick}
                   >
                     Đăng nhập
                   </button>
-
                 )}
               </div>
             </div>
