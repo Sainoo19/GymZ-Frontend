@@ -24,7 +24,7 @@ const PaymentMethods = ({
       icon: <img src={CODShipmentBadge} alt="MoMo" width={50} height={20} />,
     },
     {
-      id: "momo",
+      id: "MoMo",
       label: "MoMo",
       icon: <img src={MomoBadge} alt="MoMo" width={50} height={20} />,
     },
@@ -79,10 +79,10 @@ const PaymentMethods = ({
         const orderId = orderResponse.data.order._id;
         onSelectPayment(selectedMethod, totalAmount);
 
-        if (selectedMethod === "momo") {
+        if (selectedMethod === "MoMo") {
           const momoResponse = await axios.post(
             `${URL_API}payment/momopayment`,
-            { amount: totalAmount, orderId: orderId },
+            { amount: totalAmount, orderId: orderId, selectedMethod },
             { withCredentials: true }
           );
 
