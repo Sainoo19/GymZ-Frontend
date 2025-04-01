@@ -33,8 +33,7 @@ const OrderProgressPage = () => {
     }
     await clearPaidItemsFromCart(orderId);
     fetchOrderStatus();
-  };
-  
+  };y
   const clearPaidItemsFromCart = async (orderId) => {
     try {
       const response = await axios({
