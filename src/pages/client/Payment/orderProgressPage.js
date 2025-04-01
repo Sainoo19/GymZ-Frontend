@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 
@@ -9,56 +9,49 @@ const OrderProgressPage = () => {
   const [statusHistory, setStatusHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
-  const URL_API = process.env.REACT_APP_API_URL; // Sửa lỗi
+  const URL_API = process.env.REACT_APP_API_URL;
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // 🔥 Dùng useRef để đảm bảo createPayment chỉ gọi 1 lần
+  const isPaymentCreated = useRef(false);
 
   useEffect(() => {
     if (orderId && !isProcessing) {
-      setSuccessMessage(
-        "🎉 Đặt hàng thành công! Đơn hàng của bạn đang được xử lý."
-      );
-
+      console.log("🚀 Running processOrder() once..."); // Debug log
+      setSuccessMessage("🎉 Đặt hàng thành công! Đơn hàng của bạn đang được xử lý.");
       setIsProcessing(true);
       processOrder();
-
-      const interval = setInterval(fetchOrderStatus, 10000);
-      return () => clearInterval(interval);
     }
   }, [orderId]);
 
   const processOrder = async () => {
-    if (!isPaymentCreated) {
-      setIsPaymentCreated(true); // Đánh dấu đã tạo payment
-      await createPayment(); // Tạo payment
+    if (!isPaymentCreated.current) {
+      isPaymentCreated.current = true; // ✅ Đánh dấu để ngăn gọi API nhiều lần
+      await createPayment();
     }
+
     await clearPaidItemsFromCart(orderId);
-    fetchOrderStatus();
-  };y
+    
+    if (paymentMethod === "momo") {
+      fetchOrderStatus();
+    }
+  };
+
   const clearPaidItemsFromCart = async (orderId) => {
     try {
-      const response = await axios({
-        method: "delete",
-        url: `${URL_API}cartClient/clear`,
-        headers: {
-          "Content-Type": "application/json",
-        },
+      await axios.delete(`${URL_API}cartClient/clear`, {
+        headers: { "Content-Type": "application/json" },
         data: { orderId },
-        withCredentials: true, // Đảm bảo gửi cookie/token nếu có
+        withCredentials: true,
       });
     } catch (error) {
-      console.error(
-        "Lỗi khi xoá sản phẩm trong giỏ hàng:",
-        error.response?.data || error
-      );
+      console.error("Lỗi khi xoá sản phẩm trong giỏ hàng:", error.response?.data || error);
     }
   };
 
   const fetchOrderStatus = async () => {
     try {
-      const response = await axios.post(
-        `${URL_API}payment/transaction-status`,
-        { orderId }
-      );
+      const response = await axios.post(`${URL_API}payment/transaction-status`, { orderId });
       setStatusHistory(response.data.statusHistory);
     } catch (error) {
       console.error("Lỗi lấy trạng thái đơn hàng:", error);
@@ -66,12 +59,11 @@ const OrderProgressPage = () => {
       setLoading(false);
     }
   };
+
   const createPayment = async () => {
     try {
-      await axios.post(`${URL_API}paymentClient/create`, {
-        orderId,
-        paymentMethod,
-      });
+      await axios.post(`${URL_API}paymentClient/create`, { orderId, paymentMethod });
+      console.log("✅ Payment created successfully!");
     } catch (error) {
       console.error("Lỗi tạo payment:", error);
     }
