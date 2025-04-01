@@ -56,7 +56,7 @@ import TrainSchedulePage from "./profile/trainSchedule";
 import ProductCategory from "../admin/ProductCategory/productCategory";
 import CreateProductCategory from "../admin/ProductCategory/addProductCategory";
 import UpdateProductCategory from "../admin/ProductCategory/productCategoryDetail";
-import PurchaseOrder from "../../components/clients/users/Purchase History/PurchaseOrder";
+// import PurchaseOrder from "../../components/clients/users/Purchase History/PurchaseOrder";
 
 import axios from "axios";
 
@@ -223,7 +223,7 @@ const App = () => {
                 <Route path="/membership/schedule" element={<TrainSchedulePage />} />
                 <Route path="/change-password" element={<ChangePasswordPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                <Route path="/my-orders" element={<PurchaseOrder />} />
+                {/* <Route path="/my-orders" element={<PurchaseOrder />} /> */}
                 {/* Add more routes as needed */}
               </Routes>
             </main>

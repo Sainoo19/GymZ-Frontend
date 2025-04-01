@@ -21,7 +21,7 @@ import axios from 'axios';
 //   { id: 8, image: "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg", name: "Product 8", price: "89.99", rating: 5 },
 // ];
 
-const price = '22.222';
+// const price = '22.222';
 const rating = 3;
 
 const HomeTopProduct = () => {
@@ -29,40 +29,40 @@ const HomeTopProduct = () => {
   const [productData, setProductData] = useState([]);
 
 
-    useEffect(() => {
-      const fetchTopProducts = async () => {
-          try {
-              const response = await axios.get("http://localhost:3000/orders/products/top"); // 🔹 Thay URL_API bằng API thực tế
-              const topProducts = response.data; // 🔹 Cập nhật danh sách 
+  useEffect(() => {
+    const fetchTopProducts = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/orders/products/top"); // 🔹 Thay URL_API bằng API thực tế
+        const topProducts = response.data; // 🔹 Cập nhật danh sách 
 
-              const productDetails = await Promise.all(
-                topProducts.map(async (product) => {
-                  try {
-                    const productResponse = await axios.get(`http://localhost:3000/products/${product._id}`);
-                    console.log("Dữ liệu sản phẩm lấy được:", productResponse.data); 
-                    return productResponse.data.data;
-                  } catch (productError) {
-                    console.error("Lỗi khi lấy dữ liệu sản phẩm:", productError);
-                    return null; 
-                  }
-                })
-              );
-              setProductData(productDetails);
-          } catch (error) {
-              console.error("Lỗi khi lấy danh sách:", error);
-          }
-      };
+        const productDetails = await Promise.all(
+          topProducts.map(async (product) => {
+            try {
+              const productResponse = await axios.get(`http://localhost:3000/products/${product._id}`);
+              // console.log("Dữ liệu sản phẩm lấy được:", productResponse.data); 
+              return productResponse.data.data;
+            } catch (productError) {
+              console.error("Lỗi khi lấy dữ liệu sản phẩm:", productError);
+              return null;
+            }
+          })
+        );
+        setProductData(productDetails);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách:", error);
+      }
+    };
 
-      fetchTopProducts();
+    fetchTopProducts();
 
   }, []);
 
   return (
-    <div style={{marginTop: "40px", marginBottom: "50px", paddingLeft: "50px", paddingRight: "50px"}}>
+    <div style={{ marginTop: "40px", marginBottom: "50px", paddingLeft: "50px", paddingRight: "50px" }}>
       <h1 className="text-3xl font-bold text-center" style={{ margin: "20px", }}>TOP SẢN PHẨM BÁN CHẠY</h1>
       <Swiper
-      modules={[Autoplay, Pagination, Navigation]}
-      spaceBetween={40}
+        modules={[Autoplay, Pagination, Navigation]}
+        spaceBetween={40}
         slidesPerView={4}
         slidesPerGroup={1}
         pagination={{ clickable: true }}
@@ -70,20 +70,20 @@ const HomeTopProduct = () => {
         loop={true}
         className="w-full"
         autoplay={{        // Tự động chuyển slide sau mỗi 1 giây
-            delay: 1000,
-            disableOnInteraction: false, // Khi người dùng tương tác, autoplay không bị dừng
-          }}
-        //   breakpoints={{
-        //     320: {
-        //       slidesPerView: 1, // Hiển thị 1 slide trên màn hình nhỏ
-        //     },
-        //     768: {
-        //       slidesPerView: 2, // Hiển thị 2 slide trên màn hình trung bình
-        //     },
-        //     1024: {
-        //       slidesPerView: 2, // Hiển thị 4 slide trên màn hình lớn
-        //     },
-        // }}
+          delay: 1000,
+          disableOnInteraction: false, // Khi người dùng tương tác, autoplay không bị dừng
+        }}
+      //   breakpoints={{
+      //     320: {
+      //       slidesPerView: 1, // Hiển thị 1 slide trên màn hình nhỏ
+      //     },
+      //     768: {
+      //       slidesPerView: 2, // Hiển thị 2 slide trên màn hình trung bình
+      //     },
+      //     1024: {
+      //       slidesPerView: 2, // Hiển thị 4 slide trên màn hình lớn
+      //     },
+      // }}
       >
         {productData.map((product) => (
           <SwiperSlide key={product._id}>
@@ -91,7 +91,7 @@ const HomeTopProduct = () => {
               <CardTopProduct
                 image={product.avatar}
                 name={product.name}
-                price={product.variations.length > 0 ? new Intl.NumberFormat("vi-VN").format(product.variations[0].salePrice) : "Đang cập nhật"}                 rating={rating}
+                price={product.variations.length > 0 ? new Intl.NumberFormat("vi-VN").format(product.variations[0].salePrice) : "Đang cập nhật"} rating={rating}
               />
             </Link>
           </SwiperSlide>

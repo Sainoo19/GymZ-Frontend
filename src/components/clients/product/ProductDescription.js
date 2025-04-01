@@ -1,84 +1,22 @@
-import axios from "axios";
-import { React, use, useState, useEffect } from "react";
+import { React, useState } from "react";
 import { FaStar } from "react-icons/fa"; // Import icon sao
 import RatingProgressBar from "../product/RatingProgressBar";
 import ReviewCommentCard from "./ReviewCommentCard";
+import Pagination from "../../admin/layout/Pagination";
+import ProductReview from "./ProductReview";
+import ProductUserReviews from "./ProductUserReviews";
 
 const ProductDescription = ({ description, ProductId }) => {
   const [activeTab, setActiveTab] = useState("details");
-  const URL_API = process.env.REACT_APP_API_URL;
-  const [reviews, setReviews] = useState([]);
-  const [totalReviews, setTotalReviews] = useState(0);
-  const [avgStar, setAvgStar] = useState(0);
-  const [ratings, setRatings] = useState([]);
-  const [users, setUsers] = useState([]);
+  // const URL_API = process.env.REACT_APP_API_URL;
+  // const [ reviews, setReviews] = useState([]);
+  // const [users, setUsers] = useState([]);
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const [totalPages, setTotalPages] = useState(1);
 
-  const calculateRatings = (reviews) => {
-    const totalReviews = reviews.length;
-    const ratingCounts = [0, 0, 0, 0, 0];
+  const { reviews, users, avgStar, totalReviews, ratings, currentPage, totalPages, handlePageChange } = ProductUserReviews(activeTab);
 
-    // Đếm số đánh giá cho từng mức sao
-    reviews.forEach((review) => {
-      if (review.rating >= 1 && review.rating <= 5) {
-        ratingCounts[review.rating - 1]++;
-      }
-    });
 
-    // Tính phần trăm và tạo danh sách ratings
-    const ratings = ratingCounts
-      .map((count, index) => ({
-        star: 1 + index,
-        total: count,
-        percentage:
-          totalReviews > 0 ? Math.round((count / totalReviews) * 100) : 0,
-      }))
-      .sort((a, b) => b.star - a.star);
-    return ratings;
-  };
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get(`${URL_API}users/all`);
-      if (response.data.status === "success") {
-        setUsers(response.data.data.users);
-        console.log(response.data.data.users)
-      }
-    } catch (error) {
-      console.error("Lỗi khi lấy danh sách người dùng:", error);
-    }
-  };
-  const fetchReviews = async () => {
-    try {
-      const response = await axios.get(`${URL_API}reviews/${ProductId}`);
-      if (response.data.status === "success") {
-        const reviewData = response.data.data;
-        setReviews(response.data.data.reviews || []);
-        setTotalReviews(response.data.data.totalReviews);
-        setRatings(calculateRatings(reviewData.reviews));
-
-        if (reviewData.reviews.length > 0) {
-          const totalStars = reviewData.reviews.reduce(
-            (sum, review) => sum + review.rating,
-            0
-          );
-          const average = totalStars / reviewData.reviews.length;
-          setAvgStar(parseFloat(average.toFixed(1)));
-        } else {
-          setAvgStar(0);
-        }
-      } else {
-        console.error("Lỗi khi lấy đánh giá:", response.data.message);
-      }
-    } catch (error) {
-      console.error("Lỗi khi lấy đánh giá:", error);
-    }
-  };
-  useEffect(() => {
-    if (activeTab === "reviews") {
-      fetchReviews();
-      fetchUsers();
-
-    }
-  }, [activeTab, ProductId]);
   const getUserName = (userId) => {
     const user = users.find((u) => u._id === userId);
 
@@ -103,6 +41,12 @@ const ProductDescription = ({ description, ProductId }) => {
     }
     return stars;
   };
+  const updateReviews = () => {
+    handlePageChange(1);
+  };
+
+
+
   return (
     <div>
       <div className="w-4/5 container mx-auto my-10 border-b border-gray-300">
@@ -163,12 +107,27 @@ const ProductDescription = ({ description, ProductId }) => {
               {reviews.length === 0 ? (
                 <p className="text-gray-500">Chưa có đánh giá nào.</p>
               ) : (
-                reviews.map((review) => (
-                  <ReviewCommentCard key={review._id} review={review} userName={getUserName(review.user_id)}
-                  />
-                ))
+                <div className="">
+                  {reviews
+                    .filter((review) => review.status === "active") // Lọc bình luận có status là "active"
+                    .map((review) => (
+                      <ReviewCommentCard
+                        key={review._id}
+                        review={review}
+                        userName={getUserName(review.user_id)}
+                      />
+                    ))}
+                </div>
               )}
             </div>
+
+            {/* Phân trang */}
+            <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
+
+            {/* Form nhập review mới */}
+            <ProductReview ProductId={ProductId} updateReviews={updateReviews} />
+
+
           </div>
         )}
       </div>

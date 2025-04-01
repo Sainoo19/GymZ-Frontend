@@ -4,6 +4,7 @@ import './index.css';
 import AppAdmin from '../src/pages/admin/AppAdmin';
 import App from '../src/pages/client/App';
 import firebase from 'firebase/compat/app';
+import { AuthProvider } from './pages/client/AuthContext';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -22,9 +23,11 @@ firebase.initializeApp(firebaseConfig);
 firebase.initializeApp(firebaseConfig);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    {/* <AppAdmin /> */}
-    <App />
-  </React.StrictMode>
-); 
+  <AuthProvider>
+    <React.StrictMode>
+      {/* <AppAdmin /> */}
+      <App />
+    </React.StrictMode>
+  </AuthProvider>
+);
 
