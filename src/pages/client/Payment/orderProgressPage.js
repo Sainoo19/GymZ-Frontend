@@ -5,25 +5,20 @@ import axios from "axios";
 const OrderProgressPage = () => {
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get("orderId");
+  const paymentMethod = searchParams.get("paymentMethod");
   const [statusHistory, setStatusHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
   const URL_API = process.env.REACT_APP_API_URL; // Sửa lỗi
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    if (orderId) {
+    if (orderId && !isProcessing) {
       setSuccessMessage(
         "🎉 Đặt hàng thành công! Đơn hàng của bạn đang được xử lý."
       );
 
-      const processOrder = async () => {
-        // await updateOrderStatus(); // Cập nhật trạng thái đơn hàng
-        await createPayment(); // Tạo payment
-        // await updateStockAfterPayment(); // Trừ stock sau khi thanh toán
-        await clearPaidItemsFromCart(orderId); 
-        fetchOrderStatus(); // Lấy trạng thái đơn hàng
-      };
-
+      setIsProcessing(true);
       processOrder();
 
       const interval = setInterval(fetchOrderStatus, 10000);
@@ -31,24 +26,33 @@ const OrderProgressPage = () => {
     }
   }, [orderId]);
 
-
+  const processOrder = async () => {
+    if (!isPaymentCreated) {
+      setIsPaymentCreated(true); // Đánh dấu đã tạo payment
+      await createPayment(); // Tạo payment
+    }
+    await clearPaidItemsFromCart(orderId);
+    fetchOrderStatus();
+  };
+  
   const clearPaidItemsFromCart = async (orderId) => {
     try {
-        const response = await axios({
-            method: "delete",
-            url: `${URL_API}cartClient/clear`,
-            headers: {
-                "Content-Type": "application/json",
-            },
-            data: { orderId },
-            withCredentials: true, // Đảm bảo gửi cookie/token nếu có
-        });
-
+      const response = await axios({
+        method: "delete",
+        url: `${URL_API}cartClient/clear`,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: { orderId },
+        withCredentials: true, // Đảm bảo gửi cookie/token nếu có
+      });
     } catch (error) {
-        console.error("Lỗi khi xoá sản phẩm trong giỏ hàng:", error.response?.data || error);
+      console.error(
+        "Lỗi khi xoá sản phẩm trong giỏ hàng:",
+        error.response?.data || error
+      );
     }
-};
-
+  };
 
   const fetchOrderStatus = async () => {
     try {
@@ -65,20 +69,12 @@ const OrderProgressPage = () => {
   };
   const createPayment = async () => {
     try {
-      await axios.post(`${URL_API}paymentClient/create`, { orderId });
-      console.log("Payment đã được tạo!");
+      await axios.post(`${URL_API}paymentClient/create`, {
+        orderId,
+        paymentMethod,
+      });
     } catch (error) {
       console.error("Lỗi tạo payment:", error);
-    }
-  };
-  const updateStockAfterPayment = async () => {
-    try {
-      const response = await axios.put(`${URL_API}productClient/update-stock`, {
-        orderId,
-      });
-     
-    } catch (error) {
-      console.error("Lỗi cập nhật số lượng sản phẩm:", error);
     }
   };
 
