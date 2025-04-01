@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { auth, provider, signInWithPopup, signOut } from "../../firebase"; // Import Firebase
 import GoogleLoginButton from "../../components/clients/login/GoogleLoginButton";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import { delay } from "framer-motion";
 
 const LoginPageUser = () => {
   const [email, setEmail] = useState("");
@@ -23,11 +24,11 @@ const LoginPageUser = () => {
           withCredentials: true, // Ensure cookies are sent with the request
         }
       );
+      
+      
       if (response.data.status === "success") {
-        // Redirect to the previous page or home page
         const from = location.state?.from?.pathname || "/";
         navigate(from);
-        // Refresh the page to ensure the user data is correctly displayed
         window.location.reload();
       } else {
         setError(response.data.message);
