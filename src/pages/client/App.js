@@ -79,10 +79,10 @@ const App = () => {
       navigator.serviceWorker
         .register("/firebase-messaging-sw.js")
         .then((registration) => {
-          console.log("✅ Service Worker đăng ký thành công:", registration);
+          console.log("Service Worker đăng ký thành công:", registration);
         })
         .catch((error) => {
-          console.error("⚠️ Service Worker đăng ký thất bại:", error);
+          console.error("Service Worker đăng ký thất bại:", error);
         });
     }
   }, []);
