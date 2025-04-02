@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef  } from "react";
 import { FaBell, FaBars, FaTimes } from "react-icons/fa";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -22,6 +22,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
   const [newOrders, setNewOrders] = useState(0); // Số đơn hàng mới
   const [notifications, setNotifications] = useState([]);
   const URL_API = process.env.REACT_APP_API_URL;
+  const notificationRef = useRef(null); // Tham chiếu đến vùng thông báo
 
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -37,6 +38,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
       .catch((error) => {
         console.error("Error fetching employee data:", error);
       });
+      
   }, []);
 
   useEffect(() => {
@@ -68,6 +70,17 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
     });
 
     return () => unsubscribeFCM();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const toggleAccountMenu = () => {
@@ -126,7 +139,8 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
             )}
           </button>
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-72 bg-white text-black shadow-lg rounded-lg p-2">
+            <div               ref={notificationRef}
+            className="absolute right-0 mt-2 w-72 bg-white text-black shadow-lg rounded-lg p-2">
               <h3 className="text-lg font-semibold border-b pb-2">
                 Đơn hàng mới
               </h3>
