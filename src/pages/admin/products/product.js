@@ -35,17 +35,17 @@ const ProductCard = () => {
     type: '',
     startDate: '',
     endDate: ''
-});
-const toggleExportModal = () => {
+  });
+  const toggleExportModal = () => {
     setIsExportModalOpen(!isExportModalOpen);
-};
+  };
 
-const handleExportFilterChange = (e) => {
+  const handleExportFilterChange = (e) => {
     setExportFilters({
-        ...exportFilters,
-        [e.target.name]: e.target.value
+      ...exportFilters,
+      [e.target.name]: e.target.value
     });
-};
+  };
 
   //Tạo biến cho "Sản phẩm BÁN"
   const Selling = 100;
@@ -172,6 +172,10 @@ const handleExportFilterChange = (e) => {
   const toggleFilterModal = () => {
     setIsFilterModalOpen(!isFilterModalOpen);
   };
+  const handleOpenFeedbackModal = (productId) => {
+    navigate(`/admin/feedbackReview/${productId._id}`);
+  };
+
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
@@ -188,51 +192,51 @@ const handleExportFilterChange = (e) => {
   };
   const handleExport = async () => {
     try {
-        const response = await axios.get('http://localhost:3000/products/all', {
-            params: {
-                ...exportFilters,
-                limit: 1000 // Giới hạn dữ liệu xuất
-            },
-            withCredentials: true
-        });
+      const response = await axios.get('http://localhost:3000/products/all', {
+        params: {
+          ...exportFilters,
+          limit: 1000 // Giới hạn dữ liệu xuất
+        },
+        withCredentials: true
+      });
 
-        if (response.data.status === 'success') {
-            const products = response.data.data.products.map(product => ({
-                'PRODUCT ID': product._id,
-                'NAME': product.name,
-                'CATEGORY': product.category ? product.category.name : '',
-                'PRICE RANGE': `${product.minPrice.toLocaleString()} - ${product.maxPrice.toLocaleString()}`, // Hiển thị giá min-max
-                'CREATED AT': reformDateTime(product.createdAt),
-                'UPDATED AT': reformDateTime(product.updatedAt),
-            }));
+      if (response.data.status === 'success') {
+        const products = response.data.data.products.map(product => ({
+          'PRODUCT ID': product._id,
+          'NAME': product.name,
+          'CATEGORY': product.category ? product.category.name : '',
+          'PRICE RANGE': `${product.minPrice.toLocaleString()} - ${product.maxPrice.toLocaleString()}`, // Hiển thị giá min-max
+          'CREATED AT': reformDateTime(product.createdAt),
+          'UPDATED AT': reformDateTime(product.updatedAt),
+        }));
 
-            console.log("✅ Products Export:", products); // Kiểm tra dữ liệu trước khi xuất
+        console.log("✅ Products Export:", products); // Kiểm tra dữ liệu trước khi xuất
 
-            const ws = XLSX.utils.json_to_sheet(products);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Products_Report');
+        const ws = XLSX.utils.json_to_sheet(products);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Products_Report');
 
-            const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-            const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 
-            saveAs(data, 'products_report.xlsx');
-            alert('Xuất báo cáo thành công!');
-              // Đóng modal và reset filters
-              toggleExportModal(); // Đóng modal
-              setExportFilters({
-                  branchId: '',
-                  type: '',
-                  startDate: '',
-                  endDate: ''
-              }); // Reset filters
-        } else {
-            alert('Lỗi khi xuất báo cáo: ' + response.data.message);
-        }
+        saveAs(data, 'products_report.xlsx');
+        alert('Xuất báo cáo thành công!');
+        // Đóng modal và reset filters
+        toggleExportModal(); // Đóng modal
+        setExportFilters({
+          branchId: '',
+          type: '',
+          startDate: '',
+          endDate: ''
+        }); // Reset filters
+      } else {
+        alert('Lỗi khi xuất báo cáo: ' + response.data.message);
+      }
     } catch (error) {
-        console.error('Lỗi khi xuất báo cáo:', error);
-        alert('Xuất báo cáo thất bại!');
+      console.error('Lỗi khi xuất báo cáo:', error);
+      alert('Xuất báo cáo thất bại!');
     }
-};
+  };
 
 
   return (
@@ -261,11 +265,11 @@ const handleExportFilterChange = (e) => {
             THÊM SẢN PHẨM
           </button>
           <button
-                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-all"
-                        onClick={toggleExportModal}
-                    >
-                        Xuất Báo Cáo
-                    </button>
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-all"
+            onClick={toggleExportModal}
+          >
+            Xuất Báo Cáo
+          </button>
         </div>
       </div>
 
@@ -317,6 +321,12 @@ const handleExportFilterChange = (e) => {
                         onClick={() => handleEditProduct(product._id)}
                       >
                         Chỉnh sửa
+                      </li>
+                      <li
+                        className="px-4 py-2  hover:bg-primary hover:text-white cursor-pointer"
+                        onClick={() => handleOpenFeedbackModal(product)}
+                      >
+                        Phản Hồi KH
                       </li>
                       <li
                         className="px-4 py-2 hover:bg-red-100 text-red-600 cursor-pointer"
@@ -420,126 +430,126 @@ const handleExportFilterChange = (e) => {
         </div>
       )}
 
-{isExportModalOpen && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div className="bg-white p-6 rounded shadow-lg">
+      {isExportModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded shadow-lg">
             <h2 className="text-xl font-bold mb-4">Lọc Dữ Liệu Xuất Báo Cáo Sản Phẩm</h2>
 
             {/* Bộ lọc Danh Mục */}
             <div className="mb-4">
-                <label className="block mb-2">Danh Mục</label>
-                <select
-                    name="category"
-                    value={exportFilters.category}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                >
-                    <option value="">Tất cả</option>
-                    <option value="electronics">Điện tử</option>
-                    <option value="fashion">Thời trang</option>
-                    <option value="home">Nhà cửa</option>
-                </select>
+              <label className="block mb-2">Danh Mục</label>
+              <select
+                name="category"
+                value={exportFilters.category}
+                onChange={handleExportFilterChange}
+                className="w-full px-4 py-2 border rounded"
+              >
+                <option value="">Tất cả</option>
+                <option value="electronics">Điện tử</option>
+                <option value="fashion">Thời trang</option>
+                <option value="home">Nhà cửa</option>
+              </select>
             </div>
 
             {/* Bộ lọc Khoảng Giá */}
             <div className="mb-4 flex space-x-4">
-                <div className="w-1/2">
-                    <label className="block mb-2">Giá Tối Thiểu</label>
-                    <input
-                        type="number"
-                        name="priceMin"
-                        value={exportFilters.priceMin}
-                        onChange={handleExportFilterChange}
-                        className="w-full px-4 py-2 border rounded"
-                        placeholder="Từ"
-                    />
-                </div>
-                <div className="w-1/2">
-                    <label className="block mb-2">Giá Tối Đa</label>
-                    <input
-                        type="number"
-                        name="priceMax"
-                        value={exportFilters.priceMax}
-                        onChange={handleExportFilterChange}
-                        className="w-full px-4 py-2 border rounded"
-                        placeholder="Đến"
-                    />
-                </div>
+              <div className="w-1/2">
+                <label className="block mb-2">Giá Tối Thiểu</label>
+                <input
+                  type="number"
+                  name="priceMin"
+                  value={exportFilters.priceMin}
+                  onChange={handleExportFilterChange}
+                  className="w-full px-4 py-2 border rounded"
+                  placeholder="Từ"
+                />
+              </div>
+              <div className="w-1/2">
+                <label className="block mb-2">Giá Tối Đa</label>
+                <input
+                  type="number"
+                  name="priceMax"
+                  value={exportFilters.priceMax}
+                  onChange={handleExportFilterChange}
+                  className="w-full px-4 py-2 border rounded"
+                  placeholder="Đến"
+                />
+              </div>
             </div>
 
             {/* Bộ lọc Ngày Tạo */}
             <div className="mb-4 flex space-x-4">
-                <div className="w-1/2">
-                    <label className="block mb-2">Từ Ngày</label>
-                    <input
-                        type="date"
-                        name="startDate"
-                        value={exportFilters.startDate}
-                        onChange={handleExportFilterChange}
-                        className="w-full px-4 py-2 border rounded"
-                    />
-                </div>
-                <div className="w-1/2">
-                    <label className="block mb-2">Đến Ngày</label>
-                    <input
-                        type="date"
-                        name="endDate"
-                        value={exportFilters.endDate}
-                        onChange={handleExportFilterChange}
-                        className="w-full px-4 py-2 border rounded"
-                    />
-                </div>
+              <div className="w-1/2">
+                <label className="block mb-2">Từ Ngày</label>
+                <input
+                  type="date"
+                  name="startDate"
+                  value={exportFilters.startDate}
+                  onChange={handleExportFilterChange}
+                  className="w-full px-4 py-2 border rounded"
+                />
+              </div>
+              <div className="w-1/2">
+                <label className="block mb-2">Đến Ngày</label>
+                <input
+                  type="date"
+                  name="endDate"
+                  value={exportFilters.endDate}
+                  onChange={handleExportFilterChange}
+                  className="w-full px-4 py-2 border rounded"
+                />
+              </div>
             </div>
 
             {/* Bộ lọc Sắp xếp */}
             <div className="mb-4">
-                <label className="block mb-2">Sắp Xếp Theo</label>
-                <select
-                    name="sortBy"
-                    value={exportFilters.sortBy}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                >
-                    <option value="">Mặc định</option>
-                    <option value="priceAsc">Giá tăng dần</option>
-                    <option value="priceDesc">Giá giảm dần</option>
-                </select>
+              <label className="block mb-2">Sắp Xếp Theo</label>
+              <select
+                name="sortBy"
+                value={exportFilters.sortBy}
+                onChange={handleExportFilterChange}
+                className="w-full px-4 py-2 border rounded"
+              >
+                <option value="">Mặc định</option>
+                <option value="priceAsc">Giá tăng dần</option>
+                <option value="priceDesc">Giá giảm dần</option>
+              </select>
             </div>
 
             {/* Nút Hủy và Xuất Báo Cáo */}
             <div className="flex justify-end space-x-2">
-                <button
-                    className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
-                    onClick={toggleExportModal}
-                >
-                    Hủy
-                </button>
-                <button
-                    className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
-                    onClick={handleExport}
-                >
-                    Xuất Báo Cáo
-                </button>
+              <button
+                className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+                onClick={toggleExportModal}
+              >
+                Hủy
+              </button>
+              <button
+                className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
+                onClick={handleExport}
+              >
+                Xuất Báo Cáo
+              </button>
             </div>
+          </div>
         </div>
-    </div>
-)}
+      )}
 
       {selectedProduct && (
-  <ImportStockModal
-    product={selectedProduct}
-    onClose={handleCloseImportModal}
-    onStockUpdate={(updatedProduct) => {
-      setStocks((prevStocks) => ({
-        ...prevStocks,
-        [updatedProduct._id]: updatedProduct.totalStock,
-      }));
-    }}
-  />
-)}
+        <ImportStockModal
+          product={selectedProduct}
+          onClose={handleCloseImportModal}
+          onStockUpdate={(updatedProduct) => {
+            setStocks((prevStocks) => ({
+              ...prevStocks,
+              [updatedProduct._id]: updatedProduct.totalStock,
+            }));
+          }}
+        />
+      )}
 
     </div>
-    
+
   );
 };
 
