@@ -1,11 +1,12 @@
-import { useState } from "react";
-import firebase from "firebase/compat/app";
-import "firebase/compat/storage";
+import { useState, useRef } from "react";
+import { storage } from "../../../firebase";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 export function AvatarUploader({ onFileUpload }) {
     const [file, setFile] = useState(null);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [ImgUrl, setImgURL] = useState("");
+    const fileInputRef = useRef(null);
 
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
@@ -19,26 +20,34 @@ export function AvatarUploader({ onFileUpload }) {
         setFile(null);
         setImgURL("");
         setUploadProgress(0);
-        const fileInput = document.getElementById("fileInput");
-        if (fileInput) fileInput.value = "";
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
     };
 
     const uploadFile = async (selectedFile) => {
         if (!selectedFile) return;
         try {
-            const storageRef = firebase.storage().ref();
-            const fileRef = storageRef.child(`users/${selectedFile.name}`);
-            const uploadTask = fileRef.put(selectedFile);
+            // Create a storage reference with a unique path
+            const storageRef = ref(storage, `users/${Date.now()}-${selectedFile.name}`);
 
+            // Create the upload task
+            const uploadTask = uploadBytesResumable(storageRef, selectedFile);
+
+            // Listen for state changes, errors, and completion of the upload
             uploadTask.on(
                 "state_changed",
                 (snapshot) => {
+                    // Get upload progress
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                     setUploadProgress(progress);
                 },
-                (error) => console.error("Lỗi khi tải file lên:", error),
+                (error) => {
+                    console.error("Lỗi khi tải file lên:", error);
+                },
                 async () => {
-                    const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                    // Upload completed successfully, get the download URL
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                     setImgURL(downloadURL);
                     if (onFileUpload) onFileUpload(downloadURL);
                 }
@@ -53,6 +62,7 @@ export function AvatarUploader({ onFileUpload }) {
             {!file ? (
                 <label className="cursor-pointer">
                     <input
+                        ref={fileInputRef}
                         id="fileInput"
                         type="file"
                         accept="image/*"

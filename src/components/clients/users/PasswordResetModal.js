@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const PasswordResetModal = ({ isOpen, onClose }) => {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -70,6 +72,9 @@ const PasswordResetModal = ({ isOpen, onClose }) => {
                 setConfirmPassword('');
                 setStep(1);
                 onClose();
+
+                // Navigate to login page after successful password reset
+                navigate('/login-user');
             } else {
                 alert('Không thể đặt lại mật khẩu');
             }

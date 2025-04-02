@@ -24,8 +24,8 @@ const LoginPageUser = () => {
           withCredentials: true, // Ensure cookies are sent with the request
         }
       );
-      
-      
+
+
       if (response.data.status === "success") {
         const from = location.state?.from?.pathname || "/";
         navigate(from);
@@ -42,8 +42,8 @@ const LoginPageUser = () => {
     try {
       const response = await axios.post("http://localhost:3000/auth/google/token", {
         token: credentialResponse.credential, // Gửi token đến backend để xác thực
-      },{ withCredentials: true });
-  
+      }, { withCredentials: true });
+
       if (response.data.status === "success") {
         const from = location.state?.from?.pathname || "/";
         navigate(from);
@@ -56,7 +56,7 @@ const LoginPageUser = () => {
       setError("Đăng nhập Google thất bại");
     }
   };
-  
+
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
       <div className="bg-white shadow-lg rounded-lg flex max-w-4xl w-full">
@@ -107,7 +107,7 @@ const LoginPageUser = () => {
             <div className="flex items-center justify-between mb-6">
               <a
                 className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
-                href="#"
+                href="/forgot-password"
               >
                 Quên mật khẩu?
               </a>
@@ -122,7 +122,7 @@ const LoginPageUser = () => {
             </div>
             <div className="text-center text-gray-500 mb-4">Hoặc</div>
             <div className="flex flex-col space-y-2">
-             
+
               <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
