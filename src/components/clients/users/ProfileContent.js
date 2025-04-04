@@ -26,7 +26,7 @@ function ProfileContent() {
                 setEmail(userData.email);
                 setPhone(userData.phone);
                 setAvatar(userData.avatar);
-                setAddress(userData.address || { province: '', district: '', ward: '', street: ''  });
+                setAddress(userData.address || { province: '', district: '', ward: '', street: '' });
             })
             .catch(error => {
                 console.error('Error fetching user profile:', error);
@@ -35,7 +35,7 @@ function ProfileContent() {
 
     const handleSave = async () => {
         try {
-            const response = await axios.put('http://localhost:3000/profileUser/profile', {
+            const response = await axios.put('http://localhost:3000/profileUser/myprofile', {
                 name,
                 phone,
                 avatar,

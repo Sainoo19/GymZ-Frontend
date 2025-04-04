@@ -125,11 +125,10 @@ const PaymentMethods = ({
         {paymentOptions.map((option) => (
           <label
             key={option.id}
-            className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer ${
-              selectedMethod === option.id
-                ? "border-blue-500 bg-blue-100"
-                : "border-gray-300"
-            }`}
+            className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer ${selectedMethod === option.id
+              ? "border-blue-500 bg-blue-100"
+              : "border-gray-300"
+              }`}
           >
             <input
               type="radio"

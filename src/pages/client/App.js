@@ -56,6 +56,7 @@ import TrainSchedulePage from "./profile/trainSchedule";
 import ProductCategory from "../admin/ProductCategory/productCategory";
 import CreateProductCategory from "../admin/ProductCategory/addProductCategory";
 import UpdateProductCategory from "../admin/ProductCategory/productCategoryDetail";
+import ProductFeedbackReview from "../admin/products/productFeedback";
 // import PurchaseOrder from "../../components/clients/users/Purchase History/PurchaseOrder";
 import { getFCMToken } from "../../firebase";
 import { CartProvider } from "../../components/clients/contexts/CartContext";
@@ -67,7 +68,7 @@ const App = () => {
   const [isSidebarHidden, setIsSidebarHidden] = useState(true);
   const URL_API = process.env.REACT_APP_API_URL;
 
-  
+
   useEffect(() => {
     
       
@@ -86,7 +87,7 @@ const App = () => {
         });
     }
   }, []);
-  
+
 
   React.useEffect(() => {
     axios
@@ -182,6 +183,10 @@ const App = () => {
                     path="admin/editproduct/:productId"
                     element={<ProductDetail />}
                   />
+                  <Route
+                    path="admin/feedbackReview/:productId"
+                    element={<ProductFeedbackReview />}
+                  />
                   <Route path="/test" element={<ProductDetailTest />} />
                   <Route
                     path="admin/employees/create"
@@ -225,34 +230,34 @@ const App = () => {
           </>
         ) : (
           <>
-          <CartProvider>
-            <HeaderClient />
-            <main className="flex-grow">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login-user" element={<LoginPageUser />} />
-                <Route path="/login-employee" element={<LoginAdminPage />} />
-                <Route path="/sign-up" element={<SignUpPageUser />} />
-                <Route path="/productsclient" element={<ProductsClient />} />
-                <Route path="/about-us" element={<AboutUs />} />
-                <Route path="/branches" element={<BranchesClient />} />
-                <Route
-                  path="/productsclient/:productId"
-                  element={<ProductDetailClient />}
-                />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/checkout" element={<CheckOutPage />} />
-                <Route path="/order-progress" element={<OrderProgressPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/my-membership" element={<MembershipPage />} />
-                <Route path="/membership/schedule" element={<TrainSchedulePage />} />
-                <Route path="/change-password" element={<ChangePasswordPage />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                {/* <Route path="/my-orders" element={<PurchaseOrder />} /> */}
-                {/* Add more routes as needed */}
-              </Routes>
-            </main>
-            <FooterClient />
+            <CartProvider>
+              <HeaderClient />
+              <main className="flex-grow">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/login-user" element={<LoginPageUser />} />
+                  <Route path="/login-employee" element={<LoginAdminPage />} />
+                  <Route path="/sign-up" element={<SignUpPageUser />} />
+                  <Route path="/productsclient" element={<ProductsClient />} />
+                  <Route path="/about-us" element={<AboutUs />} />
+                  <Route path="/branches" element={<BranchesClient />} />
+                  <Route
+                    path="/productsclient/:productId"
+                    element={<ProductDetailClient />}
+                  />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/checkout" element={<CheckOutPage />} />
+                  <Route path="/order-progress" element={<OrderProgressPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/my-membership" element={<MembershipPage />} />
+                  <Route path="/membership/schedule" element={<TrainSchedulePage />} />
+                  <Route path="/change-password" element={<ChangePasswordPage />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  {/* <Route path="/my-orders" element={<PurchaseOrder />} /> */}
+                  {/* Add more routes as needed */}
+                </Routes>
+              </main>
+              <FooterClient />
             </CartProvider>
           </>
         )}

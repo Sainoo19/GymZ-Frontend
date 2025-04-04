@@ -4,8 +4,6 @@ import { getStorage } from "firebase/storage";
 import { getFirestore, collection, addDoc, onSnapshot } from "firebase/firestore";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 
-import axios from "axios";  
-
 const URL_API = process.env.REACT_APP_API_URL;
 const vapidKeyFirebase = process.env.REACT_APP_FIREBASE_VAPID_KEY;
 const firebaseConfig = {

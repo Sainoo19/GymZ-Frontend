@@ -77,8 +77,8 @@ const CheckOutPage = () => {
         </div>
       )} */}
       <DeliveryAddress user={userInfo} setDeliveryAddress={setDeliveryAddress} />
-    
-      
+
+
       <ProductsOrdered
         onTotalAmountChange={(amount) => {
           setTotalAmount(amount);
@@ -86,7 +86,7 @@ const CheckOutPage = () => {
         selectedItems={selectedItems}
         discountAmount={discountAmount}
         taxPercent={taxPercent}
-        deliveryAddress={deliveryAddress} 
+        deliveryAddress={deliveryAddress}
         shippingFee={shippingFee}
         setShippingFee={setShippingFee}
       />
@@ -94,8 +94,8 @@ const CheckOutPage = () => {
         totalAmount={totalAmount}
         userInfo={userInfo}
         selectedItems={selectedItems}
-        onSelectPayment={handlePaymentSelection} 
-        deliveryAddress={deliveryAddress} 
+        onSelectPayment={handlePaymentSelection}
+        deliveryAddress={deliveryAddress}
         shippingFee={shippingFee}
       />
     </div>
