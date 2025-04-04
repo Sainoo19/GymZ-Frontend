@@ -16,7 +16,7 @@ const InventoryListPage = () => {
   useEffect(() => {
     const fetchInventory = async () => {
       try {
-        const response = await axios.get(`${API_URL}analysis/inventory-report`);
+        const response = await axios.get(`${API_URL}analysis/inventory-report`,  {withCredentials: true});
         setInventory(response.data.inventory);
         setTotalProducts(response.data.totalProducts);
       } catch (error) {
@@ -38,7 +38,7 @@ const InventoryListPage = () => {
 
   return (
     <div className="container mx-auto rounded-lg">
-      <h2 className="text-2xl font-semibold mb-4">Quản lý hàng tồn kho</h2>
+      <h2 className="text-xl font-semibold mb-4">Quản lý hàng tồn kho</h2>
       {loading ? (
         <p className="text-gray-500">Đang tải dữ liệu...</p>
       ) : (

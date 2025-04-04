@@ -6,6 +6,9 @@ import { getCurrentDate  } from '../../components/utils/getCurrentDate';
 import InventoryList from "../../components/admin/analysis/InventoryList";
 import InventoryInput from '../../components/admin/analysis/InventoryInput';
 import  FrequentlyBoughtTogether  from "../../components/admin/analysis/FrequentlyBoughtTogether";
+import MemberChart from "../../components/admin/analysis/MemberChart"
+import MemberDistributionChart from "../../components/admin/analysis/MemberDistributionChart"
+
 const Dashboard = () => {
     const [currentDate, setCurrentDate] = useState(getCurrentDate());
     useEffect(() => {
@@ -17,16 +20,21 @@ const Dashboard = () => {
       }, []);
     
     return (
-        <div className='mt-20 w-5/6 mx-auto '>
+        <div className='mt-20 w-11/12 mx-auto '>
             <h2 className="text-lg text-right font-semibold text-gray-700"> {currentDate}</h2>
             <AnalysisCard />
-           <div className="flex w-5/6 mx-auto justify-between mt-5">
+           <div className="flex mx-auto justify-between mt-5">
            {/* <Chart /> */}
            <InventoryList/>
            <TopProduct/>
 
            </div>
+           <div className="flex mx-auto justify-between mt-5">
+           <MemberChart/>
+           <MemberDistributionChart/>
+           </div>
            <FrequentlyBoughtTogether/>
+        
            {/* <InventoryInput/> */}
 
         </div>
