@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import SideBar from "../../components/admin/layout/SideBar";
-import Dashboard from "./dashboard";
+import Dashboard from "../admin/Analysis/dashboard";
 import Order from "../admin/orders/order";
 import UpdateOrderForm from "../admin/orders/ordersDetail";
 import CreateOrder from "../admin/orders/createOrder";

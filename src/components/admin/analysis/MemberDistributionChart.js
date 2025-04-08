@@ -78,7 +78,7 @@ const MemberDistributionChart = () => {
   };
 
   return (
-    <div className="p-4 bg-white rounded-xl shadow-md border mx-auto">
+    <div className="p-4 bg-white rounded-xl w-1/3 shadow-md border mx-auto">
       <h2 className="text-xl font-semibold mb-4 text-center">Tỷ lệ phân bố gói hội viên</h2>
 
       <div className="mb-4">

@@ -18,7 +18,7 @@ const TopProductPage = () => {
       .catch((error) => console.error("Lỗi khi lấy sản phẩm bán chạy:", error));
   }, []);
   return (
-    <div className=" ml-4 h-full bg-white  rounded-lg">
+    <div className=" ml-4 h-full bg-red  rounded-lg">
       <h2 className="text-xl font-bold mb-4">Top Sản Phẩm Bán Chạy</h2>
       <div className="flex border rounded-lg shadow-xl w-full h-full flex-col px-3 gap-2">
         {topProducts.map((product, index) => (

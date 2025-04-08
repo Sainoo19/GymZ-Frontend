@@ -9,7 +9,7 @@ import LoginPageUser from "./login";
 import SignUpPageUser from "./signUp";
 import LoginAdminPage from "../admin/loginAdmin";
 import SideBar from "../../components/admin/layout/SideBar";
-import Dashboard from "../admin/dashboard";
+import Dashboard from "../admin/Analysis/dashboard";
 import Order from "../admin/orders/order";
 import UpdateOrderForm from "../admin/orders/ordersDetail";
 import CreateOrder from "../admin/orders/createOrder";
