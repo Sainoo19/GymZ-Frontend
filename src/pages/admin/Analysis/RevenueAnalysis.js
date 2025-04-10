@@ -17,7 +17,7 @@ const RevenueAnalysis = () => {
     const fetchRevenueData = async () => {
       try {
         // Gọi API lấy dữ liệu doanh thu
-        const response = await axios.get(`${URL_API}analysis/revenue`);
+        const response = await axios.get(`${URL_API}analysis/revenue`,  {withCredentials: true});
         if (response.data.revenueByMonth && response.data.revenueByMonth.length > 0) {
           const revenueData = response.data.revenueByMonth.filter(item => item.revenue > 0);
           setChartData(revenueData);
@@ -30,7 +30,7 @@ const RevenueAnalysis = () => {
     const fetchRevenueSuggestions = async () => {
       try {
         // Gọi API phân tích doanh thu & gợi ý chiến lược
-        const response = await axios.get(`${URL_API}analysis/revenue-suggestions`);
+        const response = await axios.get(`${URL_API}analysis/revenue-suggestions`,  {withCredentials: true});
         if (response.data.success) {
           setCurrentRevenue(response.data.currentRevenue);
           setLastMonthRevenue(response.data.lastMonthRevenue);

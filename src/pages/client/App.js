@@ -9,7 +9,7 @@ import LoginPageUser from "./login";
 import SignUpPageUser from "./signUp";
 import LoginAdminPage from "../admin/loginAdmin";
 import SideBar from "../../components/admin/layout/SideBar";
-import Dashboard from "../admin/dashboard";
+import Dashboard from "../admin/Analysis/dashboard";
 import Order from "../admin/orders/order";
 import UpdateOrderForm from "../admin/orders/ordersDetail";
 import CreateOrder from "../admin/orders/createOrder";
@@ -59,7 +59,7 @@ import UpdateProductCategory from "../admin/ProductCategory/productCategoryDetai
 import ProductFeedbackReview from "../admin/products/productFeedback";
 import OrdersHistoryPage from "./profile/ordershistory";
 // import PurchaseOrder from "../../components/clients/users/Purchase History/PurchaseOrder";
-import { requestNotificationPermission, getFCMToken } from "../../firebase";
+import { getFCMToken } from "../../firebase";
 import { CartProvider } from "../../components/clients/contexts/CartContext";
 
 
@@ -72,12 +72,12 @@ const App = () => {
 
 
   useEffect(() => {
-    requestNotificationPermission().then((granted) => {
-      if (granted) {
+    
+      
         getFCMToken();
-      }
-    });
-
+      
+  
+  
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/firebase-messaging-sw.js")

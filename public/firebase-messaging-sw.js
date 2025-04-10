@@ -17,7 +17,6 @@ const messaging = firebase.messaging();
 
 // Lắng nghe thông báo khi ứng dụng đóng
 messaging.onBackgroundMessage((payload) => {
-  console.log("📩 Nhận thông báo trong nền:", payload);
 
   // Gửi sự kiện đến trang React
   self.clients.matchAll().then((clients) => {

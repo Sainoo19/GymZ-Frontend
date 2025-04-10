@@ -152,8 +152,8 @@ const PaymentMethods = ({
         {loading
           ? "Đang xử lý..."
           : !shippingFee?.fee?.fee
-            ? "Đang tính cước vận chuyển"
-            : "Thanh Toán"}
+          ? "Đang tính cước vận chuyển"
+          : "Thanh Toán"}
       </button>
     </div>
   );

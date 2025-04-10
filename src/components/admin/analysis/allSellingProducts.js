@@ -5,18 +5,23 @@ import { useNavigate } from "react-router-dom";
 const AllSellingProducts = () => {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
-const URL_API = process.env.REACT_APP_API_URL;
+  const URL_API = process.env.REACT_APP_API_URL;
   useEffect(() => {
-axios.get(`${URL_API}analysis/best-selling-products`)
-      .then(response => {
+    axios
+      .get(`${URL_API}analysis/best-selling-products`, {
+        withCredentials: true,
+      })
+      .then((response) => {
         setProducts(response.data.bestSellingProducts);
       })
-      .catch(error => console.error("Lỗi khi lấy sản phẩm:", error));
+      .catch((error) => console.error("Lỗi khi lấy sản phẩm:", error));
   }, []);
 
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-bold mb-4">📊 Thống Kê Tất Cả Sản Phẩm Bán Chạy</h2>
+      <h2 className="text-2xl font-bold mb-4">
+        📊 Thống Kê Tất Cả Sản Phẩm Bán Chạy
+      </h2>
       <table className="w-full border-collapse border border-gray-300">
         <thead>
           <tr className="bg-gray-100">
@@ -32,12 +37,18 @@ axios.get(`${URL_API}analysis/best-selling-products`)
             <tr key={product._id} className="text-center border-b">
               <td className="border p-2">{index + 1}</td>
               <td className="border p-2 flex items-center gap-2">
-                <img src={product.image} alt={product.name} className="w-10 h-10 object-cover rounded" />
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-10 h-10 object-cover rounded"
+                />
                 {product.name}
               </td>
               <td className="border p-2">{product.category}</td>
               <td className="border p-2">{product.theme || "Không có"}</td>
-              <td className="border p-2 font-semibold text-green-500">{product.soldCount}</td>
+              <td className="border p-2 font-semibold text-green-500">
+                {product.soldCount}
+              </td>
             </tr>
           ))}
         </tbody>

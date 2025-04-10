@@ -11,6 +11,7 @@ const OrderProgressPage = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const URL_API = process.env.REACT_APP_API_URL;
   const [isProcessing, setIsProcessing] = useState(false);
+  
 
   // 🔥 Dùng useRef để đảm bảo createPayment chỉ gọi 1 lần
   const isPaymentCreated = useRef(false);
@@ -31,6 +32,7 @@ const OrderProgressPage = () => {
     }
 
     await clearPaidItemsFromCart(orderId);
+    
 
     if (paymentMethod === "momo") {
       fetchOrderStatus();

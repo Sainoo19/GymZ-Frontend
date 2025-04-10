@@ -55,30 +55,14 @@ export const saveNotificationToFirestore = async (notification) => {
 
 
 // Hàm yêu cầu quyền thông báo từ người dùng
-export const requestNotificationPermission = async () => {
-  const permission = Notification.permission;
+// Hàm yêu cầu quyền thông báo từ người dùng
 
-  if (permission === "granted") {
-    console.log("✅ Quyền thông báo đã được cấp.");
-    return true;
-  } else if (permission === "denied") {
-    console.warn("🚫 Người dùng đã từ chối quyền thông báo.");
-    alert(
-      "Bạn đã chặn thông báo! Hãy vào Cài đặt trình duyệt > Quyền > Thông báo > Cho phép để bật lại."
-    );
-    return false;
-  }
 
-  // Nếu người dùng chưa chọn, yêu cầu quyền
-  const newPermission = await Notification.requestPermission();
-  return newPermission === "granted";
-};
 
 // Hàm lấy FCM Token (Dùng để gửi thông báo)
 export const getFCMToken = async () => {
   try {
-    const hasPermission = await requestNotificationPermission();
-    if (!hasPermission) return;
+   
 
     const vapidKey = process.env.REACT_APP_FIREBASE_VAPID_KEY;
     const token = await getToken(messaging, { vapidKey });
