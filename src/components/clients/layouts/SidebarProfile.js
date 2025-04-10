@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { FaPen, FaBell, FaUser, FaIdCard, FaUniversity, FaMapMarkerAlt, FaKey, FaCog, FaLock, FaBox, FaTicketAlt, FaCoins } from 'react-icons/fa';
+import {
+    FaPen, FaBell, FaUser, FaIdCard, FaUniversity,
+    FaMapMarkerAlt, FaKey, FaCog, FaLock, FaBox,
+    FaTicketAlt, FaCoins, FaShoppingBag, FaDumbbell
+} from 'react-icons/fa';
 
 const navItems = [
     { to: "#", label: "Thông Báo", icon: FaBell, textColor: "text-black" },
@@ -11,13 +15,14 @@ const navItems = [
     { to: "/change-password", label: "Đổi Mật Khẩu", icon: FaKey, textColor: "text-black" },
     { to: "#", label: "Cài Đặt Thông Báo", icon: FaCog, textColor: "text-black" },
     { to: "#", label: "Những Thiết Lập Riêng Tư", icon: FaLock, textColor: "text-black" },
-    { to: "/my-orders", label: "Đơn Mua", icon: FaBox, textColor: "text-black" },
-    { to: "/my-membership", label: "Hội Viên", icon: FaBox, textColor: "text-black" },
+    { to: "/my-orders", label: "Lịch Sử Đơn Hàng", icon: FaShoppingBag, textColor: "text-black" },
+    { to: "/my-membership", label: "Hội Viên", icon: FaDumbbell, textColor: "text-black" },
     { to: "/gymz-coin", label: "Shopee Xu", icon: FaCoins, textColor: "text-black" }
 ];
 
 function SidebarProfile() {
     const [user, setUser] = useState(null);
+    const location = useLocation(); // Get current location
 
     useEffect(() => {
         // Fetch user profile
@@ -46,7 +51,7 @@ function SidebarProfile() {
                 />
                 <div className="ml-4">
                     <p className="font-bold">{user.name}</p>
-                    <Link to="#" className="text-blue-500 text-sm flex items-center">
+                    <Link to="#" className="text-primary text-sm flex items-center hover:text-secondary transition-colors">
                         <FaPen className="mr-1" />
                         Sửa Hồ Sơ
                     </Link>
@@ -58,9 +63,13 @@ function SidebarProfile() {
                     <Link
                         key={index}
                         to={item.to}
-                        className={`flex items-center p-4 mb-4 rounded-lg hover:bg-gray-100 ${item.textColor || 'text-gray-700'} hover:text-red-500 hover:text-lg`}
+                        className={`flex items-center p-4 mb-4 rounded-lg transition-all duration-200 
+                        ${location.pathname === item.to
+                                ? 'bg-primary text-secondary font-medium shadow-md'
+                                : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
+                            }`}
                     >
-                        <item.icon className="mr-2" />
+                        <item.icon className={`mr-2 ${location.pathname === item.to ? 'text-secondary' : ''}`} />
                         {item.badge && (
                             <span className={`rounded-full px-2 py-1 text-xs mr-2 ${item.badgeColor}`}>
                                 {item.badge}

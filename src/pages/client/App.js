@@ -57,9 +57,11 @@ import ProductCategory from "../admin/ProductCategory/productCategory";
 import CreateProductCategory from "../admin/ProductCategory/addProductCategory";
 import UpdateProductCategory from "../admin/ProductCategory/productCategoryDetail";
 import ProductFeedbackReview from "../admin/products/productFeedback";
+import OrdersHistoryPage from "./profile/ordershistory";
 // import PurchaseOrder from "../../components/clients/users/Purchase History/PurchaseOrder";
 import { requestNotificationPermission, getFCMToken } from "../../firebase";
 import { CartProvider } from "../../components/clients/contexts/CartContext";
+
 
 import axios from "axios";
 
@@ -250,6 +252,7 @@ const App = () => {
                   <Route path="/order-progress" element={<OrderProgressPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/my-membership" element={<MembershipPage />} />
+                  <Route path="/my-orders" element={<OrdersHistoryPage />} />
                   <Route path="/membership/schedule" element={<TrainSchedulePage />} />
                   <Route path="/change-password" element={<ChangePasswordPage />} />
                   <Route path="/forgot-password" element={<ForgotPasswordPage />} />

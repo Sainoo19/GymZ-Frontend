@@ -1,94 +1,154 @@
-import React from "react";
-import { FaMapMarkerAlt } from 'react-icons/fa';
-import gradientAnimation from "./gradientAnimation";
+import React, { useState, useEffect } from "react";
+import { FaMapMarkerAlt, FaGem, FaBuilding, FaDumbbell } from 'react-icons/fa';
 import { Link } from "react-router-dom";
+import axios from "axios";
 
-
- 
 const HomeBranches = () => {
+    const [branches, setBranches] = useState([]);
+    const [branchCount, setBranchCount] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+
+                // Fetch branches
+                const branchesResponse = await axios.get("http://localhost:3000/branchesClient/all/nopagination");
+                setBranches(branchesResponse.data.data);
+
+                // Fetch branch count - assuming there's an endpoint for this
+                // If there isn't, we can use the length of the branches array
+                try {
+                    const countResponse = await axios.get("http://localhost:3000/branchesClient/count");
+                    setBranchCount(countResponse.data.count);
+                } catch (countError) {
+                    // Fallback: use the length of branches array if count API fails
+                    setBranchCount(branchesResponse.data.data.length);
+                }
+
+                setLoading(false);
+            } catch (err) {
+                setError(err.message);
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
 
 
-  return (
-    <div className="w-full py-8 px-4">
-        <style>
-            {gradientAnimation}
-        </style>
-      {/* Tiêu đề */}
-      <h1 className="text-5xl sm:text-5xl font-bold text-center mb-10">
-        <span className="gradient-text">
-          GymZ – Hệ Thống Phòng Gym Hiện Đại Số 1
-        </span>
-      </h1>
+    return (
+        <section className="py-20 px-6 bg-gradient-to-b from-white to-gray-100">
+            <div className="container mx-auto">
+                {/* Header Section */}
+                <div className="text-center mb-16">
+                    <h2 className="text-xl font-medium text-secondary tracking-wide uppercase">
+                        Hệ thống chi nhánh
+                    </h2>
+                    <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mt-2 mb-4">
+                        GymZ – Hệ Thống Phòng Gym <span className="text-secondary">Hiện Đại Số 1</span>
+                    </h1>
+                    <div className="w-24 h-1 bg-secondary mx-auto rounded-full mb-6"></div>
+                    <p className="max-w-2xl mx-auto text-gray-600">
+                        {loading
+                            ? "Đang tải thông tin chi nhánh..."
+                            : `Với ${branchCount} chi nhánh trải dài khắp Việt Nam, chúng tôi luôn sẵn sàng phục vụ nhu cầu tập luyện của bạn`
+                        }
+                    </p>
+                </div>
 
-      <div className="flex flex-wrap justify-between">
-          {/* Bên trái: Số 20 và phần mô tả */}
-          <div className="w-full sm:w-1/2 mb-6 sm:mb-0 flex items-center pl-16">
-            <div>
-                {/* Số 20 lớn */}
-                <p className="text-6xl font-bold inline-block mr-4 text-secondary">{`20`}</p>
-                {/* Mô tả nằm ngang với số 20 */}
-                <div className="inline-block">
-                <p className="text-xl font-bold text-secondary">
-                    Chi nhánh trải dài khắp Thành phố Hồ Chí Minh
-                </p>
-                <p className="text-sm">
-                    Tọa lạc tại các vị trí đắc địa, dễ dàng di chuyển từ mọi khu vực.
-                </p>
+                {/* Main Content */}
+                <div className="flex flex-col lg:flex-row gap-12 items-center">
+                    {/* Left Side - Key Figure */}
+                    <div className="w-full lg:w-2/5">
+                        <div className="bg-white p-10 rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-300">
+                            <div className="flex items-center justify-center">
+                                <div className="mr-6 relative">
+                                    {loading ? (
+                                        <div className="animate-pulse bg-gray-200 h-24 w-24 rounded-lg"></div>
+                                    ) : (
+                                        <>
+                                            <span className="text-7xl font-bold text-secondary">{branchCount}</span>
+                                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-secondary rounded-full animate-pulse"></div>
+                                        </>
+                                    )}
+                                </div>
+                                <div className="border-l-4 border-secondary pl-6">
+                                    <h3 className="text-xl font-bold text-gray-800">Chi nhánh trải dài</h3>
+                                    <p className="text-gray-600">khắp Việt Nam</p>
+                                    <p className="mt-2 text-sm text-gray-500">
+                                        Tọa lạc tại các vị trí đắc địa, dễ dàng di chuyển từ mọi khu vực
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Call to Action */}
+                        <Link
+                            to="/branches"
+                            className="mt-8 inline-flex items-center justify-center bg-secondary text-white px-8 py-3 rounded-lg shadow-lg hover:bg-secondary/90 transition-all duration-300 group"
+                        >
+                            <FaMapMarkerAlt className="mr-2 group-hover:animate-bounce" />
+                            <span className="font-bold">Tìm chi nhánh gần nhất</span>
+                            <svg className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </Link>
+                    </div>
+
+                    {/* Right Side - Features */}
+                    <div className="w-full lg:w-3/5 space-y-6">
+                        {/* Feature 1 */}
+                        <div className="bg-white p-6 rounded-xl shadow-md flex hover:shadow-lg transition-shadow duration-300">
+                            <div className="flex-shrink-0 mr-4">
+                                <div className="bg-secondary text-white w-14 h-14 rounded-lg flex items-center justify-center">
+                                    <FaBuilding className="text-2xl" />
+                                </div>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-800 mb-2">Không gian chuẩn quốc tế</h3>
+                                <p className="text-gray-600">
+                                    Mỗi chi nhánh sở hữu diện tích trung bình hơn 3.000m², mang đến trải nghiệm tập luyện thoải mái và đẳng cấp.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Feature 2 */}
+                        <div className="bg-white p-6 rounded-xl shadow-md flex hover:shadow-lg transition-shadow duration-300">
+                            <div className="flex-shrink-0 mr-4">
+                                <div className="bg-secondary text-white w-14 h-14 rounded-lg flex items-center justify-center">
+                                    <FaGem className="text-2xl" />
+                                </div>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-800 mb-2">Phong cách riêng biệt</h3>
+                                <p className="text-gray-600">
+                                    Từ không gian tối giản hiện đại đến kiến trúc thể thao năng động, mỗi phòng tập đều tạo cảm hứng và khẳng định đẳng cấp.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Feature 3 */}
+                        <div className="bg-white p-6 rounded-xl shadow-md flex hover:shadow-lg transition-shadow duration-300">
+                            <div className="flex-shrink-0 mr-4">
+                                <div className="bg-secondary text-white w-14 h-14 rounded-lg flex items-center justify-center">
+                                    <FaDumbbell className="text-2xl" />
+                                </div>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-800 mb-2">Trang thiết bị tiên tiến</h3>
+                                <p className="text-gray-600">
+                                    Kết hợp cùng đội ngũ huấn luyện viên chuyên nghiệp, giúp bạn đạt được mục tiêu thể hình nhanh chóng và hiệu quả.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            </div>
-
-
-        {/* Bên phải chia thành 3 hàng */}
-        <div className="w-full sm:w-1/2">
-            <div className="flex flex-col space-y-6 pr-16 pl-6 ">
-                {/* Hàng 1 */}
-                <div className="flex items-center pb-6">
-                <p className="text-3xl font-bold mr-4">
-                    <span className="bg-secondary text-black py-2 px-1 border rounded-md">01</span>
-                </p>
-                  <p className="text-sm">
-                    Không gian rộng lớn, chuẩn quốc tế, mỗi chi nhánh sở hữu diện tích trung bình hơn 3.000m², mang đến trải nghiệm tập luyện thoải mái.
-                </p>
-                </div>
-                
-                {/* Hàng 2 */}
-                <div className="flex items-center pb-6">
-                <p className="text-3xl font-bold mr-4">
-                    <span className="bg-secondary text-black py-2 px-1 border rounded-md">02</span>
-                </p>
-                <p className="text-sm">
-                    Mỗi phòng tập mang phong cách riêng biệt, từ không gian tối giản hiện đại đến kiến trúc thể thao năng động, tạo cảm hứng tập luyện và khẳng định đẳng cấp.
-                </p>
-                </div>
-
-                {/* Hàng 3 */}
-                <div className="flex items-center pb-6">
-                <p className="text-3xl font-bold mr-4">
-                    <span className="bg-secondary text-black py-2 px-1 border rounded-md">03</span>
-                </p>                
-                <p className="text-sm">
-                    Trang thiết bị tiên tiến, kết hợp cùng đội ngũ huấn luyện viên chuyên nghiệp, giúp bạn đạt được mục tiêu thể hình nhanh chóng.
-                </p>
-                </div>
-            </div>
-        </div>
-
-      </div>
-        
-      <div className="ml-16">
-        <a 
-            href="/branches"
-            className="w-56 font-bold flex items-center border border-primary rounded-md py-2 px-8 text-primary bg-transparent hover:bg-secondary"
-            style={{ fontSize: '22px' }} // Kích thước chữ
-        >
-            <FaMapMarkerAlt className="mr-2" /> {/* Icon ở bên trái */}
-            Xem ngay
-        </a>
-    </div>
-
-    </div>
-  );
+        </section>
+    );
 };
 
 export default HomeBranches;
