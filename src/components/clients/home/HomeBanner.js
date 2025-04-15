@@ -17,9 +17,10 @@ const HomeBanner = () => {
   const images = [banner1, banner2, banner3, banner4, banner5];
 
   return (
-    <div className="w-full h-[690px]">
+    <div className="w-full ">
       <Swiper
-        style={{ height: '690px' }}
+      
+        style={{ height: '620px' }}
         modules={[Autoplay, Pagination, Navigation]}
         spaceBetween={0}
         slidesPerView={1}
@@ -27,20 +28,17 @@ const HomeBanner = () => {
         pagination={{ clickable: true }}
         // navigation
         loop={true}
-        className="w-full swiper-container"
+        className="w-full h-auto swiper-container"
       >
         {images.map((src, index) => (
           <SwiperSlide key={index}>
             <img src={src} alt={`Slide ${index}`} className="w-full h-[680px] object-cover" />
             {/* Button overlay */}
-            <button className="text-3xl absolute bottom-10 left-10 bg-yellow-500 text-white py-2 px-6 rounded-md">
-              Đăng ký ngay(tạm thôi)
-            </button>
+            
           </SwiperSlide>
         ))}
       </Swiper>
     </div>
   );
 };
-
 export default HomeBanner;

@@ -9,13 +9,14 @@ const HomePackage = () => {
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [selectedPackage, setSelectedPackage] = useState(null);
+    const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         // Fetch membership plans from API
         const fetchMembershipPlans = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get('http://localhost:3000/home/membership-plans');
+                const response = await axios.get(`${URL_API}home/membership-plans`);
                 if (response.data && response.data.data) {
                     setMembershipPlans(response.data.data);
                 }
@@ -96,7 +97,7 @@ const HomePackage = () => {
     };
 
     return (
-        <div className="container mx-auto py-12 px-4">
+        <div className="container mx-auto my-10 px-4">
             <div className="text-center mb-12">
                 <p className="text-4xl font-bold text-secondary">CÁC GÓI TẬP TẠI GYMZ</p>
                 <p className="text-4xl font-bold">GYM & FITNESS</p>
@@ -111,7 +112,7 @@ const HomePackage = () => {
                     <p className="text-xl text-red-500">{error}</p>
                 </div>
             ) : (
-                <div className="border-2 border-accent p-8 mx-auto my-8 max-w-7xl">
+                <div className=" p-8 mx-auto my-8 max-w-7xl">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {plansToDisplay.map((plan) => (
                             <div key={plan.type} className="flex">

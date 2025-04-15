@@ -25,17 +25,17 @@ const CartPackage = ({ type, name, description, features, prices, onRegister }) 
   };
 
   return (
-    <div className="border-2 border-accent rounded-lg p-6 w-96 h-full flex flex-col items-center">
+    <div className="border-2  rounded-lg p-6 w-96 h-full flex flex-col items-center shadow-xl hover:shadow-2xl transition duration-300 ease-in-out">
       {/* Tên gói */}
-      <div className="bg-primary text-secondary text-lg font-bold p-3 w-full text-center mb-2">
+      <div className="bg-primary text-white text-lg font-bold p-3 w-full text-center mb-2 rounded">
         {name}
       </div>
 
       {/* Mô tả ngắn */}
-      <p className="text-gray-600 text-sm text-center mb-4 h-12 flex items-center justify-center">{description}</p>
+      <p className="text-gray-600 text-sm text-center  h-10 flex items-center justify-center ">{description}</p>
 
       {/* Giá tiền */}
-      <p className="text-red-500 text-2xl font-bold mt-2">{formatPrice(prices[selectedDuration])} VND</p>
+      <p className="text-text_price text-2xl  md:text-2xl font-bold  mt-2">{formatPrice(prices[selectedDuration])} VND</p>
 
       {/* Thời hạn gói */}
       <div className="flex flex-wrap justify-center gap-2 mt-2 mb-4">

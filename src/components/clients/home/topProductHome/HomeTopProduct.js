@@ -11,13 +11,14 @@ import axios from 'axios';
 const HomeTopProduct = () => {
   const [productData, setProductData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const URL_API = process.env.REACT_APP_API_URL;
 
   // Fetch product data
   useEffect(() => {
     const fetchTopProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:3000/orders/products/top");
+        const response = await axios.get(`${URL_API}orders/products/top`);
 
         if (response.data.status === "success") {
           setProductData(response.data.data);

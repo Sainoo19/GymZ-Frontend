@@ -23,7 +23,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
   const [notifications, setNotifications] = useState([]);
   const URL_API = process.env.REACT_APP_API_URL;
   const notificationRef = useRef(null); // Tham chiếu đến vùng thông báo
-
+  const bellButtonRef = useRef(null);
   const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
@@ -74,10 +74,16 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target) &&
+        bellButtonRef.current &&
+        !bellButtonRef.current.contains(event.target)
+      ) {
         setShowNotifications(false);
       }
     };
+    
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -130,7 +136,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
         {/* 🔔 Biểu tượng thông báo */}
 
         <div className="relative">
-          <button onClick={toggleNotifications} className="relative">
+          <button ref={bellButtonRef} onClick={toggleNotifications} className="relative">
             <FaBell className="text-2xl cursor-pointer" />
             {newOrders > 0 && (
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">

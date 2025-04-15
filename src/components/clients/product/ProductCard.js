@@ -4,14 +4,11 @@ import { useNavigate } from "react-router-dom";
 import useFetchAllReviews from "./useFetchAllReviews";
 import { FaStar } from "react-icons/fa";
 
-
 const isValidUrl = (url) => {
   return url && (url.startsWith("http") || url.startsWith("https"));
 };
 
 const ProductCard = ({ product, minSalePrice }) => {
-
-
   const navigate = useNavigate();
   const [avgStar, setAvgStar] = useState(0);
 
@@ -21,7 +18,10 @@ const ProductCard = ({ product, minSalePrice }) => {
   useEffect(() => {
     // Tính toán điểm trung bình sao nếu có đánh giá
     if (reviewsAll.length > 0) {
-      const totalStars = reviewsAll.reduce((sum, review) => sum + review.rating, 0);
+      const totalStars = reviewsAll.reduce(
+        (sum, review) => sum + review.rating,
+        0
+      );
       const average = totalStars / reviewsAll.length;
       setAvgStar(average);
     } else {
@@ -54,18 +54,11 @@ const ProductCard = ({ product, minSalePrice }) => {
     return stars;
   };
 
-
-
-
-
   return (
     <div
-      className="w-4/5 sm:w-64 border rounded-lg shadow-md bg-white p-3 flex flex-col justify-between"
-      onClick={handleClick}
+    className="border rounded-lg shadow-md  bg-white p-3 flex flex-col justify-between hover:shadow-lg transition-all cursor-pointer h-96"
+    onClick={handleClick}
     >
-
-
-
       {/* Hình ảnh sản phẩm */}
       <img
         src={avatarUrl}
@@ -73,19 +66,18 @@ const ProductCard = ({ product, minSalePrice }) => {
         className="w-full h-48 sm:h-56 object-contain rounded-xl sm:rounded-2xl"
       />
 
-
-
       {/* Tên sản phẩm (Giữ độ cao cố định) */}
-      <h3 className="text-center text-lg font-semibold mt-2 min-h-[48px] leading-tight">
-        {product.name.length > 25 ? product.name.substring(0, 22) + "..." : product.name}
+      <h3 className="text-center text-lg font-semibold mt-2 leading-tight line-clamp-2 h-[48px]">
+      {product.name.length > 25
+          ? product.name.substring(0, 22) + "..."
+          : product.name}
       </h3>
-
-
-
 
       {/* Giá sản phẩm, hiển thị giá thấp nhất */}
       <p className="text-center text-xl font-bold text-gray-800 mt-1">
-        {formatCurrency(minSalePrice) ? `${formatCurrency(minSalePrice)} VND` : "Price not available"}{" "}
+        {formatCurrency(minSalePrice)
+          ? `${formatCurrency(minSalePrice)} VND`
+          : "Price not available"}{" "}
         {/* {minSalePrice ? `${minSalePrice} VND` : "Price not available"}{" "} */}
         {/* Hiển thị minSalePrice */}
       </p>
