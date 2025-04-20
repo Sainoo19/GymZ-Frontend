@@ -4,7 +4,7 @@ export function TypeProduct({ variations, setVariations }) {
   const [items, setItems] = useState([
     { category: "", stock: "", originalPrice: "", salePrice: "", theme: "",weight: "" },
   ]);
-  const [errors, setErrors] = useState({}); // Lưu trạng thái lỗi
+  const [errors, setErrors] = useState([]);
 
   useEffect(() => {
     setVariations(items);
@@ -60,6 +60,22 @@ export function TypeProduct({ variations, setVariations }) {
     let number = value.replace(/\D/g, ""); // Xóa ký tự không phải số
     return number.replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Thêm dấu ","
   };
+  const validateItems = () => {
+    const newErrors = items.map((item) => {
+      const error = {};
+      if (!item.category.trim()) error.category = "Vui lòng nhập loại hàng.";
+      if (!item.stock || isNaN(item.stock)) error.stock = "Số lượng không hợp lệ.";
+      if (!item.originalPrice || isNaN(item.originalPrice)) error.originalPrice = "Giá gốc không hợp lệ.";
+      if (!item.salePrice || isNaN(item.salePrice)) error.salePrice = "Giá bán không hợp lệ.";
+      if (!item.theme.trim()) error.theme = "Vui lòng nhập thuộc tính.";
+      if (!item.weight || isNaN(item.weight)) error.weight = "Khối lượng không hợp lệ.";
+      if (!item.costPrice || isNaN(item.costPrice)) error.costPrice = "Giá nhập không hợp lệ.";
+      return error;
+    });
+  
+    setErrors(newErrors);
+    return newErrors.every((err) => Object.keys(err).length === 0); // true nếu không có lỗi
+  };
   
   return (
     <div className="justify-center">
@@ -74,12 +90,18 @@ export function TypeProduct({ variations, setVariations }) {
             </div>
            
             <input
-              type="text"
-              placeholder="Màu sắc, hương vị, ..."
-              value={item.theme}
-              onChange={(e) => handleAddItem(index, "theme", e.target.value)}
-              className="border-2  text-sm border-gray-600 rounded-lg p-1 w-full focus:outline-none focus:ring-2 focus:ring-primary "
-            ></input>
+  type="text"
+  placeholder="Màu sắc, hương vị, ..."
+  value={item.theme}
+  onChange={(e) => handleAddItem(index, "theme", e.target.value)}
+  className={`border-2 text-sm rounded-lg p-1 w-full focus:outline-none focus:ring-2 ${
+    errors[index]?.theme ? "border-red-500" : "border-gray-600 focus:ring-primary"
+  }`}
+/>
+{errors[index]?.theme && (
+  <p className="text-red-500 text-sm mt-1">{errors[index].theme}</p>
+)}
+
           </div>
           <div className="flex justify-between w-11/12 ">
           <div className=" w-full">

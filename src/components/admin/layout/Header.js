@@ -181,7 +181,12 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
           {accountMenuVisible && (
             <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg">
               <p className="p-4 border-b">Xin chào, {employee?.name}</p>
-              <button className="w-full text-left p-4 hover:bg-gray-200">
+              <button className="w-full text-left p-4 hover:bg-gray-200"
+               onClick={() => {
+                navigate('/admin/profile'); // Điều hướng đến trang profile
+                setAccountMenuVisible(false); // Ẩn menu
+              }}
+              >
                 Thông tin tài khoản
               </button>
               <button

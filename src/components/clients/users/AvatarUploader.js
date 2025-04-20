@@ -69,7 +69,7 @@ export function AvatarUploader({ onFileUpload }) {
                         className="hidden"
                         onChange={handleFileChange}
                     />
-                    <div className="px-4 py-1.5 bg-gradient-to-r from-yellow-400 to-yellow-600 text-black rounded-full font-semibold shadow-md hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 text-sm">
+                    <div className="px-4 py-1.5 bg-primary  text-secondary rounded-full font-semibold shadow-md hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 text-sm">
                         Chọn Ảnh
                     </div>
                 </label>

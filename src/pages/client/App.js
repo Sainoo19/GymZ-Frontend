@@ -61,6 +61,7 @@ import OrdersHistoryPage from "./profile/ordershistory";
 // import PurchaseOrder from "../../components/clients/users/Purchase History/PurchaseOrder";
 import { getFCMToken } from "../../firebase";
 import { CartProvider } from "../../components/clients/contexts/CartContext";
+import ProfileEmployeeContent from "../../components/admin/employee/ProfileEmployeeContent"; // điều chỉnh path đúng
 
 import axios from "axios";
 
@@ -238,6 +239,8 @@ const App = () => {
                     path="/productCategory/:id"
                     element={<UpdateProductCategory />}
                   />
+                  <Route path="/admin/profile" element={<ProfileEmployeeContent />} />
+
                   {/* Add this route */}
                   {/* Add more routes as needed */}
                 </Routes>

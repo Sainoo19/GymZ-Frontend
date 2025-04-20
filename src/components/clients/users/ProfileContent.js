@@ -13,10 +13,10 @@ function ProfileContent() {
     const [address, setAddress] = useState({ province: '', district: '', ward: '', street: '' });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-
+    const URL_API = process.env.REACT_APP_API_URL;
     useEffect(() => {
         // Fetch user profile
-        axios.get('http://localhost:3000/users/profile', {
+        axios.get(`${URL_API}users/profile`, {
             withCredentials: true // Ensure cookies are sent with the request
         })
             .then(response => {
@@ -35,7 +35,7 @@ function ProfileContent() {
 
     const handleSave = async () => {
         try {
-            const response = await axios.put('http://localhost:3000/profileUser/myprofile', {
+            const response = await axios.put(`${URL_API}profileUser/myprofile`, {
                 name,
                 phone,
                 avatar,
@@ -69,8 +69,8 @@ function ProfileContent() {
     }
 
     return (
-        <div className="max-w-5xl mx-auto p-8 bg-gradient-to-br from-gray-100 via-white to-gray-200 rounded-2xl shadow-2xl transform transition-all duration-500">
-            <h1 className="text-4xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-yellow-700 mb-3 animate-fade-in-down">
+<div className="mt-12 border max-w-5xl mx-auto p-8 bg-gradient-to-br from-gray-100 via-white to-gray-200 rounded-2xl shadow-2xl transform transition-all duration-500">
+<h1 className="text-4xl font-extrabold text-center text-transparent bg-clip-text text-primary mb-3 animate-fade-in-down">
                 Hồ Sơ Của Tôi
             </h1>
             <p className="text-center text-gray-600 mb-10 font-medium">Quản lý thông tin cá nhân của bạn</p>
@@ -137,7 +137,7 @@ function ProfileContent() {
                         </div>
                         <button
                             onClick={handleSave}
-                            className="w-full py-3 bg-gradient-to-r from-yellow-500 to-yellow-700 text-black rounded-lg font-semibold shadow-md hover:shadow-xl hover:from-yellow-600 hover:to-yellow-800 transition-all duration-300 transform hover:scale-105"
+                            className="w-full py-3 bg-primary text-secondary rounded-lg c transition-all duration-300 transform hover:scale-105"
                         >
                             Lưu Thay Đổi
                         </button>
