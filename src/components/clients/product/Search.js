@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaFilter } from "react-icons/fa";
-
+import ExpandDown from "../../../assets/icons/Expand_down_light.svg";
+import ExpandUp from "../../../assets/icons/Expand_up_light.svg";
 const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]); // 🔥 Dùng mảng thay vì string
@@ -10,6 +11,9 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
   const [sortOrder, setSortOrder] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [showMobileFiltersBrand, setShowMobileFiltersBrand] = useState(false);
+  const [showMobileSort, setShowMobileSort] = useState(false);
 
   const dropdownRef = useRef(null);
 
@@ -98,7 +102,7 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
   };
 
   return (
-    <div className="flex mt-5 gap-4 w-1/4  justify-center border rounded-md  mr-2">
+    <div className="w-full lg:w-1/4 mt-5 border rounded-md">
       <div className=" bg-white w-full h-full shadow-lg p-5 rounded-lg  z-50  overflow-y-auto">
         <h3 className="font-semibold mb-3">Tìm kiếm</h3>
 
@@ -109,81 +113,163 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
           onChange={handleSearchChange}
           className="border border-gray-300 px-4 py-2 rounded-md w-full"
         />
-        <h3 className="font-semibold mb-3">Lọc theo:</h3>
 
-        {/* Bộ lọc danh mục */}
-        <div className="mb-4">
-          <h4 className="font-medium mb-2">Danh mục</h4>
-          {/* <div className="grid grid-cols-3 gap-2 mt-2 w-full"> */}
-          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-2 mt-2 w-full">
-            {categories.map((category, index) => (
-              <button
-                key={index}
-                onClick={() => handleCategorySelect(category)}
-                className={`px-1 py-2 rounded-lg border text-xs text-center min-w-[100px] 
-             ${
-               selectedCategories.includes(category._id)
-                 ? "bg-red-600 text-white"
-                 : "bg-gray-200"
-             }
-           `}
-              >
-                {category.name}
-              </button>
-            ))}
+        {/* Button hiển thị trên mobile */}
+        <h4 className="font-medium mt-3">Tiêu chí</h4>
+        <div className=" w-full flex lg:flex-col justify-between gap-2 ">
+          <h3 className="font-semibold  hidden lg:block">Danh mục:</h3>
+          <div className=" w-full  justify-end mt-1">
+            <button
+              onClick={() => setShowMobileFilters(!showMobileFilters)}
+              className="border items-center flex justify-between border-gray-300 px-4 py-2 rounded-md w-full lg:hidden text-sm xs:text-xs"
+            >
+              Danh mục
+              <img
+                src={ExpandDown}
+                className={`h-6 w-6 transform transition-transform duration-300 ${
+                  showMobileFilters ? "rotate-180" : "rotate-0"
+                }`}
+                alt="toggle icon"
+              />
+            </button>
+
+            {/* Nội dung danh mục */}
+            <div
+              className={`${
+                showMobileFilters ? "block" : "hidden"
+              } lg:block w-full mt-1 border relative rounded-md px-2 `}
+            >
+              <div className="mb-4">
+                <div className="flex flex-wrap lg:grid lg:grid-cols-2 xl:grid-cols-3 gap-2 mt-2 w-full overflow-x-auto">
+                  {categories.map((category, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleCategorySelect(category)}
+                      className={`px-1 py-2 rounded-lg border text-xs text-center min-w-[100px] 
+            ${
+              selectedCategories.includes(category._id)
+                ? "bg-red-600 text-white"
+                : "bg-gray-200"
+            }
+          `}
+                    >
+                      {category.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+          <h3 className="font-semibold mt-2 hidden lg:block xl:block 2xl:block ">
+            Thương hiệu:
+          </h3>
+          <div className=" w-full  justify-end mt-1">
+            <button
+              onClick={() => setShowMobileFiltersBrand(!showMobileFiltersBrand)}
+              className="border  items-center flex justify-between border-gray-300 px-4 py-2  rounded-md w-full lg:hidden text-sm xs:text-xs"
+            >
+              Thương hiệu
+              <img
+                src={ExpandDown}
+                className={`h-6 w-6 transform transition-transform duration-300 ${
+                  showMobileFiltersBrand ? "rotate-180" : "rotate-0"
+                }`}
+                alt="toggle icon"
+              />
+            </button>
 
-        {/* Bộ lọc thương hiệu */}
-        <div className="mb-4">
-          <h4 className="font-medium mb-2">Thương hiệu</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-2 mt-2 w-full">
-            {brands.map((brand, index) => (
-              <button
-                key={index}
-                onClick={() => handleBrandSelect(brand)}
-                className={`px-1 py-2 rounded-lg border text-xs  text-center min-w-[100px] 
-          ${
-            selectedBrands.includes(brand)
+            {/* Nội dung danh mục */}
+            <div
+              className={`${
+                showMobileFiltersBrand ? "block" : "hidden"
+              } lg:block w-full mt-1 border relative rounded-md px-2 `}
+            >
+              <div className="mb-4">
+                <div className="flex flex-wrap lg:grid lg:grid-cols-2 xl:grid-cols-2 gap-2 mt-2 w-full overflow-x-auto">
+                  {brands.map((brand, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleBrandSelect(brand)}
+                      className={`px-1 py-2 rounded-lg border text-xs text-center min-w-[100px] 
+            ${
+              selectedBrands.includes(brand)
+                ? "bg-red-600 text-white"
+                : "bg-gray-200"
+            }
+          `}
+                    >
+                      {brand}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h3 className="font-semibold mt-2 hidden lg:block xl:block 2xl:block ">
+  Sắp xếp:
+</h3>
+<div className="w-full justify-end mt-1">
+  <button
+    onClick={() => setShowMobileSort(!showMobileSort)}
+    className="border items-center flex justify-between border-gray-300 px-4 py-2 rounded-md w-full lg:hidden text-sm xs:text-xs"
+  >
+    Sắp xếp
+    <img
+      src={ExpandDown}
+      className={`h-6 w-6 transform transition-transform duration-300 ${
+        showMobileSort ? "rotate-180" : "rotate-0"
+      }`}
+      alt="toggle icon"
+    />
+  </button>
+
+  <div
+    className={`${
+      showMobileSort ? "block" : "hidden"
+    } lg:block w-full mt-1 border relative rounded-md px-2 `}
+  >
+    <div className="flex gap-2 my-2 w-full justify-start">
+      {[
+        { label: "A - Z", value: "asc" },
+        { label: "Z - A", value: "desc" },
+      ].map((option) => (
+        <button
+          key={option.value}
+          onClick={() => {
+            setSortOrder(option.value);
+            onSort(option.value);
+            setShowMobileSort(false); // Đóng lại sau khi chọn
+          }}
+          className={`px-2 py-2 rounded-lg border text-xs text-center w-full ${
+            sortOrder === option.value
               ? "bg-red-600 text-white"
               : "bg-gray-200"
-          }
-        `}
-              >
-                {brand}
-              </button>
-            ))}
-          </div>
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  </div>
+</div>
+
         </div>
 
         {/* Bộ lọc sắp xếp */}
-        <div className="mt-4">
-          <h4 className="font-medium">Sắp xếp</h4>
-          <select
-            className="border px-4 py-2 rounded-md w-full mt-2 text-xs "
-            value={sortOrder}
-            onChange={handleSortChange}
-          >
-            <option className="text-xs " value="asc">
-              A - Z
-            </option>
-            <option className="text-xs " value="desc">
-              Z - A
-            </option>
-          </select>
-        </div>
+        <div className="mt-4"></div>
 
         {/* Bộ lọc giá */}
         <div className="mt-4">
           <h4 className="font-medium">Khoảng giá</h4>
-          <div className="flex gap-2 mt-2 justify-center items-center">
+          <div className="flex gap-2 mt-2 justify-start items-center">
             <input
               type="number"
               placeholder="Min"
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
               onBlur={handlePriceChange}
-              className="border px-4 py-2 rounded-md w-2/5"
+              className="border px-4 py-2 rounded-md w-full"
             />
             <span>-</span>
             <input
@@ -192,7 +278,7 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
               onBlur={handlePriceChange}
-              className="border px-4 py-2 rounded-md w-2/5"
+              className="border px-4 py-2 rounded-md w-full"
             />
           </div>
         </div>

@@ -31,11 +31,11 @@ const BranchesSystem = () => {
     <div className="relative bg-cover bg-center" style={{ backgroundImage: `url('${BACKGROUND_IMAGE_URL}')`}}>
       <div className="absolute inset-0 bg-black opacity-70"></div>
 
-      <div className="relative z-10 text-center py-12 text-white">
+      <div className="relative z-10 text-center py-10 text-white">
         <style>
               {gradientAnimation}
         </style>
-        <h1 className="text-3xl md:text-4xl font-bold gradient-text">HỆ THỐNG GYMZ</h1>
+        <h1 className="text-3xl md:text-4xl font-bold py-4 gradient-text">HỆ THỐNG GYMZ</h1>
       </div>
 
       <div className="relative z-10 flex flex-col items-center gap-6 px-6 pb-16">

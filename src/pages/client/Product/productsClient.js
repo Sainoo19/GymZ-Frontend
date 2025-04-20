@@ -191,7 +191,7 @@ const ProductsClient = () => {
   return (
     <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-20  mb-10 ">
       {/* <div className='flex justify-center items-center'> */}
-      <div className="flex justify-around items-start">
+      <div className="flex flex-col lg:flex-row justify-around items-start  sm:justify-center gap-4">
         <Search
           onSearch={handleSearch}
           onFilter={handleFilter}
@@ -199,8 +199,8 @@ const ProductsClient = () => {
           brands={brands}
           categories={[{ _id: "", name: "Tất cả" }, ...categories]}
         />
-<div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 items-start mt-5">
-{filteredProducts.length > 0 ? (
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 items-start mt-5">
+          {filteredProducts.length > 0 ? (
             filteredProducts.map((product) => (
               <ProductCard
                 key={product._id}

@@ -62,7 +62,6 @@ import OrdersHistoryPage from "./profile/ordershistory";
 import { getFCMToken } from "../../firebase";
 import { CartProvider } from "../../components/clients/contexts/CartContext";
 
-
 import axios from "axios";
 
 const App = () => {
@@ -70,14 +69,9 @@ const App = () => {
   const [isSidebarHidden, setIsSidebarHidden] = useState(true);
   const URL_API = process.env.REACT_APP_API_URL;
 
-
   useEffect(() => {
-    
-      
-        getFCMToken();
-      
-  
-  
+    getFCMToken();
+
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/firebase-messaging-sw.js")
@@ -89,7 +83,6 @@ const App = () => {
         });
     }
   }, []);
-
 
   React.useEffect(() => {
     axios
@@ -111,9 +104,9 @@ const App = () => {
     <BrowserRouter>
       <div className="flex flex-col min-h-screen">
         {userRole === "admin" ||
-          userRole === "staff" ||
-          userRole === "manager" ||
-          userRole === "PT" ? (
+        userRole === "staff" ||
+        userRole === "manager" ||
+        userRole === "PT" ? (
           <>
             <div className="flex h-screen">
               <SideBar
@@ -171,11 +164,23 @@ const App = () => {
                   <Route path="admin/employees" element={<Employee />} />
                   <Route path="admin/members" element={<Members />} />
                   <Route path="admin/member-bills" element={<MemberBills />} />
-                  <Route path="admin/train-sessions" element={<TrainSessions />} />
+                  <Route
+                    path="admin/train-sessions"
+                    element={<TrainSessions />}
+                  />
                   <Route path="admin/addproducts" element={<ProductDetail />} />
-                  <Route path="admin/inventory" element={<InventoryListPage />} />
-                  <Route path="admin/inventory/addinventory/:productId" element={<AddInventory />} />
-                  <Route path="admin/inventory/top-product-page" element={<TopProductPage />} />
+                  <Route
+                    path="admin/inventory"
+                    element={<InventoryListPage />}
+                  />
+                  <Route
+                    path="admin/inventory/addinventory/:productId"
+                    element={<AddInventory />}
+                  />
+                  <Route
+                    path="admin/inventory/top-product-page"
+                    element={<TopProductPage />}
+                  />
 
                   <Route
                     path="admin/revenueAnalysis"
@@ -221,9 +226,18 @@ const App = () => {
                   />
                   <Route path="/login-employee" element={<LoginAdminPage />} />
 
-                  <Route path="/admin/productCategories" element={<ProductCategory />} />
-                  <Route path="/productCategories/create" element={<CreateProductCategory />} />
-                  <Route path="/productCategory/:id" element={<UpdateProductCategory />} />
+                  <Route
+                    path="/admin/productCategories"
+                    element={<ProductCategory />}
+                  />
+                  <Route
+                    path="/productCategories/create"
+                    element={<CreateProductCategory />}
+                  />
+                  <Route
+                    path="/productCategory/:id"
+                    element={<UpdateProductCategory />}
+                  />
                   {/* Add this route */}
                   {/* Add more routes as needed */}
                 </Routes>
@@ -249,13 +263,25 @@ const App = () => {
                   />
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/checkout" element={<CheckOutPage />} />
-                  <Route path="/order-progress" element={<OrderProgressPage />} />
+                  <Route
+                    path="/order-progress"
+                    element={<OrderProgressPage />}
+                  />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/my-membership" element={<MembershipPage />} />
                   <Route path="/my-orders" element={<OrdersHistoryPage />} />
-                  <Route path="/membership/schedule" element={<TrainSchedulePage />} />
-                  <Route path="/change-password" element={<ChangePasswordPage />} />
-                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  <Route
+                    path="/membership/schedule"
+                    element={<TrainSchedulePage />}
+                  />
+                  <Route
+                    path="/change-password"
+                    element={<ChangePasswordPage />}
+                  />
+                  <Route
+                    path="/forgot-password"
+                    element={<ForgotPasswordPage />}
+                  />
                   {/* <Route path="/my-orders" element={<PurchaseOrder />} /> */}
                   {/* Add more routes as needed */}
                 </Routes>

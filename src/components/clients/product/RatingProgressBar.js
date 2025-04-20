@@ -3,7 +3,7 @@ import { FaStar } from "react-icons/fa";
 
 const RatingProgressBar = ({ star, percentage, total }) => {
   return (
-    <div className=" justify-center flex items-center w-5/6 mx-auto space-x-4">
+    <div className=" justify-center flex items-center md:w-3/4 mx-auto px-4 space-x-4">
     
 
       {/* Thanh tiến trình */}
@@ -16,7 +16,7 @@ const RatingProgressBar = ({ star, percentage, total }) => {
         </div>
       </div>
   {/* Số sao */}
-  <div className="w-1/6 flex justify-end">
+  <div className="w-1/4 flex justify-end">
         {[...Array(5)].map((_, index) => (
           <FaStar
             key={index}
@@ -27,9 +27,9 @@ const RatingProgressBar = ({ star, percentage, total }) => {
         ))}
       </div>
       {/* Phần trăm + số lượng đánh giá */}
-      <div className="w-1/6 flex items-start">
-        <span className="text-blue-700 font-semibold">{percentage}%</span>
-        <span className="ml-3 text-gray-500 text-sm">({total})</span>
+      <div className="w-1/4 flex items-start">
+        <span className="text-blue-700 font-semibold text-xs md:text-sm">{percentage}%</span>
+        <span className="ml-1 text-gray-500 text-xs md:text-sm">({total})</span>
       </div>
     </div>
   );

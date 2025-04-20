@@ -17,10 +17,9 @@ const HomeBanner = () => {
   const images = [banner1, banner2, banner3, banner4, banner5];
 
   return (
-    <div className="w-full ">
+    <div className="w-full block h-[690px] xs:hidden lg:block">
       <Swiper
-      
-        style={{ height: '620px' }}
+        style={{ height: '690px' }}
         modules={[Autoplay, Pagination, Navigation]}
         spaceBetween={0}
         slidesPerView={1}
@@ -28,17 +27,18 @@ const HomeBanner = () => {
         pagination={{ clickable: true }}
         // navigation
         loop={true}
-        className="w-full h-auto swiper-container"
+        className="w-full swiper-container"
       >
         {images.map((src, index) => (
           <SwiperSlide key={index}>
             <img src={src} alt={`Slide ${index}`} className="w-full h-[680px] object-cover" />
             {/* Button overlay */}
-            
+          
           </SwiperSlide>
         ))}
       </Swiper>
     </div>
   );
 };
+
 export default HomeBanner;

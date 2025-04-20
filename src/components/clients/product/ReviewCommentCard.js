@@ -163,7 +163,7 @@ const ReviewCommentCard = ({ review, userName }) => {
   };
 
   return (
-    <div className="relative border-b px-6 py-4 mb-4 bg-white shadow-md rounded-lg border border-gray-200 mx-auto " style={{ maxWidth: "800px" }}>
+    <div className="relative border-b px-6 py-4 mb-4 bg-white shadow-md rounded-lg border border-gray-200 mx-auto  " style={{ maxWidth: "800px" }}>
       {/* Dấu 3 chấm cố định góc trên phải */}
       {user?.role === "admin" && (
         <div className="absolute top-4 right-4 z-40">
@@ -212,7 +212,7 @@ const ReviewCommentCard = ({ review, userName }) => {
       )}
 
       {/* Nội dung review */}
-      <div className="flex mt-2">{renderStars(review.rating)}</div>
+      <div className="flex mt-2">{ renderStars(review.rating)}</div>
       <div className="flex items-center space-x-3">
         <p className="font-semibold mt-3">{userName}</p>
       </div>

@@ -45,7 +45,7 @@ const HomeNews = () => {
         DÀNH CHO GYMER
       </h1>
 
-      <div className="relative flex flex-col md:flex-row gap-8">
+      <div className="relative flex flex-col lg:flex-row gap-8">
         {/* Phần trái - Sự kiện chính */}
         <div className="flex-1 border border-white bg-white shadow-lg rounded-lg mx-4 md:mx-16">
           <a href="/">
