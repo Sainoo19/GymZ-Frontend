@@ -5,6 +5,8 @@ import { useParams } from "react-router-dom";
 import { CartContext } from "../../../components/clients/contexts/CartContext";
 import Cookies from "js-cookie";
 import { useNavigate, useLocation } from "react-router-dom";
+import Zoom from 'react-medium-image-zoom';
+import 'react-medium-image-zoom/dist/styles.css';
 const ProductImage = ({
   avatar,
   images,
@@ -148,20 +150,21 @@ const ProductImage = ({
       <div className="flex flex-col md:flex-row justify-around  items-start w-11/12 lg:w-3/4 mx-auto px-4">
         {/* <div className="w-1/2 lg:w-3/5 md:w-4/5 2xl:border-pink-800  xl:border-blue-500 lg:border-green-600 md:border-red-700 sm:border-yellow-700 xs:border-purple-800 md:border"> */}
         <div className="w-full md:w-3/4 mb-4 md:mb-0 mx-auto text-center">
+        <Zoom>
           <img src={avatar} className="mx-auto w-full max-w-xs" alt={name} />
+
+        </Zoom>
           <div className="flex items-center mt-4 justify-center flex-wrap gap-2">
-            {images && images.length > 0 ? (
-              images.map((img, index) => (
-                <img
-                  key={index}
-                  src={img}
-                  className="w-20 h-20 object-cover"
-                  alt=""
-                />
-              ))
-            ) : (
-              <p>No image</p>
-            )}
+          {images && images.length > 0 ? (
+  images.map((img, index) => (
+    <Zoom key={index}>
+      <img src={img} className="w-20 h-20 object-cover" alt="" />
+    </Zoom>
+  ))
+) : (
+  <p>No image</p>
+)}
+
           </div>
         </div>
         <div className="w-full md:ml-8">
