@@ -6,10 +6,10 @@ import { useNavigate } from "react-router-dom";
 import { PlusCircle } from "lucide-react";
 import Pagination from "../../../components/admin/layout/Pagination";
 import ImportStockModal from "../../../components/admin/product/ImportStockModal";
-import reformDateTime from '../../../components/utils/reformDateTime';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
-import truncateString from "../../../components/utils/truncateString"
+import reformDateTime from "../../../components/utils/reformDateTime";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import truncateString from "../../../components/utils/truncateString";
 
 const ProductCard = () => {
   const navigate = useNavigate();
@@ -23,6 +23,8 @@ const ProductCard = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [categoryLoading, setCategoryLoading] = useState(false);
+  const [categoryName, setCategoryName] = useState("");
 
   const [filters, setFilters] = useState({
     category: "",
@@ -31,10 +33,10 @@ const ProductCard = () => {
   });
 
   const [exportFilters, setExportFilters] = useState({
-    branchId: '',
-    type: '',
-    startDate: '',
-    endDate: ''
+    branchId: "",
+    type: "",
+    startDate: "",
+    endDate: "",
   });
   const toggleExportModal = () => {
     setIsExportModalOpen(!isExportModalOpen);
@@ -43,7 +45,7 @@ const ProductCard = () => {
   const handleExportFilterChange = (e) => {
     setExportFilters({
       ...exportFilters,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -53,7 +55,6 @@ const ProductCard = () => {
   const handleOpenImportModal = (product) => {
     setSelectedProduct(product);
     setMenuVisible(null); // Ẩn menu khi mở modal nhập hàng
-
   };
 
   const handleCloseImportModal = () => {
@@ -70,12 +71,45 @@ const ProductCard = () => {
             limit: 12,
             search,
             ...filters,
-            ...exportFilters
+            ...exportFilters,
           },
         });
+
         if (response.data.status === "success") {
-          setProducts(response.data.data.products);
+          // Lấy danh sách sản phẩm
+          const productsData = response.data.data.products;
+          // Lấy tên danh mục cho mỗi sản phẩm
+          const updatedProducts = await Promise.all(
+            productsData.map(async (product) => {
+              try {
+                // Lấy tên danh mục cho từng sản phẩm
+                const responseCategory = await axios.get(
+                  `${URL_API}productCategory/${product.category}`
+                );
+                if (responseCategory.data.status === "success") {
+                  product.categoryName = responseCategory.data.data.name; // Gắn tên danh mục vào sản phẩm
+                  console.log(
+                    "Updated Products with Category Names:",
+                    responseCategory.data.data.name
+                  );
+                } else {
+                  console.error(
+                    "Lỗi khi lấy danh mục:",
+                    responseCategory.data.message
+                  );
+                }
+              } catch (error) {
+                console.error("Lỗi khi lấy danh mục:", error);
+              }
+              return product;
+            })
+          );
+
+          // Cập nhật sản phẩm và tổng số trang
+          setProducts(updatedProducts);
           setTotalPages(response.data.metadata.totalPages);
+
+          console.log("Updated Products with Category Names:", updatedProducts);
         } else {
           console.error("API response error:", response.data.message);
         }
@@ -192,52 +226,53 @@ const ProductCard = () => {
   };
   const handleExport = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/products/all', {
+      const response = await axios.get(`${URL_API}products/all`, {
         params: {
           ...exportFilters,
-          limit: 1000 // Giới hạn dữ liệu xuất
+          limit: 1000, // Giới hạn dữ liệu xuất
         },
-        withCredentials: true
+        withCredentials: true,
       });
 
-      if (response.data.status === 'success') {
-        const products = response.data.data.products.map(product => ({
-          'PRODUCT ID': product._id,
-          'NAME': product.name,
-          'CATEGORY': product.category ? product.category.name : '',
-          'PRICE RANGE': `${product.minPrice.toLocaleString()} - ${product.maxPrice.toLocaleString()}`, // Hiển thị giá min-max
-          'CREATED AT': reformDateTime(product.createdAt),
-          'UPDATED AT': reformDateTime(product.updatedAt),
+      if (response.data.status === "success") {
+        const products = response.data.data.products.map((product) => ({
+          "PRODUCT ID": product._id,
+          NAME: product.name,
+          CATEGORY: product.category ? product.category.name : "",
+          "PRICE RANGE": `${product.minPrice.toLocaleString()} - ${product.maxPrice.toLocaleString()}`, // Hiển thị giá min-max
+          "CREATED AT": reformDateTime(product.createdAt),
+          "UPDATED AT": reformDateTime(product.updatedAt),
         }));
 
         console.log("✅ Products Export:", products); // Kiểm tra dữ liệu trước khi xuất
 
         const ws = XLSX.utils.json_to_sheet(products);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Products_Report');
+        XLSX.utils.book_append_sheet(wb, ws, "Products_Report");
 
-        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+        const data = new Blob([excelBuffer], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
 
-        saveAs(data, 'products_report.xlsx');
-        alert('Xuất báo cáo thành công!');
+        saveAs(data, "products_report.xlsx");
+        alert("Xuất báo cáo thành công!");
         // Đóng modal và reset filters
         toggleExportModal(); // Đóng modal
         setExportFilters({
-          branchId: '',
-          type: '',
-          startDate: '',
-          endDate: ''
+          branchId: "",
+          type: "",
+          startDate: "",
+          endDate: "",
         }); // Reset filters
       } else {
-        alert('Lỗi khi xuất báo cáo: ' + response.data.message);
+        alert("Lỗi khi xuất báo cáo: " + response.data.message);
       }
     } catch (error) {
-      console.error('Lỗi khi xuất báo cáo:', error);
-      alert('Xuất báo cáo thất bại!');
+      console.error("Lỗi khi xuất báo cáo:", error);
+      alert("Xuất báo cáo thất bại!");
     }
   };
-
 
   return (
     <div className="mt-24 mb-5">
@@ -346,11 +381,13 @@ const ProductCard = () => {
                   />
                   <div className="flex flex-col justify-between h-full flex-grow">
                     <p className="font-semibold text-[30px]">{product.name}</p>
-                    <p className="font-base text-[30px]">{product.category}</p>
+                    <p className="font-base text-[30px]">
+                      {product.categoryName}
+                    </p>
                     <p className="font-bold text-lg mt-2 mb-5">{priceText}</p>
                   </div>
                 </div>
-
+                {console.log("Category Name:", categoryName)}
                 <div className="mt-3 border-t pt-3 space-y-2 border rounded-lg p-3 bg-gray-50">
                   <div className="flex justify-between text-sm items-center">
                     <span className="font-base">Bán</span>
@@ -433,7 +470,9 @@ const ProductCard = () => {
       {isExportModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Lọc Dữ Liệu Xuất Báo Cáo Sản Phẩm</h2>
+            <h2 className="text-xl font-bold mb-4">
+              Lọc Dữ Liệu Xuất Báo Cáo Sản Phẩm
+            </h2>
 
             {/* Bộ lọc Danh Mục */}
             <div className="mb-4">
@@ -547,9 +586,7 @@ const ProductCard = () => {
           }}
         />
       )}
-
     </div>
-
   );
 };
 
