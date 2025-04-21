@@ -10,6 +10,7 @@ export function FileDrop({
   images = [],
   selectedAvatar,
   setSelectedAvatar,
+  isHaveImage
 }) {
   const [isOver, setIsOver] = useState(false);
   const [files, setFiles] = useState(images || []);
@@ -175,7 +176,11 @@ export function FileDrop({
           <p className="text-gray-500">Chọn một ảnh để hiển thị</p>
         )}
       </div>
-
+{!isHaveImage && (
+  <div>
+    <p className="font-semibold text-base mt-6 mb-3">Hãy thêm hình ảnh sản phẩm</p>
+    </div>
+)}
       <p className="font-semibold text-base mt-6 mb-3">Thư viện hình ảnh</p>
       <div
         onDragOver={handleDragOver}

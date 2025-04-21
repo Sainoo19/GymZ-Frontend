@@ -33,7 +33,9 @@ const ProductDetail = ({ onClose }) => {
   const [variations, setVariations] = useState([]);
   const [images, setImages] = useState([]);
   const [isUploading, setIsUploading] = useState(false); // Thêm trạng thái tải lên
+  const [isHaveImage, setIsHaveImage] = useState(true); // Thêm trạng thái tải lên
   const [errors, setErrors] = useState({});
+  const typeProductRef = useRef();
 
   useEffect(() => {
     if (!productId) {
@@ -118,11 +120,11 @@ const ProductDetail = ({ onClose }) => {
       const formattedVariations = variations.map((v) => ({
         category: v.category,
         theme: v.theme,
-        stock: Number(v.stock) || 0,
-        originalPrice: Number(v.originalPrice) || 0,
-        salePrice: Number(v.salePrice) || 0,
-        weight: Number(v.weight) || 0,
-        costPrice: Number(v.costPrice) || 0,
+        stock: Number(v.stock),
+        originalPrice: Number(v.originalPrice),
+        salePrice: Number(v.salePrice),
+        weight: Number(v.weight),
+        costPrice: Number(v.costPrice),
       }));
 
       const newProduct = {
@@ -138,14 +140,17 @@ const ProductDetail = ({ onClose }) => {
       };
 
       if (productId) {
-        await axios.put(`${API_BASE_URL}/update/${productId}`, newProduct);
+        await axios.put(
+          `${API_BASE_URL}products/update/${productId}`,
+          newProduct
+        );
         alert("Cập nhật sản phẩm thành công!");
       } else {
-        await axios.post(`${API_BASE_URL}/create`, newProduct);
+        await axios.post(`${API_BASE_URL}products/create`, newProduct);
         alert("Sản phẩm đã được thêm!");
       }
 
-      navigate("/products"); // Quay về danh sách sản phẩm sau khi hoàn thành
+      navigate("/admin/products"); // Quay về danh sách sản phẩm sau khi hoàn thành
     } catch (error) {
       alert("Lưu sản phẩm thất bại!");
     }
@@ -187,7 +192,9 @@ const ProductDetail = ({ onClose }) => {
     if (!content.trim()) newErrors.content = "Miêu tả không được để trống.";
     if (!selectedCategory) newErrors.category = "Vui lòng chọn loại hàng.";
     if (!brand.trim()) newErrors.brand = "Thương hiệu không được để trống.";
-    if (images.length === 0) newErrors.images = "Cần ít nhất một hình ảnh.";
+    if (images.length === 0) {
+      newErrors.images = "Cần ít nhất một hình ảnh.";
+    }
     if (!stripHtml(content).trim()) {
       newErrors.content = "Miêu tả không được để trống.";
     }
@@ -329,20 +336,34 @@ const ProductDetail = ({ onClose }) => {
 
                 <TypeProduct
                   variations={variations}
+                  ref={typeProductRef}
                   setVariations={setVariations}
                 />
               </div>
             </div>
 
-            <div className=" w-1/2 justify-items-center ">
+            <div
+              className={`w-1/2 justify-items-center `}
+            >
+             
               <FileDrop
                 images={images}
                 setImages={setImages}
                 selectedAvatar={selectedAvatar}
                 setSelectedAvatar={setSelectedAvatar}
+                isHaveImage={isHaveImage}
               />
+              <div 
+              className={`w-1/2 justify-items-center ${
+                errors.brand
+                  ? "border-red-500"
+                  : "border-gray-600 focus:ring-primary"
+              }`}>
+                 {errors.images && (
+                <p className="text-red-500 text-sm">{errors.images}</p>
+              )}
+              </div>
 
-              {console.log("selectedAvatar", selectedAvatar)}
             </div>
           </div>
 
