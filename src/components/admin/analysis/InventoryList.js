@@ -33,7 +33,7 @@ const InventoryListPage = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = inventory.slice(indexOfFirstItem, indexOfLastItem);
   const handleItemClick = (productId) => {
-    navigate(`/admin/inventory/addinventory/${productId}`);
+    navigate(`/admin/editproduct/${productId}`);
   };
 
   return (
