@@ -105,14 +105,15 @@ const App = () => {
     <BrowserRouter>
       <div className="flex flex-col min-h-screen">
         {userRole === "admin" ||
-        userRole === "staff" ||
-        userRole === "manager" ||
-        userRole === "PT" ? (
+          userRole === "staff" ||
+          userRole === "manager" ||
+          userRole === "PT" ? (
           <>
             <div className="flex h-screen">
               <SideBar
                 isSidebarHidden={isSidebarHidden}
                 setIsSidebarHidden={setIsSidebarHidden}
+                userRole={userRole}
               />
 
               <div className="flex-1 p-4">

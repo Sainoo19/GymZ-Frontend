@@ -6,24 +6,65 @@ const LoginAdminPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const API_URL = process.env.REACT_APP_API_URL;
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError("");
+
         try {
             const response = await axios.post(`${API_URL}auth/login/employee`, { email, password }, {
                 withCredentials: true // Ensure cookies are sent with the request
             });
+
             if (response.data.status === "success") {
-                // Redirect to the admin dashboard or home page
-                navigate("/admin/");
+                // Get user role to determine redirect
+                const role = response.data.data.employee.role;
+
+                // Redirect based on role
+                switch (role) {
+                    case "admin":
+                        navigate("/admin/");
+                        break;
+                    case "manager":
+                    case "staff":
+                        navigate("/admin/products");
+                        break;
+                    case "PT":
+                        navigate("/admin/members");
+                        break;
+                    default:
+                        // Default fallback
+                        navigate("/admin/");
+                }
+
                 // Refresh the page to ensure the admin data is correctly displayed
                 window.location.reload();
             } else {
-                setError(response.data.message);
+                setError(response.data.message || "Đăng nhập không thành công");
             }
         } catch (error) {
-            setError("Invalid email or password");
+            console.error("Login error:", error);
+
+            // More detailed error messages
+            if (error.response) {
+                if (error.response.status === 401) {
+                    setError("Email hoặc mật khẩu không chính xác");
+                } else if (error.response.data && error.response.data.message) {
+                    setError(error.response.data.message);
+                } else {
+                    setError(`Lỗi (${error.response.status}): Vui lòng thử lại sau`);
+                }
+            } else if (error.request) {
+                setError("Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối của bạn.");
+            } else {
+                setError("Đã xảy ra lỗi. Vui lòng thử lại.");
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -50,6 +91,7 @@ const LoginAdminPage = () => {
                                 placeholder="Email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                required
                             />
                         </div>
                         <div className="mb-4">
@@ -63,15 +105,29 @@ const LoginAdminPage = () => {
                                 placeholder="Password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                required
                             />
                         </div>
-                        {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
+                        {error && (
+                            <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 mb-4 rounded">
+                                <p className="text-sm">{error}</p>
+                            </div>
+                        )}
                         <div className="mb-6">
                             <button
-                                className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
+                                className={`bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full flex items-center justify-center ${loading ? 'opacity-75' : ''}`}
                                 type="submit"
+                                disabled={loading}
                             >
-                                Login
+                                {loading ? (
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Đang đăng nhập...
+                                    </>
+                                ) : "Đăng nhập"}
                             </button>
                         </div>
                     </form>
