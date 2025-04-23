@@ -43,6 +43,7 @@ import AddInventory from "../admin/Inventory/AddInventory";
 import TopProductPage from "../../pages/admin/Analysis/TopProductPage";
 import ProfilePage from "./profile/profile";
 import ChangePasswordPage from "./profile/privacy";
+import ChangePasswordAdminPage from "../admin/privacy/ChangePasswordAdminPage";
 import ForgotPasswordPage from "../../components/clients/users/ForgotPasswordPage";
 import Members from "../admin/members/members";
 import CreateMember from "../admin/members/memberCreate";
@@ -241,7 +242,10 @@ const App = () => {
                     element={<UpdateProductCategory />}
                   />
                   <Route path="/admin/profile" element={<ProfileEmployeeContent />} />
-
+                  <Route
+                    path="admin/change-password-admin"
+                    element={<ChangePasswordAdminPage />}
+                  />
                   {/* Add this route */}
                   {/* Add more routes as needed */}
                 </Routes>
