@@ -8,7 +8,7 @@ import HamburgerIcon from "../../../assets/icons/bars-3.svg";
 import XMarkIconSVG from "../../../assets/icons/x-mark.svg";
 import ShoppingCart from "../../../assets/icons/shopping-cart.svg";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { ReactComponent as Expand_Down } from "../../../assets/icons/Expand_down_light.svg";
 const HeaderClient = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
@@ -149,11 +149,7 @@ const HeaderClient = () => {
             {isLoggedIn && (
               <>
                 <button onClick={handleCartClick} className="relative">
-                  <img
-                    src={ShoppingCart}
-                    alt="Cart"
-                    className="h-7 w-7"
-                  />
+                  <img src={ShoppingCart} alt="Cart" className="h-7 w-7" />
                   {cartCount > 0 && (
                     <span className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
                       {cartCount}
@@ -231,15 +227,25 @@ const HeaderClient = () => {
               <>
                 <div className="relative">
                   <div
-                    className="flex items-center w-full rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-secondary hover:text-primary"
+                    className="flex items-center w-full justify-between rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-secondary hover:text-primary"
                     onClick={() => setDropdownOpen(!dropdownOpen)}
                   >
-                    <img
-                      src={user?.avatar || defaultAvatar}
-                      alt="User Avatar"
-                      className="h-10 w-10 rounded-full cursor-pointer"
+                    {/* Trái: Avatar + Name */}
+                    <div className="flex items-center">
+                      <img
+                        src={user?.avatar || defaultAvatar}
+                        alt="User Avatar"
+                        className="h-10 w-10 rounded-full cursor-pointer"
+                      />
+                      <p className="ml-2">{user?.name}</p>
+                    </div>
+
+                    {/* Phải: Expand Down icon */}
+                    <Expand_Down
+                      className={`expand-icon h-6 w-6 transform  stroke-white group-hover:stroke-primary transition-all  duration-300 ${
+                        dropdownOpen ? "rotate-180" : "rotate-0"
+                      } group-hover:animate-bounce`}
                     />
-                    <p className="ml-2">{user?.name}</p>
                   </div>
 
                   <AnimatePresence>
