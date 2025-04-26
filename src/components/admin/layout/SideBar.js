@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ReactComponent as MyIcon } from "../../../assets/icons/main_icon.svg";
 import { ReactComponent as IconAllProduct } from "../../../assets/icons/Icon_TatCaSanPham.svg";
-import { FaChartLine, FaShoppingCart, FaReceipt, FaListAlt, FaBox, FaUsers, FaUserFriends, FaBuilding, FaPercentage, FaIdCard, FaFileInvoice, FaCalendarAlt } from "react-icons/fa";
+import { FaChartLine, FaShoppingCart, FaReceipt, FaListAlt, FaBox, FaUsers, FaUserFriends, FaKey, FaBuilding, FaPercentage, FaIdCard, FaFileInvoice, FaCalendarAlt } from "react-icons/fa";
 import { X } from "lucide-react";
 
 // Define all navigation items with their roles permissions
@@ -78,7 +78,8 @@ const allNavItems = [
         label: "LỊCH TẬP",
         icon: FaCalendarAlt,
         roles: ["admin", "PT"]
-    }
+    },
+    { to: "/admin/change-password-admin", label: "ĐỔI MẬT KHẨU", icon: FaKey, roles: ["admin", "manager", "staff", "PT"] },
 ];
 
 const SideBar = ({ isSidebarHidden, setIsSidebarHidden, userRole }) => {
