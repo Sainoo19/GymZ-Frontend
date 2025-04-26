@@ -5,11 +5,12 @@ import CardFacilities from "./CardFacilities";
 const BranchesFacilities = () => {
   const [branches, setBranches] = useState({});
   const [selectedCity, setSelectedCity] = useState(null);
+  const URL_API = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/branches/all/nopagination");
+        const response = await axios.get(`${URL_API}branches/all/nopagination`);
         const groupedBranches = groupByCity(response.data.data);
         setBranches(groupedBranches);
         setSelectedCity(Object.keys(groupedBranches)[0] || null);

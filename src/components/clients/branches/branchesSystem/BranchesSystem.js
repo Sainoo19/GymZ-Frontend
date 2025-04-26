@@ -9,12 +9,13 @@ const BranchesSystem = () => {
     const [branches, setBranches] = useState([]);
 
     const BACKGROUND_IMAGE_URL = "https://png.pngtree.com/background/20230526/original/pngtree-futuristic-image-of-blue-lines-intersecting-the-dark-picture-image_2746757.jpg";
+    const URL_API = process.env.REACT_APP_API_URL;
 
 
     useEffect(() => {
         const fetchBranches = async () => {
             try {
-                const response = await axios.get("http://localhost:3000/branches/all/nopagination"); // 🔹 Thay URL_API bằng API thực tế
+                const response = await axios.get(`${URL_API}branches/all/nopagination`); // 🔹 Thay URL_API bằng API thực tế
                 setBranches(response.data.data); // 🔹 Cập nhật danh sách chi nhánh
             } catch (error) {
                 console.error("Lỗi khi lấy danh sách chi nhánh:", error);

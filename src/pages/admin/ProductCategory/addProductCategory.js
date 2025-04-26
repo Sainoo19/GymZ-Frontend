@@ -16,6 +16,7 @@ const CreateProductCategory = () => {
       [name]: value
     }));
   };
+  const URL_API = process.env.REACT_APP_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,7 +27,7 @@ const CreateProductCategory = () => {
       };
       console.log("Dữ liệu gửi đi:", newCategory);
 
-      const response = await axios.post('http://localhost:3000/productCategory/create', newCategory);
+      const response = await axios.post(`${URL_API}productCategory/create`, newCategory);
       console.log('Product category created successfully', response.data);
       navigate('/admin/productCategories');
     } catch (error) {

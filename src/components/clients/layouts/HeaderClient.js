@@ -30,7 +30,7 @@ const HeaderClient = () => {
 
     // Check if the user is logged in by checking the token in cookies
     axios
-      .get("http://localhost:3000/users/profile", {
+      .get(`${URL_API}users/profile`, {
         withCredentials: true, // Ensure cookies are sent with the request
       })
       .then((response) => {
@@ -51,7 +51,7 @@ const HeaderClient = () => {
   const handleLogoutClick = () => {
     axios
       .post(
-        "http://localhost:3000/auth/logout",
+        `${URL_API}auth/logout`,
         {},
         {
           withCredentials: true, // Ensure cookies are sent with the request

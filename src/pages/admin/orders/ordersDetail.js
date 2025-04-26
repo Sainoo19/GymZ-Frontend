@@ -16,11 +16,12 @@ const UpdateOrderForm = () => {
     const [selectedTheme, setSelectedTheme] = useState('');
     const [themes, setThemes] = useState([]);
     const [filteredCategories, setFilteredCategories] = useState([]);
+    const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         const fetchOrder = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/orders/${id}`);
+                const response = await axios.get(`${URL_API}orders/${id}`);
                 setOrder(response.data.data); // Access the data field
             } catch (error) {
                 console.error('Error fetching order:', error);
@@ -29,7 +30,7 @@ const UpdateOrderForm = () => {
 
         const fetchUsers = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/users/all/nopagination');
+                const response = await axios.get(`${URL_API}users/all/nopagination`);
                 setUsers(response.data.data);
             } catch (error) {
                 console.error('Error fetching users:', error);
@@ -38,7 +39,7 @@ const UpdateOrderForm = () => {
 
         const fetchAllProducts = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/products/all/nopagination');
+                const response = await axios.get(`${URL_API}products/all/nopagination`);
                 setAllProducts(response.data.data);
             } catch (error) {
                 console.error('Error fetching products:', error);
@@ -55,7 +56,7 @@ const UpdateOrderForm = () => {
             const fetchProducts = async () => {
                 try {
                     const productIds = order.items.map(item => item.product_id);
-                    const response = await axios.post('http://localhost:3000/orders/products/byIds', { ids: productIds });
+                    const response = await axios.post(`${URL_API}orders/products/byIds`, { ids: productIds });
                     const productsMap = response.data.data.reduce((map, product) => {
                         map[product._id] = product;
                         return map;
@@ -79,12 +80,12 @@ const UpdateOrderForm = () => {
                 ...order,
                 updatedAt: new Date().toISOString(), // Update the updatedAt field
             };
-            await axios.put(`http://localhost:3000/orders/update/${id}`, updatedOrder);
+            await axios.put(`${URL_API}orders/update/${id}`, updatedOrder);
             // Fetch updated order and products after updating
-            const response = await axios.get(`http://localhost:3000/orders/${id}`);
+            const response = await axios.get(`${URL_API}orders/${id}`);
             setOrder(response.data.data); // Access the data field
             const productIds = response.data.data.items.map(item => item.product_id);
-            const productsResponse = await axios.post('http://localhost:3000/orders/products/byIds', { ids: productIds });
+            const productsResponse = await axios.post(`${URL_API}orders/products/byIds`, { ids: productIds });
             const productsMap = productsResponse.data.data.reduce((map, product) => {
                 map[product._id] = product;
                 return map;

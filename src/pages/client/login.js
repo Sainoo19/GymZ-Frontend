@@ -13,12 +13,13 @@ const LoginPageUser = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+  const URL_API = process.env.REACT_APP_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:3000/auth/login/user",
+        `${URL_API}auth/login/user`,
         { email, password },
         {
           withCredentials: true, // Ensure cookies are sent with the request
@@ -40,7 +41,7 @@ const LoginPageUser = () => {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const response = await axios.post("http://localhost:3000/auth/google/token", {
+      const response = await axios.post(`${URL_API}auth/google/token`, {
         token: credentialResponse.credential, // Gửi token đến backend để xác thực
       }, { withCredentials: true });
 
@@ -127,8 +128,8 @@ const LoginPageUser = () => {
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
                   onError={() => console.error("Google Login Failed")}
-                  redirectUri="http://localhost:3000/auth/google/callback"
-                />
+                  redirectUri={ `${URL_API}auth/google/callback` }
+                  />
               </GoogleOAuthProvider>
 
               <button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow flex items-center justify-center">

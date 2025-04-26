@@ -56,11 +56,12 @@ const Employee = () => {
             [e.target.name]: e.target.value
         });
     };
+    const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         const fetchUserRole = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/employees/profile', {
+                const response = await axios.get(`${URL_API}employees/profile`, {
                     withCredentials: true // Ensure cookies are sent with the request
                 });
                 const role = response.data.data.role;
@@ -78,7 +79,7 @@ const Employee = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/employees/all', {
+                const response = await axios.get(`${URL_API}employees/all`, {
                     params: {
                         page: currentPage,
                         limit: 10,
@@ -106,7 +107,7 @@ const Employee = () => {
 
         const fetchBranches = async () => {
             try {
-                const response = await axios.get("http://localhost:3000/branches/all/nopagination");
+                const response = await axios.get(`${URL_API}branches/all/nopagination`);
                 setBranches(response.data.data);
             } catch (error) {
                 console.error("Lỗi khi lấy danh sách chi nhánh:", error);
@@ -126,7 +127,7 @@ const Employee = () => {
     const handleDelete = async (id) => {
         if (userRole === 'admin' || userRole === 'manager') {
             try {
-                await axios.delete(`http://localhost:3000/employees/delete/${id}`, {
+                await axios.delete(`${URL_API}employees/delete/${id}`, {
                     withCredentials: true // Ensure cookies are sent with the request
                 });
                 setData(data.filter(employee => employee._id !== id));
@@ -199,7 +200,7 @@ const Employee = () => {
 
     const handleExport = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/employees/all', {
+            const response = await axios.get(`${URL_API}employees/all`, {
                 params: {
                     ...exportFilters, // Giữ lại các filter hiện tại
                     limit: 1000 // Giới hạn dữ liệu xuất

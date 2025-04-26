@@ -9,6 +9,7 @@ const EmailChangeModal = ({ isOpen, onClose, onEmailChange }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const URL_API = process.env.REACT_APP_API_URL;
 
     const handleSendOtp = async () => {
         if (!newEmail) {
@@ -27,7 +28,7 @@ const EmailChangeModal = ({ isOpen, onClose, onEmailChange }) => {
         setError('');
 
         try {
-            await axios.post('http://localhost:3000/profileUser/send-otp', { newEmail }, {
+            await axios.post(`${URL_API}profileUser/send-otp`, { newEmail }, {
                 withCredentials: true // Ensure cookies are sent with the request
             });
             setStep(2);
@@ -54,7 +55,7 @@ const EmailChangeModal = ({ isOpen, onClose, onEmailChange }) => {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:3000/profileUser/verify-otp', { newEmail, otp }, {
+            const response = await axios.post(`${URL_API}profileUser/verify-otp`, { newEmail, otp }, {
                 withCredentials: true // Ensure cookies are sent with the request
             });
             if (response.data.status === "success") {

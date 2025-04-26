@@ -30,6 +30,7 @@ const OrdersHistoryContent = () => {
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
     const [ordersPerPage] = useState(5); // Hiển thị 5 đơn hàng mỗi trang
+    const URL_API = process.env.REACT_APP_API_URL;
 
     // Available status options
     const statusOptions = [
@@ -52,7 +53,7 @@ const OrdersHistoryContent = () => {
     const fetchOrders = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('http://localhost:3000/orderClient/orders', {
+            const response = await axios.get(`${URL_API}orderClient/orders`, {
                 withCredentials: true
             });
 

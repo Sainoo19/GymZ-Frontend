@@ -23,6 +23,7 @@ const ProductCategory = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
+  const URL_API = process.env.REACT_APP_API_URL;
 
   const [filters, setFilters] = useState({
     createdAt: ''
@@ -47,7 +48,7 @@ const ProductCategory = () => {
           params.createdAtEnd = endOfDay;
         }
 
-        const response = await axios.get('http://localhost:3000/productCategory/all', { params });
+        const response = await axios.get(`${URL_API}productCategory/all`, { params });
         if (response.data.status === 'success') {
           setProductCategory(response.data.data.categories || []);
           setTotalPages(response.data.metadata.totalPages || 1);
@@ -93,7 +94,7 @@ const ProductCategory = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await axios.delete(`http://localhost:3000/productCategory/delete/${id}`);
+          const response = await axios.delete(`${URL_API}productCategory/delete/${id}`);
 
           if (response.status === 200) {
             Swal.fire('Xóa thành công!', 'Danh mục sản phẩm đã bị xóa.', 'success');

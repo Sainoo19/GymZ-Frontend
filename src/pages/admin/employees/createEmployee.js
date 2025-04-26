@@ -19,6 +19,7 @@ const CreateEmployee = () => {
     hiredAt: new Date().toISOString().split("T")[0],
     avatar: "",
   });
+  const URL_API = process.env.REACT_APP_API_URL;
 
   const token = Cookies.get('accessToken');
   const userRole = token ? JSON.parse(atob(token.split('.')[1])).role : null;
@@ -32,7 +33,7 @@ const CreateEmployee = () => {
 
     const fetchBranches = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/branches/all/nopagination", {
+        const response = await axios.get(`${URL_API}branches/all/nopagination`, {
           withCredentials: true // Ensure cookies are sent with the request
         });
         setBranches(response.data.data);
@@ -70,7 +71,7 @@ const CreateEmployee = () => {
       }
 
       const response = await axios.post(
-        "http://localhost:3000/employees/create",
+        `${URL_API}employees/create`,
         formattedEmployee,
         {
           withCredentials: true // Ensure cookies are sent with the request

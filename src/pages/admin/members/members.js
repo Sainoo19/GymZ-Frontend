@@ -37,6 +37,7 @@ const Members = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedMemberId, setSelectedMemberId] = useState(null);
     const navigate = useNavigate();
+    const URL_API = process.env.REACT_APP_API_URL;
 
     const [exportFilters, setExportFilters] = useState({
         branchId: '',
@@ -59,7 +60,7 @@ const Members = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/members/all', {
+                const response = await axios.get(`${URL_API}members/all`, {
                     params: {
                         page: currentPage,
                         limit: 10,
@@ -96,7 +97,7 @@ const Members = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:3000/members/delete/${id}`, {
+            await axios.delete(`${URL_API}members/delete/${id}`, {
                 withCredentials: true
             });
             setData(data.filter(member => member._id !== id));
@@ -141,7 +142,7 @@ const Members = () => {
     };
     const handleExport = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/members/all', {
+            const response = await axios.get(`${URL_API}members/all`, {
                 params: {
                     ...exportFilters, // Giữ lại các filter hiện tại
                     limit: 1000 // Giới hạn dữ liệu xuất

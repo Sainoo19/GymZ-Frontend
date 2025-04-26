@@ -22,6 +22,7 @@ const AddUserForm = () => {
     const statusOption = ['Active', 'Inactive']
     const roleOption = ['User', 'Silver', 'Gold']
     const [newFileName, setNewFileName] = useState("");
+    const URL_API = process.env.REACT_APP_API_URL;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -53,7 +54,7 @@ const AddUserForm = () => {
             };
             console.log("Dữ liệu gửi đi:", newUser);
 
-            const response = await axios.post('http://localhost:3000/users/create', newUser);
+            const response = await axios.post(`${URL_API}users/create`, newUser);
             console.log('User created successfully', response.data);
             navigate('/users');
         } catch (error) {

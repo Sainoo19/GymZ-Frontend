@@ -35,6 +35,7 @@ const Discounts = () => {
     const [selectedDiscountId, setSelectedDiscountId] = useState(null);
     
     const navigate = useNavigate();
+    const URL_API = process.env.REACT_APP_API_URL;
 
     const [exportFilters, setExportFilters] = useState({
         branchId: '',
@@ -57,7 +58,7 @@ const Discounts = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/discounts/all', {
+                const response = await axios.get(`${URL_API}discounts/all`, {
                     params: {
                         page: currentPage,
                         limit: 10,
@@ -91,7 +92,7 @@ const Discounts = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:3000/discounts/delete/${id}`);
+            await axios.delete(`${URL_API}discounts/delete/${id}`);
             setData(data.filter(discount => discount._id !== id));
             setIsDeleteModalOpen(false);
         } catch (error) {
@@ -134,7 +135,7 @@ const Discounts = () => {
     };
     const handleExport = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/discounts/all', {
+            const response = await axios.get(`${URL_API}discounts/all`, {
                 params: {
                     ...exportFilters, // Giữ lại các filter hiện tại như status, validFrom, validUntil, search
                     limit: 1000 // Giới hạn dữ liệu xuất

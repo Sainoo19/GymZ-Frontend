@@ -12,12 +12,13 @@ const MembershipContent = () => {
     const [error, setError] = useState(null);
     const [branchName, setBranchName] = useState("");
     const [trainerName, setTrainerName] = useState("");
+    const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         const fetchMemberData = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get('http://localhost:3000/membership/profile', {
+                const response = await axios.get(`${URL_API}membership/profile`, {
                     withCredentials: true
                 });
 
@@ -48,7 +49,7 @@ const MembershipContent = () => {
     // Fetch branch name
     const fetchBranchName = async (branchId) => {
         try {
-            const response = await axios.get(`http://localhost:3000/branches/${branchId}`, {
+            const response = await axios.get(`${URL_API}branches/${branchId}`, {
                 withCredentials: true
             });
 
@@ -63,7 +64,7 @@ const MembershipContent = () => {
     // Fetch trainer name
     const fetchTrainerName = async (employeeId) => {
         try {
-            const response = await axios.get(`http://localhost:3000/employees/${employeeId}`, {
+            const response = await axios.get(`${URL_API}employees/${employeeId}`, {
                 withCredentials: true
             });
 

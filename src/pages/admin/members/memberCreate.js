@@ -24,6 +24,7 @@ const CreateMember = () => {
     const userRole = token ? JSON.parse(atob(token.split('.')[1])).role : null;
     const userBranchId = token ? JSON.parse(atob(token.split('.')[1])).branch_id : null;
     const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null;
+    const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         // Redirect unauthorized users
@@ -51,7 +52,7 @@ const CreateMember = () => {
         // Fetch branches
         const fetchBranches = async () => {
             try {
-                const response = await axios.get("http://localhost:3000/branches/all/nopagination", {
+                const response = await axios.get(`${URL_API}branches/all/nopagination`, {
                     withCredentials: true
                 });
                 setBranches(response.data.data);
@@ -63,7 +64,7 @@ const CreateMember = () => {
         // Fetch users for dropdown
         const fetchUsers = async () => {
             try {
-                const response = await axios.get("http://localhost:3000/users/all/nopagination", {
+                const response = await axios.get(`${URL_API}users/all/nopagination`, {
                     withCredentials: true
                 });
                 setUsers(response.data.data);
@@ -82,7 +83,7 @@ const CreateMember = () => {
             if (!selectedBranchId) return;
 
             try {
-                const response = await axios.get(`http://localhost:3000/employees/all/nopagination`, {
+                const response = await axios.get(`${URL_API}employees/all/nopagination`, {
                     params: {
                         role: 'PT',
                         branch_id: selectedBranchId
@@ -140,7 +141,7 @@ const CreateMember = () => {
         try {
             // Create new member
             const response = await axios.post(
-                "http://localhost:3000/members/create",
+                `${URL_API}members/create`,
                 member,
                 { withCredentials: true }
             );

@@ -32,6 +32,7 @@ const TrainSessionCreate = () => {
     const userRole = token ? JSON.parse(atob(token.split('.')[1])).role : null;
     const userBranchId = token ? JSON.parse(atob(token.split('.')[1])).branch_id : null;
     const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null;
+    const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         // Redirect unauthorized users
@@ -55,7 +56,7 @@ const TrainSessionCreate = () => {
                     params.employeeID = userId;
                 }
 
-                const response = await axios.get("http://localhost:3000/members/all/nopagination", {
+                const response = await axios.get(`${URL_API}members/all/nopagination`, {
                     params,
                     withCredentials: true
                 });
@@ -80,7 +81,7 @@ const TrainSessionCreate = () => {
         // Fetch all employees (PTs) for displaying PT info
         const fetchEmployees = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/employees/all/nopagination`, {
+                const response = await axios.get(`${URL_API}employees/all/nopagination`, {
                     params: { role: 'PT' },
                     withCredentials: true
                 });
@@ -187,7 +188,7 @@ const TrainSessionCreate = () => {
         try {
             // Create new training session
             const response = await axios.post(
-                "http://localhost:3000/trainingSession/create",
+                `${URL_API}trainingSession/create`,
                 trainSession,
                 { withCredentials: true }
             );

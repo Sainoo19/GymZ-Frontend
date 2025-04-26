@@ -4,12 +4,13 @@ import axios from 'axios';
 const ProductDetailTest = () => {
     const [product, setProduct] = useState(null);
     const productId = 'PR193';
+    const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         // Fetch product details from an API or database
         const fetchProduct = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/products/${productId}`);
+                const response = await axios.get(`${URL_API}products/${productId}`);
                 if (response.data.status === 'success') {
                     setProduct(response.data.data);
                 } else {

@@ -15,6 +15,7 @@ const UpdateEmployeeForm = () => {
   const token = Cookies.get('accessToken');
   const userRole = token ? JSON.parse(atob(token.split('.')[1])).role : null;
   const userBranchId = token ? JSON.parse(atob(token.split('.')[1])).branch_id : null;
+  const URL_API = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     if (userRole === 'staff') {
@@ -25,7 +26,7 @@ const UpdateEmployeeForm = () => {
     const fetchEmployee = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/employees/${id}`,
+          `${URL_API}employees/${id}`,
           {
             withCredentials: true // Ensure cookies are sent with the request
           }
@@ -46,7 +47,7 @@ const UpdateEmployeeForm = () => {
 
     const fetchBranches = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/branches/all/nopagination", {
+        const response = await axios.get(`${URL_API}branches/all/nopagination`, {
           withCredentials: true // Ensure cookies are sent with the request
         });
         setBranches(response.data.data);
@@ -68,7 +69,7 @@ const UpdateEmployeeForm = () => {
         updatedAt: new Date().toISOString(),
       };
       await axios.put(
-        `http://localhost:3000/employees/update/${id}`,
+        `${URL_API}employees/update/${id}`,
         updatedEmployee,
         {
           withCredentials: true // Ensure cookies are sent with the request

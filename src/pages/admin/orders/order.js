@@ -93,7 +93,7 @@ const Order = () => {
     const handleDelete = async (id) => {
         try {
             // Gửi yêu cầu xóa đơn hàng
-            await axios.delete(`http://localhost:3000/orders/delete/${id}`);
+            await axios.delete(`${URL_API}orders/delete/${id}`);
             
             // Cập nhật lại dữ liệu sau khi xóa
             const response = await axios.get(`${URL_API}orders/all`, {
@@ -166,7 +166,7 @@ const Order = () => {
 
     const handleExportOrders = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/orders/all', {
+            const response = await axios.get(`${URL_API}orders/all`, {
                 params: {
                     ...exportFilters,
                     limit: 1000 // Giới hạn dữ liệu xuất

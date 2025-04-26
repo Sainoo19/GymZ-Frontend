@@ -19,6 +19,7 @@ const TrainScheduleContent = () => {
         endDate: ''
     });
     const [showFilters, setShowFilters] = useState(false);
+    const URL_API = process.env.REACT_APP_API_URL;
 
     // Add new state for update modal
     const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -73,7 +74,7 @@ const TrainScheduleContent = () => {
                 params[key] === '' && delete params[key]
             );
 
-            const response = await axios.get('http://localhost:3000/membership/trainingSessions', {
+            const response = await axios.get(`${URL_API}membership/trainingSessions`, {
                 params,
                 withCredentials: true
             });
@@ -172,7 +173,7 @@ const TrainScheduleContent = () => {
     const fetchTrainers = async () => {
         try {
             // Get the current member profile to get the assigned trainer
-            const memberResponse = await axios.get('http://localhost:3000/membership/profile', {
+            const memberResponse = await axios.get(`${URL_API}membership/profile`, {
                 withCredentials: true
             });
 
@@ -282,7 +283,7 @@ const TrainScheduleContent = () => {
             }
 
             const response = await axios.post(
-                'http://localhost:3000/membership/book-session',
+                `${URL_API}membership/book-session`,
                 bookingData,
                 { withCredentials: true }
             );
@@ -369,7 +370,7 @@ const TrainScheduleContent = () => {
             }
 
             const response = await axios.patch(
-                `http://localhost:3000/membership/update-session/${updateSessionData.id}`,
+                `${URL_API}membership/update-session/${updateSessionData.id}`,
                 {
                     date: updateSessionData.date,
                     startHour: updateSessionData.startHour,
@@ -407,7 +408,7 @@ const TrainScheduleContent = () => {
             setLoading(true);
 
             const response = await axios.post(
-                `http://localhost:3000/membership/cancel-session/${sessionId}`,
+                `${URL_API}membership/cancel-session/${sessionId}`,
                 {},
                 { withCredentials: true }
             );

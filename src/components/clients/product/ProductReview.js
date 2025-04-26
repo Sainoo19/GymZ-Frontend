@@ -7,6 +7,7 @@ const ProductReview = ({ProductId, updateReviews}) => {
     const [rating, setRating] = useState(0); 
     const [comment, setComment] = useState("");
     const { isLoggedIn } = useAuth();
+    const URL_API = process.env.REACT_APP_API_URL;
 
 
   const handleSubmitReview = async () => {
@@ -29,7 +30,7 @@ const ProductReview = ({ProductId, updateReviews}) => {
 
     try {
       const reviewResponse = await axios.post(
-        "http://localhost:3000/reviews/create",
+        `${URL_API}reviews/create`,
         reviewData,
         {
           withCredentials: true,

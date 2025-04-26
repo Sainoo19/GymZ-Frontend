@@ -12,6 +12,7 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
         branchID: "",
         employeeID: "",
     });
+    const URL_API = process.env.REACT_APP_API_URL;
 
     // Fetch branches when modal opens
     useEffect(() => {
@@ -24,7 +25,7 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
     const fetchBranches = async () => {
         try {
             setLoading(true);
-            const response = await axios.get("http://localhost:3000/home/all/home");
+            const response = await axios.get(`${URL_API}home/all/home`);
             if (response.data && response.data.data) {
                 setBranches(response.data.data);
                 setLoading(false);
@@ -42,7 +43,7 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
 
         try {
             setLoading(true);
-            const response = await axios.get(`http://localhost:3000/home/${branchId}/employees`);
+            const response = await axios.get(`${URL_API}home/${branchId}/employees`);
             if (response.data && response.data.data) {
                 setEmployees(response.data.data);
             }
@@ -95,7 +96,7 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
             }
 
             const response = await axios.post(
-                "http://localhost:3000/membership/register-membership",
+               `${URL_API}membership/register-membership`,
                 registrationData,
                 { withCredentials: true }
             );

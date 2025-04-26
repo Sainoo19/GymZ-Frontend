@@ -6,7 +6,8 @@ const useFetchAllReviews = (ProductId) => {
   const [totalReviews, setTotalReviews] = useState(0);
   const [ratings, setRatings] = useState([]);
   const [reviewsAll, setReviewsAll] = useState([]);
-    
+  const URL_API = process.env.REACT_APP_API_URL;
+
 
 
   const calculateRatings = (reviews) => {
@@ -34,7 +35,7 @@ const useFetchAllReviews = (ProductId) => {
 
   const fetchAllReviews = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/reviews/all/nopagination/${ProductId}`);
+      const response = await axios.get(`${URL_API}reviews/all/nopagination/${ProductId}`);
 
       if (response.data.status === "success") {
         const reviewData = response.data.data;

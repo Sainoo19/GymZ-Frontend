@@ -13,6 +13,7 @@ const PasswordResetModal = ({ isOpen, onClose }) => {
     const [verificationToken, setVerificationToken] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const URL_API = process.env.REACT_APP_API_URL;
 
     const handleSendOtp = async () => {
         if (!email) {
@@ -24,7 +25,7 @@ const PasswordResetModal = ({ isOpen, onClose }) => {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:3000/profileUser/forgot-password', { email });
+            const response = await axios.post(`${URL_API}profileUser/forgot-password`, { email });
             if (response.data.status === "success") {
                 setStep(2);
                 // Show success feedback instead of alert
@@ -54,7 +55,7 @@ const PasswordResetModal = ({ isOpen, onClose }) => {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:3000/profileUser/forgot-password/verify-otp', {
+            const response = await axios.post(`${URL_API}profileUser/forgot-password/verify-otp`, {
                 email,
                 otp
             });
@@ -97,7 +98,7 @@ const PasswordResetModal = ({ isOpen, onClose }) => {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:3000/profileUser/forgot-password/reset-password', {
+            const response = await axios.post(`${URL_API}profileUser/forgot-password/reset-password`, {
                 email,
                 otp,
                 newPassword

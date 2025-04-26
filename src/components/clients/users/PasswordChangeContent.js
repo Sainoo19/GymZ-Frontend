@@ -12,6 +12,7 @@ function PasswordChangeContent() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const URL_API = process.env.REACT_APP_API_URL;
 
     const handleRequestOtp = async () => {
         if (!currentPassword) {
@@ -23,7 +24,7 @@ function PasswordChangeContent() {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:3000/profileUser/user/request-password-change', {
+            const response = await axios.post(`${URL_API}profileUser/user/request-password-change`, {
                 currentPassword
             }, {
                 withCredentials: true
@@ -57,7 +58,7 @@ function PasswordChangeContent() {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:3000/profileUser/user/verify-change-password-otp', {
+            const response = await axios.post(`${URL_API}profileUser/user/verify-change-password-otp`, {
                 otp
             }, {
                 withCredentials: true
@@ -102,7 +103,7 @@ function PasswordChangeContent() {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:3000/profileUser/user/change-password', {
+            const response = await axios.post(`${URL_API}profileUser/user/change-password`, {
                 otp,
                 newPassword
             }, {

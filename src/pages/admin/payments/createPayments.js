@@ -14,13 +14,14 @@ const CreatePayment = () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     });
+    const URL_API = process.env.REACT_APP_API_URL;
 
     const [orders, setOrders] = useState([]);
 
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/orders/all/nopagination');
+                const response = await axios.get(`${URL_API}orders/all/nopagination`);
                 setOrders(response.data.data || []); // Ensure orders is an array
             } catch (error) {
                 console.error('Error fetching orders:', error);
@@ -34,7 +35,7 @@ const CreatePayment = () => {
         const selectedOrder = orders.find(order => order._id === e.target.value);
         if (selectedOrder) {
             try {
-                const userResponse = await axios.get(`http://localhost:3000/users/${selectedOrder.user_id}`);
+                const userResponse = await axios.get(`${URL_API}users/${selectedOrder.user_id}`);
                 const user = userResponse.data.data;
                 setPayment({
                     ...payment,
@@ -52,7 +53,7 @@ const CreatePayment = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:3000/payments/create', {
+            await axios.post(`${URL_API}payments/create`, {
                 ...payment,
                 user_id: payment.user_id, // Ensure user_id is sent in the POST request
             });

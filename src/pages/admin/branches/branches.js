@@ -25,6 +25,8 @@ const Branches = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState('');
+    const URL_API = process.env.REACT_APP_API_URL;
+
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
     const [filters, setFilters] = useState({
         location: '',
@@ -60,7 +62,7 @@ const Branches = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/branches/all', {
+                const response = await axios.get(`${URL_API}branches/all`, {
                     params: {
                         page: currentPage,
                         limit: 10,
@@ -95,7 +97,7 @@ const Branches = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:3000/branches/delete/${id}`);
+            await axios.delete(`${URL_API}branches/delete/${id}`);
             setData(data.filter(branch => branch._id !== id));
             setIsDeleteModalOpen(false);
         } catch (error) {
@@ -139,7 +141,7 @@ const Branches = () => {
 
     const handleExport = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/branches/all', {
+            const response = await axios.get(`${URL_API}branches/all`, {
                 params: {
                     ...cleanFilters,
                     limit: 1000

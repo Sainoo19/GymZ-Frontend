@@ -24,6 +24,7 @@ const MemberBills = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedBillId, setSelectedBillId] = useState(null);
     const navigate = useNavigate();
+    const URL_API = process.env.REACT_APP_API_URL;
 
     // Format currency
     const formatCurrency = (amount) => {
@@ -41,7 +42,7 @@ const MemberBills = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/membersBill/all', {
+                const response = await axios.get(`${URL_API}membersBill/all`, {
                     params: {
                         page: currentPage,
                         limit: 10,
@@ -80,7 +81,7 @@ const MemberBills = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:3000/admin/member-bills/${id}`, {
+            await axios.delete(`${URL_API}admin/member-bills/${id}`, {
                 withCredentials: true
             });
             setData(data.filter(bill => bill._id !== id));

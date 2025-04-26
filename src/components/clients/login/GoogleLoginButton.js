@@ -6,6 +6,7 @@ import axios from "axios";
 const GoogleLoginButton = () => {
   const navigate = useNavigate();
   const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID; // Đúng cú pháp
+  const URL_API = process.env.REACT_APP_API_URL;
 
   if (!GOOGLE_CLIENT_ID) {
     console.error("❌ GOOGLE_CLIENT_ID không được định nghĩa!");
@@ -13,7 +14,7 @@ const GoogleLoginButton = () => {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const response = await axios.post("http://localhost:3000/auth/google", {
+      const response = await axios.post(`${URL_API}auth/google`, {
         token: credentialResponse.credential,
       });
 

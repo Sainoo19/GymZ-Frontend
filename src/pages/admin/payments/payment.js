@@ -20,7 +20,7 @@ const Payment = () => {
         { field: 'createdAt', label: 'CREATED AT' },
         { field: 'updatedAt', label: 'UPDATED AT' },
     ]);
-
+    const URL_API = process.env.REACT_APP_API_URL;
     const [data, setData] = useState([]);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedPaymentId, setSelectedPaymentId] = useState(null);
@@ -57,7 +57,7 @@ const Payment = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/payments/all', {
+                const response = await axios.get(`${URL_API}payments/all`, {
                     params: {
                         page: currentPage,
                         limit: 10,
@@ -91,7 +91,7 @@ const Payment = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:3000/payments/delete/${id}`);
+            await axios.delete(`${URL_API}payments/delete/${id}`);
             setData(data.filter(payment => payment._id !== id));
             setIsDeleteModalOpen(false);
         } catch (error) {
@@ -135,7 +135,7 @@ const Payment = () => {
 
     const handleExportPayments = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/payments/all', {
+            const response = await axios.get(`${URL_API}payments/all`, {
                 params: {
                     ...exportFilters,
                     limit: 1000 // Giới hạn dữ liệu xuất

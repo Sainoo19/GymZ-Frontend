@@ -18,6 +18,7 @@ const UpdateMemberForm = () => {
     const userRole = token ? JSON.parse(atob(token.split('.')[1])).role : null;
     const userBranchId = token ? JSON.parse(atob(token.split('.')[1])).branch_id : null;
     const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null;
+    const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         // Redirect unauthorized users
@@ -28,7 +29,7 @@ const UpdateMemberForm = () => {
 
         const fetchMember = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/members/${id}`, {
+                const response = await axios.get(`${URL_API}members/${id}`, {
                     withCredentials: true
                 });
                 const memberData = response.data.data;
@@ -54,7 +55,7 @@ const UpdateMemberForm = () => {
 
         const fetchBranches = async () => {
             try {
-                const response = await axios.get("http://localhost:3000/branches/all/nopagination", {
+                const response = await axios.get(`${URL_API}branches/all/nopagination`, {
                     withCredentials: true
                 });
                 setBranches(response.data.data);
@@ -65,7 +66,7 @@ const UpdateMemberForm = () => {
 
         const fetchUsers = async () => {
             try {
-                const response = await axios.get("http://localhost:3000/users/all/nopagination", {
+                const response = await axios.get(`${URL_API}users/all/nopagination`, {
                     withCredentials: true
                 });
                 setUsers(response.data.data);
@@ -85,7 +86,7 @@ const UpdateMemberForm = () => {
             if (!selectedBranchId) return;
 
             try {
-                const response = await axios.get(`http://localhost:3000/employees/all/nopagination`, {
+                const response = await axios.get(`${URL_API}employees/all/nopagination`, {
                     params: {
                         role: 'PT',
                         branch_id: selectedBranchId
@@ -134,7 +135,7 @@ const UpdateMemberForm = () => {
                 updatedAt: new Date().toISOString()
             };
             await axios.put(
-                `http://localhost:3000/members/update/${id}`,
+                `${URL_API}members/update/${id}`,
                 updatedMember,
                 { withCredentials: true }
             );

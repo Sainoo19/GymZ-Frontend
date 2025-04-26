@@ -9,6 +9,7 @@ const BillCard = ({ bill, onEdit, onDelete, onPaymentSuccess }) => {
     const [loading, setLoading] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('CASH');
     const [error, setError] = useState('');
+    const URL_API = process.env.REACT_APP_API_URL;
 
     // Check if bill is unpaid
     const isUnpaid = !bill.paymentDate || bill.status === 'Chưa thanh toán';
@@ -25,7 +26,7 @@ const BillCard = ({ bill, onEdit, onDelete, onPaymentSuccess }) => {
             setError('');
 
             const response = await axios.post(
-                `http://localhost:3000/membersBill/confirm-payment`,
+                `${URL_API}membersBill/confirm-payment`,
                 {
                     billId: bill._id,
                     paymentMethod

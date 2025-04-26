@@ -18,6 +18,7 @@ const UpdateUserForm = () => {
         createdAt: '',
         updatedAt: ''
     });
+    const URL_API = process.env.REACT_APP_API_URL;
 
     const [selectedStatus, setSelectedStatus] = useState('');
     const [selectedRole, setSelectedRole] = useState('');
@@ -28,7 +29,7 @@ const UpdateUserForm = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/users/${id}`);
+                const response = await axios.get(`${URL_API}users/${id}`);
                 const userData = response.data.data;
                 console.log(userData);
                 setUser({
@@ -73,7 +74,7 @@ const UpdateUserForm = () => {
                 avatar: newFileName || user.avatar,
                 updatedAt: new Date().toISOString(),
             };
-            await axios.put(`http://localhost:3000/users/update/${id}`, updatedUser);
+            await axios.put(`${URL_API}users/update/${id}`, updatedUser);
             navigate('/users');
         } catch (error) {
             console.error('Error updating user:', error);

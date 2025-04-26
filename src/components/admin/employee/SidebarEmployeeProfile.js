@@ -20,10 +20,11 @@ const navItems = [
 function SidebarProfile() {
     const [user, setUser] = useState(null);
     const location = useLocation(); // Get current location
+    const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         // Fetch user profile
-        axios.get('http://localhost:3000/users/profile', {
+        axios.get(`${URL_API}users/profile`, {
             withCredentials: true // Ensure cookies are sent with the request
         })
             .then(response => {

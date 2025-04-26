@@ -22,6 +22,7 @@ const TrainSessions = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedSessionId, setSelectedSessionId] = useState(null);
     const navigate = useNavigate();
+    const URL_API = process.env.REACT_APP_API_URL;
 
     // Status options for filter
     const statusOptions = ['scheduled', 'completed', 'cancelled'];
@@ -29,7 +30,7 @@ const TrainSessions = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/trainingSession/all', {
+                const response = await axios.get(`${URL_API}trainingSession/all`, {
                     params: {
                         page: currentPage,
                         limit: 10,
@@ -65,7 +66,7 @@ const TrainSessions = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:3000/trainingSessions/delete/${id}`, {
+            await axios.delete(`${URL_API}trainingSessions/delete/${id}`, {
                 withCredentials: true
             });
             setData(data.filter(session => session._id !== id));

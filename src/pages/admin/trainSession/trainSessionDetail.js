@@ -13,6 +13,7 @@ const TrainSessionDetail = () => {
     const [employees, setEmployees] = useState([]);
     const [selectedMember, setSelectedMember] = useState(null);
     const [selectedPT, setSelectedPT] = useState(null);
+    const URL_API = process.env.REACT_APP_API_URL;
 
     // Status options for dropdown
     const statusOptions = [
@@ -37,7 +38,7 @@ const TrainSessionDetail = () => {
         const fetchSession = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`http://localhost:3000/trainingSession/${id}`, {
+                const response = await axios.get(`${URL_API}trainingSession/${id}`, {
                     withCredentials: true
                 });
 
@@ -79,7 +80,7 @@ const TrainSessionDetail = () => {
                     params.employeeID = userId;
                 }
 
-                const response = await axios.get("http://localhost:3000/members/all/nopagination", {
+                const response = await axios.get(`${URL_API}members/all/nopagination`, {
                     params,
                     withCredentials: true
                 });
@@ -102,7 +103,7 @@ const TrainSessionDetail = () => {
         // Fetch all employees (PTs)
         const fetchEmployees = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/employees/all/nopagination`, {
+                const response = await axios.get(`${URL_API}employees/all/nopagination`, {
                     params: { role: 'PT' },
                     withCredentials: true
                 });
@@ -233,7 +234,7 @@ const TrainSessionDetail = () => {
             };
 
             await axios.put(
-                `http://localhost:3000/trainingSession/update/${id}`,
+                `${URL_API}trainingSession/update/${id}`,
                 updatedSession,
                 { withCredentials: true }
             );

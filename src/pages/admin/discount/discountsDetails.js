@@ -6,11 +6,12 @@ const UpdateDiscountForm = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [discount, setDiscount] = useState(null);
+    const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         const fetchDiscount = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/discounts/${id}`);
+                const response = await axios.get(`${URL_API}discounts/${id}`);
                 setDiscount(response.data.data); // Access the data field
             } catch (error) {
                 console.error('Error fetching discount:', error);
@@ -35,7 +36,7 @@ const UpdateDiscountForm = () => {
                 ...discount,
                 updatedAt: new Date().toISOString(), // Update the updatedAt field
             };
-            await axios.put(`http://localhost:3000/discounts/update/${id}`, updatedDiscount);
+            await axios.put(`${URL_API}discounts/update/${id}`, updatedDiscount);
             navigate('/discounts'); // Navigate back to the discounts list
         } catch (error) {
             console.error('Error updating discount:', error);

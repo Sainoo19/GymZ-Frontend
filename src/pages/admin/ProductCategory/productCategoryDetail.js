@@ -12,11 +12,12 @@ const UpdateProductCategory = () => {
         createdAt: '',
         updatedAt: ''
     });
+    const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         const fetchProductCategory = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/productCategory/${id}`);
+                const response = await axios.get(`${URL_API}productCategory/${id}`);
                 const categoryData = response.data.data;
                 console.log(categoryData);
                 setcategory({
@@ -49,7 +50,7 @@ const UpdateProductCategory = () => {
                 ...category,
                 updatedAt: new Date().toISOString(),
             };
-            await axios.put(`http://localhost:3000/productCategory/update/${id}`, updatedCategory);
+            await axios.put(`${URL_API}productCategory/update/${id}`, updatedCategory);
             navigate('/admin/productCategories');
         } catch (error) {
             console.error('Error updating category:', error);
