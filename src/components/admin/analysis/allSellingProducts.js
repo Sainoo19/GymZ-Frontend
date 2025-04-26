@@ -20,7 +20,7 @@ const AllSellingProducts = () => {
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg">
       <h2 className="text-2xl font-bold mb-4">
-        📊 Thống Kê Tất Cả Sản Phẩm Bán Chạy
+        Thống Kê Tất Cả Sản Phẩm Bán Chạy
       </h2>
       <table className="w-full border-collapse border border-gray-300">
         <thead>
