@@ -51,18 +51,23 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
   }, []);
 
   const handleBrandSelect = (brand) => {
-    let updatedBrands =
-      brand === "Tất cả"
-        ? []
-        : selectedBrands.includes(brand)
-        ? selectedBrands.filter((b) => b !== brand)
-        : [...selectedBrands.filter((b) => b !== "Tất cả"), brand];
+    let updatedBrands = [];
+
+    if (brand === "Tất cả") {
+      // Khi chọn "Tất cả", xóa tất cả các lựa chọn trước đó
+      updatedBrands = selectedBrands.includes("Tất cả") ? [] : ["Tất cả"];
+    } else {
+      // Nếu chọn một thương hiệu cụ thể
+      updatedBrands = selectedBrands.includes(brand)
+        ? selectedBrands.filter((b) => b !== brand) // Nếu đã chọn, bỏ chọn
+        : [...selectedBrands, brand]; // Nếu chưa chọn, thêm vào mảng
+    }
 
     setSelectedBrands(updatedBrands);
 
-    // Nếu chọn "Tất cả", gửi danh sách rỗng để hiển thị toàn bộ sản phẩm
+    // Cập nhật bộ lọc
     onFilter({
-      brands: brand === "Tất cả" ? [] : updatedBrands,
+      brands: updatedBrands.includes("Tất cả") ? [] : updatedBrands, // Nếu "Tất cả" được chọn, gửi mảng rỗng
       categories: selectedCategories,
       minPrice,
       maxPrice,
@@ -70,16 +75,26 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
   };
 
   const handleCategorySelect = (category) => {
+    if (category.name === "Tất cả") {
+      setSelectedCategories([]);
+      onFilter({
+        brands: selectedBrands,
+        categories: [],
+        minPrice,
+        maxPrice,
+      });
+      return;
+    }
+
     let updatedCategories = selectedCategories.includes(category._id)
-      ? selectedCategories.filter((id) => id !== category._id) // Deselect category
-      : [...selectedCategories, category._id]; // Add selected category
+      ? selectedCategories.filter((id) => id !== category._id)
+      : [...selectedCategories.filter((id) => id !== "Tất cả"), category._id];
 
     setSelectedCategories(updatedCategories);
 
-    // Update filters with the selected categories
     onFilter({
-      brands: selectedBrands, // Keep existing selected brands
-      categories: categories === "Tất cả" ? [] :  updatedCategories, // Pass updated categories
+      brands: selectedBrands,
+      categories: updatedCategories,
       minPrice,
       maxPrice,
     });
@@ -107,7 +122,7 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
   return (
     <div className="w-full lg:w-1/4 mt-5 border rounded-md">
       <div className=" bg-white w-full h-full shadow-lg p-5 rounded-lg  z-50  overflow-y-auto">
-        <h3 className="font-semibold mb-3">Tìm kiếm</h3>
+        <h3 className="text-base lg:text-lg font-semibold mb-3">Tìm kiếm</h3>
 
         <input
           type="text"
@@ -118,9 +133,27 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
         />
 
         {/* Button hiển thị trên mobile */}
+        <h3 className="font-semibold mt-2 block text-base lg:text-lg  lg:hidden xl:hidden 2xl:hidden">
+          Lọc theo
+        </h3>
         <div className=" w-full flex lg:flex-col justify-between gap-2 ">
           <h3 className="font-semibold mt-2 hidden lg:block">Danh mục:</h3>
           <div className="w-full justify-end mt-1">
+            <button
+              onClick={() =>
+                setShowMobileFiltersCategory(!showMobileFiltersCategory)
+              }
+              className="border items-center flex justify-between border-gray-300 px-4 py-1 rounded-md w-full lg:hidden text-sm xs:text-xs"
+            >
+              Danh mục
+              <img
+                src={ExpandDown}
+                className={`h-6 w-6 transform transition-transform duration-300 ${
+                  showMobileFiltersCategory ? "rotate-180" : "rotate-0"
+                }`}
+                alt="toggle icon"
+              />
+            </button>
             {/* Nội dung thương hiệu */}
             <div
               className={`${
@@ -128,10 +161,11 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
               } lg:block w-full mt-1 relative rounded-md px-2`}
             >
               <div className="mb-4">
-
-              <div className="flex flex-col gap-2 mt-2 w-full">
+                <div className="flex flex-col gap-2 mt-2 w-full">
                   {categories.map((category, index) => {
-                    const isSelected = selectedCategories.includes(category._id);
+                    const isSelected = selectedCategories.includes(
+                      category._id
+                    );
 
                     return (
                       <div
@@ -152,13 +186,13 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
                           style={{ outline: "none" }}
                         ></div>
 
-                        <span>{category.name}</span>
+                        <span className="text-xs lg:text-sm">
+                          {category.name}
+                        </span>
                       </div>
                     );
                   })}
                 </div>
-
-               
               </div>
             </div>
           </div>
@@ -169,7 +203,7 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
           <div className="w-full justify-end mt-1">
             <button
               onClick={() => setShowMobileFiltersBrand(!showMobileFiltersBrand)}
-              className="border items-center flex justify-between border-gray-300 px-4 py-2 rounded-md w-full lg:hidden text-sm xs:text-xs"
+              className="border items-center flex justify-between border-gray-300 px-4 py-1 rounded-md w-full lg:hidden text-sm xs:text-xs"
             >
               Thương hiệu
               <img
@@ -211,7 +245,7 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
                           style={{ outline: "none" }}
                         ></div>
 
-                        <span>{brand}</span>
+                        <span className="text-xs lg:text-sm">{brand}</span>
                       </div>
                     );
                   })}
@@ -219,6 +253,7 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
               </div>
             </div>
           </div>
+          <div className="border border-gray-100 w-full mt-1 rounded-lg hidden lg:block"></div>
 
           <h3 className="font-semibold mt-2 hidden lg:block xl:block 2xl:block ">
             Sắp xếp:
@@ -226,7 +261,7 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
           <div className="w-full justify-end mt-1">
             <button
               onClick={() => setShowMobileSort(!showMobileSort)}
-              className="border items-center flex justify-between border-gray-300 px-4 py-2 rounded-md w-full lg:hidden text-sm xs:text-xs"
+              className="border items-center flex justify-between border-gray-300 px-4 py-1 rounded-md w-full lg:hidden text-sm xs:text-xs"
             >
               Sắp xếp
               <img
@@ -241,7 +276,7 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
             <div
               className={`${
                 showMobileSort ? "block" : "hidden"
-              } lg:block w-full mt-1 border relative rounded-md px-2 `}
+              } lg:block w-full mt-1 relative rounded-md px-2 `}
             >
               <div className="flex gap-2 my-2 w-full justify-start">
                 {[
@@ -274,7 +309,7 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
 
         {/* Bộ lọc giá */}
         <div className="mt-4">
-          <h4 className="font-medium">Khoảng giá</h4>
+          <h4 className="font-medium text-base lg:text-lg ">Khoảng giá</h4>
           <div className="flex gap-2 mt-2 justify-start items-center">
             <input
               type="number"
@@ -282,7 +317,7 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
               onBlur={handlePriceChange}
-              className="border px-4 py-2 rounded-md w-full"
+              className="border px-4 py-1 rounded-md w-full "
             />
             <span>-</span>
             <input

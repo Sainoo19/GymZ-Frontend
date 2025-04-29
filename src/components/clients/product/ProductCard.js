@@ -67,14 +67,14 @@ const ProductCard = ({ product, minSalePrice }) => {
       />
 
       {/* Tên sản phẩm (Giữ độ cao cố định) */}
-      <h3 className="text-center text-lg font-semibold mt-2 leading-tight line-clamp-2 h-[48px]">
+      <h3 className="text-center text-base font-semibold mt-2 leading-tight line-clamp-2 h-[48px]">
       {product.name.length > 25
-          ? product.name.substring(0, 22) + "..."
+          ? product.name.substring(0, 20) + "..."
           : product.name}
       </h3>
 
       {/* Giá sản phẩm, hiển thị giá thấp nhất */}
-      <p className="text-center text-xl font-bold text-gray-800 mt-1">
+      <p className="text-center text-base font-bold text-gray-800">
         {formatCurrency(minSalePrice)
           ? `${formatCurrency(minSalePrice)} VND`
           : "Price not available"}{" "}

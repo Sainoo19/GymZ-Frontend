@@ -203,8 +203,9 @@ console.log("Filters:", filters); // ✅ Kiểm tra giá trị của filters
           onFilter={handleFilter}
           onSort={handleSort}
           brands={brands}
-          categories={[{ _id: "", name: "Tất cả" }, ...categories]}
-        />
+          // categories={[{ _id: "", name: "Tất cả" }, ...categories]}
+          categories={categories}
+          />
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 items-start mt-5">
           {filteredProducts.length > 0 ? (
             filteredProducts.map((product) => (
