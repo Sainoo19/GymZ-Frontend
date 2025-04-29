@@ -17,11 +17,12 @@ const UpdatePaymentForm = () => {
         updatedAt: '',
     });
     const [orders, setOrders] = useState([]);
+    const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         const fetchPayment = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/payments/${id}`);
+                const response = await axios.get(`${URL_API}payments/${id}`);
                 const paymentData = response.data.data;
                 setPayment(prevPayment => ({
                     ...prevPayment,
@@ -30,7 +31,7 @@ const UpdatePaymentForm = () => {
 
                 // Fetch user details based on user_id from payment data
                 if (paymentData.user_id) {
-                    const userResponse = await axios.get(`http://localhost:3000/users/${paymentData.user_id}`);
+                    const userResponse = await axios.get(`${URL_API}users/${paymentData.user_id}`);
                     const user = userResponse.data.data;
                     setPayment(prevPayment => ({
                         ...prevPayment,
@@ -44,7 +45,7 @@ const UpdatePaymentForm = () => {
 
         const fetchOrders = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/orders/all/nopagination');
+                const response = await axios.get(`${URL_API}orders/all/nopagination`);
                 setOrders(response.data.data);
             } catch (error) {
                 console.error('Error fetching orders:', error);
@@ -59,7 +60,7 @@ const UpdatePaymentForm = () => {
         const selectedOrder = orders.find(order => order._id === e.target.value);
         if (selectedOrder) {
             try {
-                const userResponse = await axios.get(`http://localhost:3000/users/${selectedOrder.user_id}`);
+                const userResponse = await axios.get(`${URL_API}users/${selectedOrder.user_id}`);
                 const user = userResponse.data.data;
                 setPayment({
                     ...payment,
@@ -81,7 +82,7 @@ const UpdatePaymentForm = () => {
                 ...payment,
                 updatedAt: new Date().toISOString(), // Update the updatedAt field
             };
-            await axios.put(`http://localhost:3000/payments/update/${id}`, updatedPayment);
+            await axios.put(`${URL_API}payments/update/${id}`, updatedPayment);
             navigate('/payments'); // Navigate back to the payments list
         } catch (error) {
             console.error('Error updating payment:', error);

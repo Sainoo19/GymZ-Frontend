@@ -6,11 +6,12 @@ const UpdateBranchForm = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [branch, setBranch] = useState(null);
+    const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         const fetchBranch = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/branches/${id}`);
+                const response = await axios.get(`${URL_API}branches/${id}`);
                 setBranch(response.data.data); // Access the data field
             } catch (error) {
                 console.error('Error fetching branch:', error);
@@ -46,7 +47,7 @@ const UpdateBranchForm = () => {
                 ...branch,
                 updatedAt: new Date().toISOString(), // Update the updatedAt field
             };
-            await axios.put(`http://localhost:3000/branches/update/${id}`, updatedBranch);
+            await axios.put(`${URL_API}branches/update/${id}`, updatedBranch);
             navigate('/branches'); // Navigate back to the branches list
         } catch (error) {
             console.error('Error updating branch:', error);

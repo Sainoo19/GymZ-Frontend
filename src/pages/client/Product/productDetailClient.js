@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import axios from "axios";
-import ProductImage from "../../components/clients/product/ProductImage";
-import ProductDescription from "../../components/clients/product/ProductDescription";
+import ProductImage from "../../../components/clients/product/ProductImage";
+import ProductDescription from "../../../components/clients/product/ProductDescription";
 
 const ProductDetailClient = () => {
   const URL_API = process.env.REACT_APP_API_URL;
@@ -58,7 +58,7 @@ const ProductDetailClient = () => {
           name={product.name}
           minPrice={minPrice}
           maxPrice={maxPrice}
-          variations={product.variations} cla
+          variations={product.variations} 
         />
       }
       {<ProductDescription description={product.description } ProductId= {productId} />}

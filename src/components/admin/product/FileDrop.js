@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import PictureFile from "../../../assets/images/pictureFile.png";
-import firebase from "firebase/compat/app";
-import "firebase/compat/storage";
-// import { v4 as uuidv } from "uuid";
+import { getStorage, ref,deleteObject , uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from "../../../firebase";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 
@@ -11,6 +10,7 @@ export function FileDrop({
   images = [],
   selectedAvatar,
   setSelectedAvatar,
+  isHaveImage
 }) {
   const [isOver, setIsOver] = useState(false);
   const [files, setFiles] = useState(images || []);
@@ -57,11 +57,11 @@ export function FileDrop({
   };
   const uploadImageToFirebase = async (image) => {
     try {
-      const storageRef = firebase.storage().ref();
       const uniqueFileName = generateUniqueFileName("cropped.jpg");
-      const fileRef = storageRef.child(`product/${uniqueFileName}`);
-
-      const uploadTask = fileRef.put(image);
+      const fileRef = ref(storage, `product/${uniqueFileName}`);
+  
+      const uploadTask = uploadBytesResumable(fileRef, image);
+  
       uploadTask.on(
         "state_changed",
         (snapshot) => {
@@ -70,7 +70,7 @@ export function FileDrop({
         },
         (error) => console.error("Error uploading file:", error),
         async () => {
-          const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           setFiles((prevFiles) => [...prevFiles, { url: downloadURL, name: uniqueFileName }]);
           setImages((prevUrls) => [...prevUrls, downloadURL]);
           setUploadProgress((prev) => {
@@ -88,75 +88,6 @@ export function FileDrop({
 
 
 
-  const handleFileUpload = async () => {
-    if (croppedImages.length === 0) return;
-
-    try {
-      const storageRef = firebase.storage().ref();
-      for (const image of croppedImages) {
-        const uniqueFileName = generateUniqueFileName("cropped.jpg");
-        const fileRef = storageRef.child(`product/${uniqueFileName}`);
-
-        const uploadTask = fileRef.put(image);
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            setUploadProgress((prev) => ({ ...prev, [uniqueFileName]: progress }));
-          },
-          (error) => console.error("Error uploading file:", error),
-          async () => {
-            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-            setFiles((prevFiles) => [...prevFiles, { url: downloadURL, name: uniqueFileName }]);
-            setImages((prevUrls) => [...prevUrls, downloadURL]);
-            setUploadProgress((prev) => {
-              const updatedProgress = { ...prev };
-              delete updatedProgress[uniqueFileName];
-              return updatedProgress;
-            });
-          }
-        );
-      }
-      setCroppedImages([]); // Xóa danh sách ảnh đã crop sau khi upload
-    } catch (error) {
-      console.error("Error uploading files:", error);
-    }
-  };
-
-
-
-
-  // const handleFileUpload = async () => {
-  //   if (!croppedImage) return;
-  //   try {
-  //     const storageRef = firebase.storage().ref();
-  //     const uniqueFileName = generateUniqueFileName("cropped.jpg");
-  //     const fileRef = storageRef.child(`product/${uniqueFileName}`);
-
-  //     const uploadTask = fileRef.put(croppedImage);
-
-  //     uploadTask.on(
-  //       "state_changed",
-  //       (snapshot) => {
-  //         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-  //         setUploadProgress((prev) => ({ ...prev, [uniqueFileName]: progress }));
-  //       },
-  //       (error) => console.error("Error uploading file:", error),
-  //       async () => {
-  //         const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-  //         setFiles((prevFiles) => [...prevFiles, { url: downloadURL, name: uniqueFileName }]);
-  //         setImages((prevUrls) => [...prevUrls, downloadURL]);
-  //         setUploadProgress((prev) => {
-  //           const updatedProgress = { ...prev };
-  //           delete updatedProgress[uniqueFileName];
-  //           return updatedProgress;
-  //         });
-  //       }
-  //     );
-  //   } catch (error) {
-  //     console.error("Error uploading file:", error);
-  //   }
-  // };
 
   const handleFileChange = (event) => {
     const selectedFiles = Array.from(event.target.files);
@@ -200,72 +131,11 @@ export function FileDrop({
     document.getElementById("fileInput").click();
   };
 
-  // const handleFileUpload = async (event) => {
-  //   const selectedFiles = Array.from(event.target.files);
-  //   if (selectedFiles.length === 0) {
-  //     console.log("No file selected");
-  //     return;
-  //   }
-
-  //   setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
-
-  //   try {
-  //     const storageRef = firebase.storage().ref();
-  //     const uploadedUrls = [];
-
-  //     for (const file of selectedFiles) {
-  //       const uniqueFileName = generateUniqueFileName(file.name);
-  //       const fileRef = storageRef.child(`product/${uniqueFileName}`);
-
-  //       const uploadTask = fileRef.put(file);
-
-  //       uploadTask.on(
-  //         "state_changed",
-  //         (snapshot) => {
-  //           const progress =
-  //             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-  //           setUploadProgress((prevProgress) => ({
-  //             ...prevProgress,
-  //             [file.name]: progress,
-  //           }));
-  //         },
-  //         (error) => {
-  //           console.error("Error uploading file:", error);
-  //         },
-  //         async () => {
-  //           const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-  //           uploadedUrls.push(downloadURL);
-
-  //           // Cập nhật trạng thái hoàn thành
-  //           setCompleted((prevCompleted) => ({
-  //             ...prevCompleted,
-  //             [file.name]: true,
-  //           }));
-
-  //           // Ẩn thanh tiến trình
-  //           setUploadProgress((prevProgress) => {
-  //             const updatedProgress = { ...prevProgress };
-  //             delete updatedProgress[file.name];
-  //             return updatedProgress;
-  //           });
-
-  //           setFiles((prevFiles) => [...prevFiles, downloadURL]);
-  //           setImages((prevUrls) => [...prevUrls, downloadURL]);
-  //           console.log("Uploaded:", file.name, downloadURL);
-  //         }
-  //       );
-  //     }
-  //   } catch (error) {
-  //     console.error("Error uploading files:", error);
-  //   }
-  // };
-
   const deleteFileFromFirebase = async (fileName) => {
     try {
-      const storageRef = firebase.storage().ref();
-      const fileRef = storageRef.child(`product/${fileName}`);
-
-      await fileRef.delete(); // Xóa file trên Firebase
+      const fileRef = ref(storage, `product/${fileName}`);
+  
+      await deleteObject(fileRef); // Xóa file trên Firebase
       console.log(`Deleted file: ${fileName}`);
     } catch (error) {
       console.error("Error deleting file:", error);
@@ -306,7 +176,11 @@ export function FileDrop({
           <p className="text-gray-500">Chọn một ảnh để hiển thị</p>
         )}
       </div>
-
+{!isHaveImage && (
+  <div>
+    <p className="font-semibold text-base mt-6 mb-3">Hãy thêm hình ảnh sản phẩm</p>
+    </div>
+)}
       <p className="font-semibold text-base mt-6 mb-3">Thư viện hình ảnh</p>
       <div
         onDragOver={handleDragOver}

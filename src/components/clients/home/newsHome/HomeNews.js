@@ -45,29 +45,29 @@ const HomeNews = () => {
         DÀNH CHO GYMER
       </h1>
 
-      <div className="relative flex flex-col md:flex-row gap-8">
-  {/* Phần trái - Sự kiện chính */}
-      <div className="flex-1 border border-white bg-white shadow-lg rounded-lg mx-4 md:mx-16">
-        <a href="/">
-          <img
-            src={mainImage}
-            alt={eventName}
-            className="w-full object-cover rounded-t-lg"
-            style={{ height: "300px" }}
-          />
-        </a>
-        <h2 className="text-lg text-secondary text-center font-bold my-2">{eventName}</h2>
-      </div>
-
-      {/* Phần phải - Danh sách tin tức */}
-      <div className="flex-1 flex flex-col gap-4 mr-4 md:mr-8">
-        {newsList.map((news, index) => (
-          <a href="/" key={index}>
-            <CardNews {...news} />
+      <div className="relative flex flex-col lg:flex-row gap-8">
+        {/* Phần trái - Sự kiện chính */}
+        <div className="flex-1 border border-white bg-white shadow-lg rounded-lg mx-4 md:mx-16">
+          <a href="/">
+            <img
+              src={mainImage}
+              alt={eventName}
+              className="w-full object-cover rounded-t-lg"
+              style={{ height: "300px" }}
+            />
           </a>
-        ))}
+          <h2 className="text-lg text-secondary text-center font-bold my-2">{eventName}</h2>
+        </div>
+
+        {/* Phần phải - Danh sách tin tức */}
+        <div className="flex-1 flex flex-col gap-4 mr-4 md:mr-8">
+          {newsList.map((news, index) => (
+            <a href="/" key={index}>
+              <CardNews {...news} />
+            </a>
+          ))}
+        </div>
       </div>
-    </div>
 
     </div>
   );

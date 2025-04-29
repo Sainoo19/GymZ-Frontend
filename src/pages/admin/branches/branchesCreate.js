@@ -17,6 +17,7 @@ const CreateBranch = () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     });
+    const URL_API = process.env.REACT_APP_API_URL;
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -40,7 +41,7 @@ const CreateBranch = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:3000/branches/create', branch);
+            await axios.post(`${URL_API}branches/create`, branch);
             navigate('/branches'); // Navigate back to the branches list
         } catch (error) {
             console.error('Error creating branch:', error);

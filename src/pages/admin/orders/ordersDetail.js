@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-
+import FormatCurrency from '../../../components/utils/formatCurrency';
 const UpdateOrderForm = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -16,11 +16,12 @@ const UpdateOrderForm = () => {
     const [selectedTheme, setSelectedTheme] = useState('');
     const [themes, setThemes] = useState([]);
     const [filteredCategories, setFilteredCategories] = useState([]);
+    const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         const fetchOrder = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/orders/${id}`);
+                const response = await axios.get(`${URL_API}orders/${id}`);
                 setOrder(response.data.data); // Access the data field
             } catch (error) {
                 console.error('Error fetching order:', error);
@@ -29,7 +30,7 @@ const UpdateOrderForm = () => {
 
         const fetchUsers = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/users/all/nopagination');
+                const response = await axios.get(`${URL_API}users/all/nopagination`);
                 setUsers(response.data.data);
             } catch (error) {
                 console.error('Error fetching users:', error);
@@ -38,7 +39,7 @@ const UpdateOrderForm = () => {
 
         const fetchAllProducts = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/products/all/nopagination');
+                const response = await axios.get(`${URL_API}products/all/nopagination`);
                 setAllProducts(response.data.data);
             } catch (error) {
                 console.error('Error fetching products:', error);
@@ -55,7 +56,7 @@ const UpdateOrderForm = () => {
             const fetchProducts = async () => {
                 try {
                     const productIds = order.items.map(item => item.product_id);
-                    const response = await axios.post('http://localhost:3000/orders/products/byIds', { ids: productIds });
+                    const response = await axios.post(`${URL_API}orders/products/byIds`, { ids: productIds });
                     const productsMap = response.data.data.reduce((map, product) => {
                         map[product._id] = product;
                         return map;
@@ -79,12 +80,12 @@ const UpdateOrderForm = () => {
                 ...order,
                 updatedAt: new Date().toISOString(), // Update the updatedAt field
             };
-            await axios.put(`http://localhost:3000/orders/update/${id}`, updatedOrder);
+            await axios.put(`${URL_API}orders/update/${id}`, updatedOrder);
             // Fetch updated order and products after updating
-            const response = await axios.get(`http://localhost:3000/orders/${id}`);
+            const response = await axios.get(`${URL_API}orders/${id}`);
             setOrder(response.data.data); // Access the data field
             const productIds = response.data.data.items.map(item => item.product_id);
-            const productsResponse = await axios.post('http://localhost:3000/orders/products/byIds', { ids: productIds });
+            const productsResponse = await axios.post(`${URL_API}orders/products/byIds`, { ids: productIds });
             const productsMap = productsResponse.data.data.reduce((map, product) => {
                 map[product._id] = product;
                 return map;
@@ -96,14 +97,14 @@ const UpdateOrderForm = () => {
         }
     };
 
-    const calculateTotalPrice = () => {
-        return order.items.reduce((total, item) => {
-            const product = products[item.product_id];
-            const variation = product?.variations.find(v => v.category === item.category && v.theme === item.theme);
-            const salePrice = variation ? variation.salePrice : 0;
-            return total + item.quantity * salePrice;
-        }, 0);
-    };
+    // const calculateTotalPrice = () => {
+    //     return order.items.reduce((total, item) => {
+    //         const product = products[item.product_id];
+    //         const variation = product?.variations.find(v => v.category === item.category && v.theme === item.theme);
+    //         const salePrice = variation ? variation.salePrice : 0;
+    //         return total + item.quantity * salePrice;
+    //     }, 0);
+    // };
 
     const handleAddProduct = () => {
         if (newProductId && newProductQuantity > 0 && selectedVariationId && selectedTheme) {
@@ -184,7 +185,7 @@ const UpdateOrderForm = () => {
     }
 
     return (
-        <div className="max-w-2xl mx-auto p-4">
+        <div className="max-w-2xl mx-auto mt-20 p-4">
             <h1 className="text-2xl font-bold mb-4">Cập Nhật Đơn Hàng</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -217,10 +218,9 @@ const UpdateOrderForm = () => {
                         onChange={(e) => setOrder({ ...order, status: e.target.value })}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     >
-                        <option value="Đang chờ">Đang chờ</option>
-                        <option value="Đang xử lý">Đang xử lý</option>
-                        <option value="Hoàn thành">Hoàn thành</option>
-                        <option value="Đã hủy">Đã hủy</option>
+                        <option value="Đặt hàng thành công">Đặt hàng thành công</option>
+                        <option value="Đã gửi hàng">Đã gửi hàng</option>
+                        <option value="Đã nhận">Đã nhận</option>
                     </select>
                 </div>
                 <div>
@@ -268,7 +268,9 @@ const UpdateOrderForm = () => {
                                             className="w-full px-2 py-1 border border-gray-300 rounded-md"
                                         />
                                     </td>
-                                    <td className="py-3 px-6 border-b">{products[item.product_id]?.variations.find(v => v.category === item.category && v.theme === item.theme)?.salePrice || 'N/A'}</td>
+                                    <td className="py-3 px-6 border-b">
+                                    {FormatCurrency(products[item.product_id]?.variations.find(v => v.category === item.category && v.theme === item.theme)?.salePrice) || 'N/A'}
+                                    </td>
                                     <td className="py-3 px-6 border-b">
                                         <button
                                             type="button"
@@ -341,8 +343,9 @@ const UpdateOrderForm = () => {
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Tổng Giá</label>
                     <input
-                        type="number"
-                        value={calculateTotalPrice()}
+                        type="text"
+                        // value={order.totalPrice }
+                        value={FormatCurrency(order.totalPrice) + " VND" }
                         readOnly
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
                     />

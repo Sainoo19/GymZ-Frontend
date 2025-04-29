@@ -15,6 +15,7 @@ const CreateDiscount = () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     });
+    const URL_API = process.env.REACT_APP_API_URL;
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -27,7 +28,7 @@ const CreateDiscount = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:3000/discounts/create', discount);
+            await axios.post(`${URL_API}discounts/create`, discount);
             navigate('/discounts'); // Navigate back to the discounts list
         } catch (error) {
             console.error('Error creating discount:', error);

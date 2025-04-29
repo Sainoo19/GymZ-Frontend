@@ -21,11 +21,12 @@ const CreateOrder = () => {
     const [selectedTheme, setSelectedTheme] = useState('');
     const [themes, setThemes] = useState([]);
     const [filteredCategories, setFilteredCategories] = useState([]);
+    const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/users/all/nopagination');
+                const response = await axios.get(`${URL_API}users/all/nopagination`);
                 setUsers(response.data.data);
             } catch (error) {
                 console.error('Error fetching users:', error);
@@ -34,7 +35,7 @@ const CreateOrder = () => {
 
         const fetchAllProducts = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/products/all/nopagination');
+                const response = await axios.get(`${URL_API}products/all/nopagination`);
                 setAllProducts(response.data.data);
             } catch (error) {
                 console.error('Error fetching products:', error);
@@ -50,7 +51,7 @@ const CreateOrder = () => {
             const fetchProducts = async () => {
                 try {
                     const productIds = order.items.map(item => item.product_id);
-                    const response = await axios.post('http://localhost:3000/orders/products/byIds', { ids: productIds });
+                    const response = await axios.post(`${URL_API}orders/products/byIds`, { ids: productIds });
                     const productsMap = response.data.data.reduce((map, product) => {
                         map[product._id] = product;
                         return map;
@@ -77,7 +78,7 @@ const CreateOrder = () => {
                 totalPrice, // Include total price
                 items: order.items.map(({ product_id, category, theme, quantity }) => ({ product_id, category, theme, quantity })),
             };
-            await axios.post('http://localhost:3000/orders/create', orderToSubmit);
+            await axios.post(`${URL_API}orders/create`, orderToSubmit);
             navigate('/orders'); // Navigate back to the orders list
         } catch (error) {
             console.error('Error creating order:', error);
@@ -173,7 +174,7 @@ const CreateOrder = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-4">
+        <div className="max-w-2xl mx-auto  p-4">
             <h1 className="text-2xl font-bold mb-4">Tạo Đơn Hàng Mới</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>

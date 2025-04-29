@@ -12,9 +12,8 @@ const Home = () => {
             {/* <h1>Đây là trang Home</h1> */}
             <HomeBanner />
             <HomeBranches/>
-            <hr className="my-10 mx-16 border-t border-gray-300" />
             <HomePackage />
-            <HomeDiscount />
+            {/* <HomeDiscount /> */}
             <HomeTopProduct />
             <HomeNews />
         </div>

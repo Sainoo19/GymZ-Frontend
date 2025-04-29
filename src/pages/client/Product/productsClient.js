@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import ProductCard from "../../components/clients/product/ProductCard";
-import Search from "../../components/clients/product/Search";
-import Pagination from "../../components/admin/layout/Pagination";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import ProductCard from "../../../components/clients/product/ProductCard";
+import Search from "../../../components/clients/product/Search";
+import Pagination from "../../../components/admin/layout/Pagination";
 // import Banner from "../../components/clients/product/Banner"
 
 const ProductsClient = () => {
@@ -25,11 +25,13 @@ const ProductsClient = () => {
           search: searchText,
           brands: filters.brands?.join(","),
           categories: Array.isArray(filters.categories)
-            ? filters.categories.map(cat => (typeof cat === "string" ? cat : cat._id)).join(",")
+            ? filters.categories
+                .map((cat) => (typeof cat === "string" ? cat : cat._id))
+                .join(",")
             : "",
 
           priceMin: filters.minPrice,
-          priceMax: filters.maxPrice
+          priceMax: filters.maxPrice,
         },
       });
 
@@ -45,12 +47,10 @@ const ProductsClient = () => {
     }
   };
 
-
-
   const fetchMinMaxPrices = async () => {
     try {
       const response = await axios.get(`${URL_API}productClient/minprice`, {
-        headers: { 'Cache-Control': 'no-cache' },
+        headers: { "Cache-Control": "no-cache" },
       });
       const priceMap = response.data.data.reduce((acc, item) => {
         acc[item._id] = item.minSalePrice;
@@ -58,29 +58,32 @@ const ProductsClient = () => {
       }, {});
       setMinMaxPrices(priceMap);
     } catch (error) {
-      console.error('Error fetching min-max prices:', error);
+      console.error("Error fetching min-max prices:", error);
     }
   };
 
   const fetchBrands = async () => {
     try {
       const response = await axios.get(`${URL_API}productClient/brands`);
-      if (response.data.status === 'success') {
+      if (response.data.status === "success") {
         setBrands(response.data.data);
       }
     } catch (error) {
-      console.error('Error fetching brands:', error);
+      console.error("Error fetching brands:", error);
     }
   };
 
   const fetchCategories = async () => {
     try {
       const response = await axios.get(`${URL_API}productClient/categories`);
-      console.log("API response:", response.data);  // ✅ Kiểm tra dữ liệu trả về
+      console.log("API response:", response.data); // ✅ Kiểm tra dữ liệu trả về
 
       if (Array.isArray(response.data)) {
         setCategories(response.data);
-      } else if (response.data.status === "success" && Array.isArray(response.data.data)) {
+      } else if (
+        response.data.status === "success" &&
+        Array.isArray(response.data.data)
+      ) {
         setCategories(response.data.data);
       } else {
         console.error("Invalid category data format:", response.data);
@@ -90,17 +93,12 @@ const ProductsClient = () => {
     }
   };
 
-
-
-
-
   useEffect(() => {
     fetchProducts(currentPage);
     fetchMinMaxPrices();
     fetchBrands();
     fetchCategories();
-  }, [currentPage]);  // ✅ Chỉ theo dõi `currentPage`
-
+  }, [currentPage]); // ✅ Chỉ theo dõi `currentPage`
 
   const handlePageChange = (page) => {
     if (page <= totalPages) {
@@ -124,27 +122,35 @@ const ProductsClient = () => {
     fetchProducts(1, {}, searchText);
   };
 
-
-
-
   const handleFilter = (filters) => {
     let filtered = products;
 
-    if (!filters.category && (!filters.brands || filters.brands.length === 0) && !filters.minPrice && !filters.maxPrice) {
+    if (
+      !filters.category &&
+      (!filters.brands || filters.brands.length === 0) &&
+      !filters.minPrice &&
+      !filters.maxPrice
+    ) {
       setFilteredProducts(products);
       return;
     }
 
     if (filters.brands && filters.brands.length > 0) {
-      filtered = filtered.filter(product => filters.brands.includes(product.brand));
+      filtered = filtered.filter((product) =>
+        filters.brands.includes(product.brand)
+      );
     }
 
     if (filters.minPrice) {
-      filtered = filtered.filter((product) => minMaxPrices[product._id] >= Number(filters.minPrice));
+      filtered = filtered.filter(
+        (product) => minMaxPrices[product._id] >= Number(filters.minPrice)
+      );
     }
 
     if (filters.maxPrice) {
-      filtered = filtered.filter((product) => minMaxPrices[product._id] <= Number(filters.maxPrice));
+      filtered = filtered.filter(
+        (product) => minMaxPrices[product._id] <= Number(filters.maxPrice)
+      );
     }
 
     // Cập nhật lại danh sách sản phẩm đã lọc
@@ -156,16 +162,19 @@ const ProductsClient = () => {
     // Đặt lại trang hiện tại về 1 để tránh hiển thị trang trống
     setCurrentPage(1);
     fetchProducts(1, filters); // Gọi lại API với bộ lọc
-
   };
 
   const handleSort = (sortOrder) => {
     let sortedProducts = [...filteredProducts];
 
     if (sortOrder === "priceAsc") {
-      sortedProducts.sort((a, b) => (minMaxPrices[a._id] || 0) - (minMaxPrices[b._id] || 0));
+      sortedProducts.sort(
+        (a, b) => (minMaxPrices[a._id] || 0) - (minMaxPrices[b._id] || 0)
+      );
     } else if (sortOrder === "priceDesc") {
-      sortedProducts.sort((a, b) => (minMaxPrices[b._id] || 0) - (minMaxPrices[a._id] || 0));
+      sortedProducts.sort(
+        (a, b) => (minMaxPrices[b._id] || 0) - (minMaxPrices[a._id] || 0)
+      );
     } else if (sortOrder === "asc") {
       sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortOrder === "desc") {
@@ -173,7 +182,6 @@ const ProductsClient = () => {
     }
 
     setFilteredProducts(sortedProducts);
-
   };
 
   if (loading) {
@@ -181,8 +189,9 @@ const ProductsClient = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-20  mb-10">
-      <div className="mt-8">
+    <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-20  mb-10 ">
+      {/* <div className='flex justify-center items-center'> */}
+      <div className="flex flex-col lg:flex-row justify-around items-start  sm:justify-center gap-4">
         <Search
           onSearch={handleSearch}
           onFilter={handleFilter}
@@ -190,24 +199,27 @@ const ProductsClient = () => {
           brands={brands}
           categories={[{ _id: "", name: "Tất cả" }, ...categories]}
         />
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 items-start mt-5">
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map((product) => (
+              <ProductCard
+                key={product._id}
+                product={product}
+                minSalePrice={minMaxPrices[product._id]}
+              />
+            ))
+          ) : (
+            <p className="text-center col-span-full">No products found.</p>
+          )}
+        </div>
       </div>
-
-
-      <div className="flex flex-wrap justify-center gap-6 mt-5">
-
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <ProductCard key={product._id} product={product} minSalePrice={minMaxPrices[product._id]} />
-          ))
-        ) : (
-          <p className="text-center col-span-full">No products found.</p>
-        )}
-      </div>
-
-      <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
+      <Pagination
+        totalPages={totalPages}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+      />
     </div>
   );
 };
 
 export default ProductsClient;
-

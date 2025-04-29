@@ -2,23 +2,42 @@ import React from "react";
 import { FaStar } from "react-icons/fa";
 
 const CardTopProduct = ({ image, name, price, rating }) => {
-  // Hàm render đánh giá sao
-
-
+  // Render stars with partial filling like in ProductCard.js
   const renderStars = (rating) => {
     const stars = [];
-    for (let i = 0; i < 5; i++) {
-      stars.push(i < rating ? <FaStar key={i} color="gold" /> : <FaStar key={i} color="gray" />);
+    for (let i = 1; i <= 5; i++) {
+      const fillPercentage = Math.min(Math.max(rating - (i - 1), 0), 1) * 100;
+
+      stars.push(
+        <div key={i} className="relative inline-block w-4 h-4 mx-[1px]">
+          <FaStar className="absolute text-gray-300 w-full h-full" />
+          <FaStar
+            className="absolute text-yellow-500 w-full h-full"
+            style={{
+              clipPath: `polygon(0 0, ${fillPercentage}% 0, ${fillPercentage}% 100%, 0% 100%)`,
+            }}
+          />
+        </div>
+      );
     }
     return stars;
   };
 
   return (
-    <div className="card" style={{ padding: "10px", border: "1px solid #ddd", borderRadius: "8px", boxShadow: "0 2px 5px rgba(0,0,0,0.1)", textAlign: "center", flexDirection: "column",alignItems: "center", }}>
-      <img src={image} alt={name} style={{ width: "100%", height: "300px", objectFit: "cover", borderRadius: "8px", marginBottom: "10px", }} />
-      <h3 style={{marginTop: "10px", fontSize: "18px", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis"}}>{name}</h3>
-      <p style={{ color: "#333", fontSize: "16px", fontWeight: "bold" }}>{price} VNĐ</p>
-      <div style={{ marginTop: "5px", display: "flex", justifyContent: "center" }}>{renderStars(rating)}</div> {/* Sử dụng display: flex */}
+    <div className="flex flex-col items-center p-3 border border-gray-200 rounded-lg shadow-md text-center transition-all duration-300 hover:shadow-lg hover:border-secondary transform hover:-translate-y-1">
+      <div className="overflow-hidden rounded-lg w-full mb-3">
+        <img
+          src={image}
+          alt={name}
+          className="w-full h-[300px] object-cover rounded-lg transition-transform duration-500 hover:scale-105"
+        />
+      </div>
+      <h3 className="mt-2 text-lg font-semibold text-primary line-clamp-1 w-full">{name}</h3>
+      <p className="text-primary font-bold text-base mt-1">{price} VNĐ</p>
+      <div className="mt-2 flex justify-center">
+        {renderStars(rating)}
+      </div>
+
     </div>
   );
 };
