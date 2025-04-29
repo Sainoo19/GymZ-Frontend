@@ -50,7 +50,7 @@ const ProductCard = () => {
   };
 
   //Tạo biến cho "Sản phẩm BÁN"
-  const Selling = 100;
+  const Selling = 0;
 
   const handleOpenImportModal = (product) => {
     setSelectedProduct(product);
@@ -88,10 +88,6 @@ const ProductCard = () => {
                 );
                 if (responseCategory.data.status === "success") {
                   product.categoryName = responseCategory.data.data.name; // Gắn tên danh mục vào sản phẩm
-                  console.log(
-                    "Updated Products with Category Names:",
-                    responseCategory.data.data.name
-                  );
                 } else {
                   console.error(
                     "Lỗi khi lấy danh mục:",
@@ -314,16 +310,38 @@ const ProductCard = () => {
           products.map((product) => {
             const priceData = minMaxPrices[product._id];
             const stock = stocks[product._id] ?? "Đang tải...";
-            let priceText = priceData
-              ? `${priceData.min.toLocaleString()}đ - ${priceData.max.toLocaleString()}đ`
-              : "N/A";
-
-            if (!priceData && product.variations?.length > 0) {
-              const prices = product.variations.map((v) => v.salePrice);
-              priceText = `${Math.min(
-                ...prices
-              ).toLocaleString()}đ - ${Math.max(...prices).toLocaleString()}đ`;
+            let priceText = "";
+            console.log("priceData:", priceData); // Kiểm tra giá trị của product
+            if (priceData) {
+              if (priceData.min === priceData.max) {
+                priceText = priceData.min.toLocaleString() + "đ";
+              } else {
+                priceText = priceData
+                  ? `${priceData.min.toLocaleString()}đ - ${priceData.max.toLocaleString()}đ`
+                  : "N/A";
+              }
             }
+            else{
+
+              if (!priceData && product.variations?.length > 0) {
+                
+                const prices = product.variations.map((v) => v.salePrice);
+
+                if(Math.min(...prices) === Math.max(...prices)){
+                  priceText = `${Math.min(
+                    ...prices
+                  ).toLocaleString()}đ`;
+                }
+                else{
+                  priceText = `${Math.min(
+                    ...prices
+                  ).toLocaleString()}đ - ${Math.max(...prices).toLocaleString()}đ`;
+                }
+              
+              }
+            }
+            
+
 
             return (
               <div
@@ -380,21 +398,14 @@ const ProductCard = () => {
                     className="w-20 h-20 object-cover rounded-md"
                   />
                   <div className="flex flex-col justify-between h-full flex-grow">
-                    <p className="font-semibold text-[30px]">{product.name}</p>
-                    <p className="font-base text-[30px]">
+                    <p className="font-semibold text-lg">{product.name}</p>
+                    <p className="font-base text-base">
                       {product.categoryName}
                     </p>
                     <p className="font-bold text-lg mt-2 mb-5">{priceText}</p>
                   </div>
                 </div>
-                {console.log("Category Name:", categoryName)}
                 <div className="mt-3 border-t pt-3 space-y-2 border rounded-lg p-3 bg-gray-50">
-                  <div className="flex justify-between text-sm items-center">
-                    <span className="font-base">Bán</span>
-                    <div className="flex items-center gap-1 text-gray-700">
-                      <span>{Selling}</span>
-                    </div>
-                  </div>
                   <div className="flex justify-between text-sm items-center">
                     <span className="font-base">Sản phẩm còn</span>
                     <div className="flex items-center gap-1 text-gray-700">

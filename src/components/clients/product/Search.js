@@ -172,8 +172,8 @@ const Search = ({ onSearch, onFilter, brands, categories, onSort }) => {
                         key={index}
                         className="flex items-center gap-2 cursor-pointer text-sm select-none"
                         onClick={() => handleCategorySelect(category)}
-                        tabIndex={0} // 👈 Thêm để div có thể nhận focus (nếu bạn cần focus)
-                        onFocus={(e) => e.currentTarget.blur()} // 👈 Tắt focus để chặn outline xanh
+                        tabIndex={0} 
+                        onFocus={(e) => e.currentTarget.blur()} 
                       >
                         <div
                           className={`w-3 h-3 rounded-full transition-all duration-200 mr-1
