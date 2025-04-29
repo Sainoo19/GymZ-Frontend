@@ -119,22 +119,27 @@ const ProductsClient = () => {
       setTotalPages(Math.ceil(filtered.length / 10)); // Cập nhật lại số trang
     }
     setCurrentPage(1); // Luôn quay về trang đầu tiên khi tìm kiếm
-    fetchProducts(1, {}, searchText);
   };
 
   const handleFilter = (filters) => {
     let filtered = products;
-
+console.log("Filters:", filters); // ✅ Kiểm tra giá trị của filters
     if (
-      !filters.category &&
+      !filters.categories &&
       (!filters.brands || filters.brands.length === 0) &&
       !filters.minPrice &&
       !filters.maxPrice
     ) {
+      
       setFilteredProducts(products);
       return;
     }
-
+    console.log("products:", products); // ✅ Kiểm tra giá trị của products
+    if (filters.categories && filters.categories.length > 0) {
+      filtered = filtered.filter((product) =>
+        filters.categories.includes(product.category)
+      );
+    }
     if (filters.brands && filters.brands.length > 0) {
       filtered = filtered.filter((product) =>
         filters.brands.includes(product.brand)
@@ -155,13 +160,14 @@ const ProductsClient = () => {
 
     // Cập nhật lại danh sách sản phẩm đã lọc
     setFilteredProducts(filtered);
+    console.log("Filtered products by categories:", filteredProducts); // ✅ Kiểm tra giá trị của filtered
+
 
     // Cập nhật lại số trang dựa trên danh sách đã lọc
     setTotalPages(Math.ceil(filtered.length / 10));
 
     // Đặt lại trang hiện tại về 1 để tránh hiển thị trang trống
     setCurrentPage(1);
-    fetchProducts(1, filters); // Gọi lại API với bộ lọc
   };
 
   const handleSort = (sortOrder) => {
