@@ -89,7 +89,8 @@ const SideBar = ({ isSidebarHidden, setIsSidebarHidden, userRole }) => {
     const filteredNavItems = allNavItems.filter(item => item.roles.includes(userRole));
 
     return (
-        <div className={`fixed lg:relative z-40 bg-primary h-full transition-all duration-300 ${isSidebarHidden ? "w-0 overflow-hidden" : "w-64"}`}>
+        <div className={`fixed lg:sticky top-0 left-0 z-40 bg-primary transition-all duration-300 ${isSidebarHidden ? "w-0 overflow-hidden" : "w-64"
+            }`} style={{ height: '100vh' }}>
             {/* Close Sidebar button */}
             <button
                 className="absolute top-4 right-[-45px] p-2 bg-gray-200 rounded-full shadow-lg lg:hidden"
@@ -99,7 +100,7 @@ const SideBar = ({ isSidebarHidden, setIsSidebarHidden, userRole }) => {
             </button>
 
             {!isSidebarHidden && (
-                <>
+                <div className="flex flex-col h-full">
                     <div className="pt-7">
                         <MyIcon className="block w-40 h-20 mt-12 mx-auto" />
                     </div>
@@ -115,7 +116,14 @@ const SideBar = ({ isSidebarHidden, setIsSidebarHidden, userRole }) => {
                         </div>
                     </div>
 
-                    <div className="mt-5 overflow-y-auto max-h-[calc(100vh-200px)]">
+                    {/* Scrollable navigation with persistent background */}
+                    <div className="mt-5 flex-1 overflow-y-auto sidebar-scroll"
+                        style={{
+                            maxHeight: 'calc(100vh - 220px)',
+                            backgroundImage: 'linear-gradient(to bottom, var(--color-primary) 0%, var(--color-primary) 100%)',
+                            backgroundSize: '100% 100%',
+                            backgroundRepeat: 'no-repeat'
+                        }}>
                         {filteredNavItems.map((item, index) => {
                             const isActive = location.pathname === item.to;
 
@@ -132,18 +140,45 @@ const SideBar = ({ isSidebarHidden, setIsSidebarHidden, userRole }) => {
                                 </Link>
                             );
                         })}
-                    </div>
 
-                    {/* User role info at bottom
-                    <div className="absolute bottom-4 left-0 right-0 p-4">
-                        <div className="border-t border-gray-700 pt-4">
-                            <div className="text-gray-400 text-xs">
-                                © 2025 GymZ Admin Panel
-                            </div>
-                        </div>
-                    </div> */}
-                </>
+                        {/* Add padding at bottom to ensure all items are visible when scrolling */}
+                        <div className="h-8"></div>
+                    </div>
+                </div>
             )}
+
+            {/* This pseudo-element extends the background to full height */}
+            <style jsx>{`
+                .sidebar-scroll::-webkit-scrollbar {
+                    width: 6px;
+                }
+                
+                .sidebar-scroll::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                
+                .sidebar-scroll::-webkit-scrollbar-thumb {
+                    background-color: rgba(255, 255, 255, 0.1);
+                    border-radius: 20px;
+                }
+                
+                .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+                    background-color: rgba(255, 255, 255, 0.2);
+                }
+                
+                @media screen and (min-width: 1024px) {
+                    .sidebar-scroll::after {
+                        content: '';
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 256px;
+                        height: 100vh;
+                        background-color: var(--color-primary);
+                        z-index: -1;
+                    }
+                }
+            `}</style>
         </div>
     );
 };

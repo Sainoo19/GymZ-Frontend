@@ -21,13 +21,13 @@ const ProductsClient = () => {
       const response = await axios.get(`${URL_API}productClient/all/active`, {
         params: {
           page,
-          limit: 10,
+          limit: 8,
           search: searchText,
           brands: filters.brands?.join(","),
           categories: Array.isArray(filters.categories)
             ? filters.categories
-                .map((cat) => (typeof cat === "string" ? cat : cat._id))
-                .join(",")
+              .map((cat) => (typeof cat === "string" ? cat : cat._id))
+              .join(",")
             : "",
 
           priceMin: filters.minPrice,
@@ -123,14 +123,14 @@ const ProductsClient = () => {
 
   const handleFilter = (filters) => {
     let filtered = products;
-console.log("Filters:", filters); // ✅ Kiểm tra giá trị của filters
+    console.log("Filters:", filters); // ✅ Kiểm tra giá trị của filters
     if (
       !filters.categories &&
       (!filters.brands || filters.brands.length === 0) &&
       !filters.minPrice &&
       !filters.maxPrice
     ) {
-      
+
       setFilteredProducts(products);
       return;
     }
@@ -205,7 +205,7 @@ console.log("Filters:", filters); // ✅ Kiểm tra giá trị của filters
           brands={brands}
           // categories={[{ _id: "", name: "Tất cả" }, ...categories]}
           categories={categories}
-          />
+        />
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 items-start mt-5">
           {filteredProducts.length > 0 ? (
             filteredProducts.map((product) => (

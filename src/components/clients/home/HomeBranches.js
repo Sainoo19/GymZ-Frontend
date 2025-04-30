@@ -3,45 +3,77 @@ import { FaMapMarkerAlt, FaGem, FaBuilding, FaDumbbell } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
+// Cache duration in milliseconds (e.g., 1 hour = 60 * 60 * 1000)
+const CACHE_DURATION = 60 * 60 * 1000;
+
 const HomeBranches = () => {
-  const [branches, setBranches] = useState([]);
   const [branchCount, setBranchCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const URL_API = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        // Fetch branches
-        const branchesResponse = await axios.get(
-          `${URL_API}branchesClient/all/nopagination`
-        );
-        setBranches(branchesResponse.data.data);
+        // Check if we have cached data
+        const cachedData = localStorage.getItem('branchCount');
+        const cachedTimestamp = localStorage.getItem('branchCountTimestamp');
+        const currentTime = new Date().getTime();
 
-        // Fetch branch count - assuming there's an endpoint for this
-        // If there isn't, we can use the length of the branches array
+        // If we have valid cached data that isn't expired, use it
+        if (cachedData && cachedTimestamp && (currentTime - parseInt(cachedTimestamp) < CACHE_DURATION)) {
+          console.log("Using cached branch count data");
+          setBranchCount(parseInt(cachedData));
+          setLoading(false);
+          return;
+        }
+
+        // If no valid cache, fetch from API
+        console.log("Fetching fresh branch count data");
         try {
           const countResponse = await axios.get(
             `${URL_API}branchesClient/count`
           );
-          setBranchCount(countResponse.data.count);
-        } catch (countError) {
-          // Fallback: use the length of branches array if count API fails
-          setBranchCount(branchesResponse.data.data.length);
-        }
 
-        setLoading(false);
+          console.log("Branch count response:", countResponse.data);
+
+          // Correctly access the count based on your API response structure
+          if (countResponse.data.data && countResponse.data.data.count !== undefined) {
+            const count = countResponse.data.data.count;
+            setBranchCount(count);
+
+            // Cache the new data
+            localStorage.setItem('branchCount', count.toString());
+            localStorage.setItem('branchCountTimestamp', currentTime.toString());
+          } else {
+            console.warn("Could not find count in response structure");
+            setBranchCount(0);
+          }
+        } catch (countError) {
+          console.error("Error fetching branch count:", countError);
+
+          // If API call fails but we have old cached data, use it as fallback
+          if (cachedData) {
+            console.log("Using expired cached data as fallback");
+            setBranchCount(parseInt(cachedData));
+          } else {
+            setBranchCount(0);
+          }
+        }
       } catch (err) {
-        setError(err.message);
+        console.error("Failed to fetch data:", err);
+        setError(err.message || "Có lỗi xảy ra khi tải dữ liệu");
+      } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [URL_API]);
 
+  // Rest of your component remains unchanged
   return (
     <section className="py-20 px-6 bg-gradient-to-b from-white to-gray-100">
       <div className="container mx-auto">
@@ -60,6 +92,8 @@ const HomeBranches = () => {
               ? "Đang tải thông tin chi nhánh..."
               : `Với ${branchCount} chi nhánh trải dài khắp Việt Nam, chúng tôi luôn sẵn sàng phục vụ nhu cầu tập luyện của bạn`}
           </p>
+          {/* Display error if any */}
+          {error && <p className="text-red-500 mt-2">{error}</p>}
         </div>
 
         {/* Main Content */}
@@ -96,7 +130,7 @@ const HomeBranches = () => {
             {/* Call to Action */}
             <Link
               to="/branches"
-              className="mt-8 md:mx-auto md:container xs:container xs:mx-auto xs:w-full xs:border-red-600  inline-flex items-center justify-center bg-secondary text-white px-8 py-3 rounded-lg shadow-lg hover:bg-secondary/90 transition-all duration-300 group"
+              className="mt-8 md:mx-auto md:container xs:container xs:mx-auto xs:w-full xs:border-red-600 inline-flex items-center justify-center bg-secondary text-white px-8 py-3 rounded-lg shadow-lg hover:bg-secondary/90 transition-all duration-300 group"
             >
               <FaMapMarkerAlt className="mr-2 group-hover:animate-bounce" />
               <span className="font-bold ">Tìm chi nhánh gần nhất</span>
@@ -118,9 +152,9 @@ const HomeBranches = () => {
           </div>
 
           {/* Right Side - Features */}
-          <div className="w-full lg:w-3/5  space-y-6">
+          <div className="w-full lg:w-3/5 space-y-6">
             {/* Feature 1 */}
-            <div className="bg-white p-6 border-1  rounded-xl shadow-md flex hover:shadow-lg transition-shadow duration-300">
+            <div className="bg-white p-6 border-1 rounded-xl shadow-md flex hover:shadow-lg transition-shadow duration-300">
               <div className="flex-shrink-0 mr-4">
                 <div className="bg-secondary text-white w-14 h-14 rounded-lg flex items-center justify-center">
                   <FaBuilding className="text-2xl" />

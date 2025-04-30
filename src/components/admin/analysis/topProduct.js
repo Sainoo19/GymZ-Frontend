@@ -43,12 +43,12 @@ const TopProductPage = () => {
             </p>
           </div>
         ))}
-      <button
-        className="mt-6 px-4 py-2 mx-auto bg-blue-600 text-white font-semibold rounded hover:bg-blue-700"
-        onClick={() => navigate("/admin/inventory/top-product-page")}
-      >
-        Xem Chi Tiết
-      </button>
+        <button
+          className="mt-1 mb-1 px-4 py-2 mx-auto bg-blue-600 text-white font-semibold rounded hover:bg-blue-700"
+          onClick={() => navigate("/admin/inventory/top-product-page")}
+        >
+          Xem Chi Tiết
+        </button>
       </div>
 
     </div>
