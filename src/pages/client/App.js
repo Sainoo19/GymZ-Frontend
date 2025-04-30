@@ -31,7 +31,6 @@ import Header from "../../components/admin/layout/Header";
 import ProductDetail from "../admin/products/productDetail";
 import CreateEmployee from "../admin/employees/createEmployee";
 import UpdateEmployeeForm from "../admin/employees/employeesDetail";
-import ProductDetailTest from "../admin/products/productTest";
 import FooterClient from "../../components/clients/layouts/FooterClient";
 import CartPage from "./cartPage";
 import AboutUs from "./aboutUs";
@@ -110,7 +109,8 @@ const App = () => {
           userRole === "manager" ||
           userRole === "PT" ? (
           <>
-            <div className="flex h-screen">
+            <div className="flex min-h-screen">
+
               <SideBar
                 isSidebarHidden={isSidebarHidden}
                 setIsSidebarHidden={setIsSidebarHidden}
@@ -197,7 +197,7 @@ const App = () => {
                     path="admin/feedbackReview/:productId"
                     element={<ProductFeedbackReview />}
                   />
-                  <Route path="/test" element={<ProductDetailTest />} />
+                  {/* <Route path="/test" element={<ProductDetailTest />} /> */}
                   <Route
                     path="admin/employees/create"
                     element={<CreateEmployee />}

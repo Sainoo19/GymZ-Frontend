@@ -376,7 +376,7 @@ const ProductDetail = ({ onClose }) => {
                 {productId ? "Cập nhật" : "Thêm"}
               </button>
               <button
-                onClick={() => navigate("/product")}
+                onClick={() => navigate("/admin/products")}
                 className="m-3 p-2 w-1/4 block border border-primary rounded-lg"
               >
                 Huỷ

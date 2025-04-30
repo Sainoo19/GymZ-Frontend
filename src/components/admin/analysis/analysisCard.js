@@ -112,9 +112,8 @@ const Card = ({ label, date, percent, money, unit, icon, onClick }) => {
           </p>
           <div className="">
             <div
-              className={`ml-3 mt-1 flex items-center text-sm ${
-                isPositive ? "text-green-500" : "text-red-500"
-              }`}
+              className={`ml-3 mt-1 flex items-center text-sm ${isPositive ? "text-green-500" : "text-red-500"
+                }`}
             >
               {isPositive ? <FaArrowUp /> : <FaArrowDown />}
               <p className="ml-1 text-xs">{percent}%</p>

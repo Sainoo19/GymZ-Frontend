@@ -14,8 +14,6 @@ import truncateString from "../../../components/utils/truncateString";
 const ProductCard = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
-  const [minMaxPrices, setMinMaxPrices] = useState({});
-  const [stocks, setStocks] = useState({}); // Thêm state lưu trữ stock
   const [isMenuVisible, setMenuVisible] = useState(null);
   const [search, setSearch] = useState("");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -23,8 +21,8 @@ const ProductCard = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-  const [categoryLoading, setCategoryLoading] = useState(false);
-  const [categoryName, setCategoryName] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
 
   const [filters, setFilters] = useState({
     category: "",
@@ -50,7 +48,7 @@ const ProductCard = () => {
   };
 
   //Tạo biến cho "Sản phẩm BÁN"
-  const Selling = 100;
+  const Selling = 0;
 
   const handleOpenImportModal = (product) => {
     setSelectedProduct(product);
@@ -62,13 +60,15 @@ const ProductCard = () => {
   };
 
   const URL_API = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoading(true);
       try {
-        const response = await axios.get(`${URL_API}products/all`, {
+        const response = await axios.get(`${URL_API}products/all/cardpage`, {
           params: {
-            page: currentPage, // Đã có biến này nhưng useEffect chưa theo dõi nó
-            limit: 12,
+            page: currentPage,
+            limit: 8,
             search,
             ...filters,
             ...exportFilters,
@@ -76,91 +76,42 @@ const ProductCard = () => {
         });
 
         if (response.data.status === "success") {
-          // Lấy danh sách sản phẩm
           const productsData = response.data.data.products;
-          // Lấy tên danh mục cho mỗi sản phẩm
-          const updatedProducts = await Promise.all(
-            productsData.map(async (product) => {
-              try {
-                // Lấy tên danh mục cho từng sản phẩm
-                const responseCategory = await axios.get(
-                  `${URL_API}productCategory/${product.category}`
-                );
-                if (responseCategory.data.status === "success") {
-                  product.categoryName = responseCategory.data.data.name; // Gắn tên danh mục vào sản phẩm
-                  console.log(
-                    "Updated Products with Category Names:",
-                    responseCategory.data.data.name
-                  );
-                } else {
-                  console.error(
-                    "Lỗi khi lấy danh mục:",
-                    responseCategory.data.message
-                  );
-                }
-              } catch (error) {
-                console.error("Lỗi khi lấy danh mục:", error);
-              }
-              return product;
-            })
-          );
-
-          // Cập nhật sản phẩm và tổng số trang
-          setProducts(updatedProducts);
+          setProducts(productsData);
           setTotalPages(response.data.metadata.totalPages);
-
-          console.log("Updated Products with Category Names:", updatedProducts);
+          console.log("Fetched Products:", productsData);
         } else {
           console.error("API response error:", response.data.message);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-      }
-    };
-
-    const fetchMinMaxPrices = async () => {
-      try {
-        const response = await axios.get(`${URL_API}products/minmaxprice`, {
-          headers: { "Cache-Control": "no-cache" },
-        });
-        const priceMap = response.data.data.reduce((acc, item) => {
-          acc[item.productId] = {
-            min: item.minSalePrice,
-            max: item.maxSalePrice,
-          };
-          return acc;
-        }, {});
-        setMinMaxPrices(priceMap);
-      } catch (error) {
-        console.error("Lỗi khi lấy giá min-max:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProducts();
-    fetchMinMaxPrices();
-  }, [currentPage, search, filters, exportFilters]);
+  }, [currentPage, search, filters, exportFilters, URL_API]);
 
+  // Update the fetchCategories function in your useEffect
   useEffect(() => {
-    // Chỉ fetch stock khi đã có sản phẩm
-    if (products.length === 0) return;
-
-    const fetchStocks = async () => {
+    const fetchCategories = async () => {
       try {
-        const stockData = {};
-        for (const product of products) {
-          const response = await axios.get(
-            `${URL_API}products/stock/${product._id}`
-          );
-          stockData[product._id] = response.data.totalStock;
+        const response = await axios.get(`${URL_API}productCategory/all/nopagination`);
+        if (response.data.status === "success") {
+          // Fix: Access the categories directly from the data array
+          setCategories(response.data.data || []);
+          console.log("Categories fetched:", response.data.data);
+        } else {
+          console.error("Error fetching categories:", response.data.message);
         }
-        setStocks(stockData);
       } catch (error) {
-        console.error("Lỗi khi lấy stock sản phẩm:", error);
+        console.error("Failed to fetch categories:", error);
       }
     };
 
-    fetchStocks();
-  }, [products]);
+    fetchCategories();
+  }, [URL_API]);
 
   const handleMenuClick = (productId) => {
     setMenuVisible(isMenuVisible === productId ? null : productId);
@@ -190,9 +141,11 @@ const ProductCard = () => {
       }
     }
   };
+
   const handleEditProduct = (productId) => {
     navigate(`/admin/editproduct/${productId}`);
   };
+
   //tìm kiếm
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -206,13 +159,15 @@ const ProductCard = () => {
   const toggleFilterModal = () => {
     setIsFilterModalOpen(!isFilterModalOpen);
   };
+
   const handleOpenFeedbackModal = (productId) => {
-    navigate(`/admin/feedbackReview/${productId._id}`);
+    navigate(`/admin/feedbackReview/${productId}`);
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+
   const handleFilterChange = (e) => {
     setFilters({
       ...filters,
@@ -224,9 +179,10 @@ const ProductCard = () => {
     setCurrentPage(1);
     setIsFilterModalOpen(false);
   };
+
   const handleExport = async () => {
     try {
-      const response = await axios.get(`${URL_API}products/all`, {
+      const response = await axios.get(`${URL_API}products/all/cardpage`, {
         params: {
           ...exportFilters,
           limit: 1000, // Giới hạn dữ liệu xuất
@@ -238,13 +194,14 @@ const ProductCard = () => {
         const products = response.data.data.products.map((product) => ({
           "PRODUCT ID": product._id,
           NAME: product.name,
-          CATEGORY: product.category ? product.category.name : "",
-          "PRICE RANGE": `${product.minPrice.toLocaleString()} - ${product.maxPrice.toLocaleString()}`, // Hiển thị giá min-max
+          CATEGORY: product.category || "",
+          "PRICE RANGE": `${product.minPrice.toLocaleString()} - ${product.maxPrice.toLocaleString()}`,
+          "TOTAL STOCK": product.totalStock,
           "CREATED AT": reformDateTime(product.createdAt),
           "UPDATED AT": reformDateTime(product.updatedAt),
         }));
 
-        console.log("✅ Products Export:", products); // Kiểm tra dữ liệu trước khi xuất
+        console.log("✅ Products Export:", products);
 
         const ws = XLSX.utils.json_to_sheet(products);
         const wb = XLSX.utils.book_new();
@@ -257,14 +214,13 @@ const ProductCard = () => {
 
         saveAs(data, "products_report.xlsx");
         alert("Xuất báo cáo thành công!");
-        // Đóng modal và reset filters
-        toggleExportModal(); // Đóng modal
+        toggleExportModal();
         setExportFilters({
           branchId: "",
           type: "",
           startDate: "",
           endDate: "",
-        }); // Reset filters
+        });
       } else {
         alert("Lỗi khi xuất báo cáo: " + response.data.message);
       }
@@ -310,19 +266,34 @@ const ProductCard = () => {
 
       {/* Grid danh sách sản phẩm */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full px-4">
-        {products.length > 0 ? (
+        {loading ? (
+          // Loading placeholders
+          [...Array(8)].map((_, index) => (
+            <div key={index} className="p-4 border rounded-2xl shadow-md bg-white relative flex flex-col min-h-[320px] justify-between animate-pulse">
+              <div className="flex items-start gap-4">
+                <div className="w-20 h-20 bg-gray-200 rounded-md"></div>
+                <div className="flex flex-col flex-grow">
+                  <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div className="h-5 bg-gray-200 rounded w-2/3 mt-2 mb-5"></div>
+                </div>
+              </div>
+              <div className="mt-3 border-t pt-3 space-y-2 border rounded-lg p-3 bg-gray-50">
+                <div className="flex justify-between">
+                  <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : products.length > 0 ? (
           products.map((product) => {
-            const priceData = minMaxPrices[product._id];
-            const stock = stocks[product._id] ?? "Đang tải...";
-            let priceText = priceData
-              ? `${priceData.min.toLocaleString()}đ - ${priceData.max.toLocaleString()}đ`
-              : "N/A";
-
-            if (!priceData && product.variations?.length > 0) {
-              const prices = product.variations.map((v) => v.salePrice);
-              priceText = `${Math.min(
-                ...prices
-              ).toLocaleString()}đ - ${Math.max(...prices).toLocaleString()}đ`;
+            // Format price text based on min and max price
+            let priceText = "";
+            if (product.minPrice === product.maxPrice) {
+              priceText = product.minPrice.toLocaleString() + "đ";
+            } else {
+              priceText = `${product.minPrice.toLocaleString()}đ - ${product.maxPrice.toLocaleString()}đ`;
             }
 
             return (
@@ -352,14 +323,14 @@ const ProductCard = () => {
                       </li>
 
                       <li
-                        className="px-4 py-2  hover:bg-primary hover:text-white cursor-pointer"
+                        className="px-4 py-2 hover:bg-primary hover:text-white cursor-pointer"
                         onClick={() => handleEditProduct(product._id)}
                       >
                         Chỉnh sửa
                       </li>
                       <li
-                        className="px-4 py-2  hover:bg-primary hover:text-white cursor-pointer"
-                        onClick={() => handleOpenFeedbackModal(product)}
+                        className="px-4 py-2 hover:bg-primary hover:text-white cursor-pointer"
+                        onClick={() => handleOpenFeedbackModal(product._id)}
                       >
                         Phản Hồi KH
                       </li>
@@ -380,25 +351,18 @@ const ProductCard = () => {
                     className="w-20 h-20 object-cover rounded-md"
                   />
                   <div className="flex flex-col justify-between h-full flex-grow">
-                    <p className="font-semibold text-[30px]">{product.name}</p>
-                    <p className="font-base text-[30px]">
-                      {product.categoryName}
+                    <p className="font-semibold text-lg">{product.name}</p>
+                    <p className="font-base text-base">
+                      {product.category}
                     </p>
                     <p className="font-bold text-lg mt-2 mb-5">{priceText}</p>
                   </div>
                 </div>
-                {console.log("Category Name:", categoryName)}
                 <div className="mt-3 border-t pt-3 space-y-2 border rounded-lg p-3 bg-gray-50">
-                  <div className="flex justify-between text-sm items-center">
-                    <span className="font-base">Bán</span>
-                    <div className="flex items-center gap-1 text-gray-700">
-                      <span>{Selling}</span>
-                    </div>
-                  </div>
                   <div className="flex justify-between text-sm items-center">
                     <span className="font-base">Sản phẩm còn</span>
                     <div className="flex items-center gap-1 text-gray-700">
-                      <span>{stock - Selling >= 0 ? stock - Selling : 0}</span>
+                      <span>{product.totalStock - Selling >= 0 ? product.totalStock - Selling : 0}</span>
                     </div>
                   </div>
                 </div>
@@ -406,21 +370,24 @@ const ProductCard = () => {
             );
           })
         ) : (
-          <p className="text-gray-500">Không có sản phẩm nào.</p>
+          <p className="text-gray-500 col-span-4 text-center">Không có sản phẩm nào.</p>
         )}
       </div>
 
-      {/* Di chuyển phân trang xuống cuối */}
-      <div className="mt-6">
-        <Pagination
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-        />
-      </div>
+      {/* Phân trang */}
+      {!loading && totalPages > 1 && (
+        <div className="mt-6">
+          <Pagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      )}
 
+      {/* Filter Modal */}
       {isFilterModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow-lg w-full max-w-lg">
             <h2 className="text-xl font-bold mb-4">Lọc Sản Phẩm</h2>
             <div className="mb-4">
@@ -432,8 +399,11 @@ const ProductCard = () => {
                 className="w-full px-4 py-2 border rounded"
               >
                 <option value="">Tất cả</option>
-                <option value="Thời trang">Thời trang</option>
-                <option value="Whey">Whey</option>
+                {categories.map(category => (
+                  <option key={category._id} value={category._id}>
+                    {category.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="mb-4">
@@ -467,8 +437,9 @@ const ProductCard = () => {
         </div>
       )}
 
+      {/* Export Modal */}
       {isExportModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow-lg">
             <h2 className="text-xl font-bold mb-4">
               Lọc Dữ Liệu Xuất Báo Cáo Sản Phẩm
@@ -484,9 +455,11 @@ const ProductCard = () => {
                 className="w-full px-4 py-2 border rounded"
               >
                 <option value="">Tất cả</option>
-                <option value="electronics">Điện tử</option>
-                <option value="fashion">Thời trang</option>
-                <option value="home">Nhà cửa</option>
+                {categories.map(category => (
+                  <option key={category._id} value={category._id}>
+                    {category.name}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -574,15 +547,17 @@ const ProductCard = () => {
         </div>
       )}
 
+      {/* Import Stock Modal */}
       {selectedProduct && (
         <ImportStockModal
           product={selectedProduct}
           onClose={handleCloseImportModal}
           onStockUpdate={(updatedProduct) => {
-            setStocks((prevStocks) => ({
-              ...prevStocks,
-              [updatedProduct._id]: updatedProduct.totalStock,
-            }));
+            setProducts(products.map(prod =>
+              prod._id === updatedProduct._id
+                ? { ...prod, totalStock: updatedProduct.totalStock }
+                : prod
+            ));
           }}
         />
       )}

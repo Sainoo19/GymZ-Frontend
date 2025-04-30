@@ -21,13 +21,13 @@ const ProductsClient = () => {
       const response = await axios.get(`${URL_API}productClient/all/active`, {
         params: {
           page,
-          limit: 10,
+          limit: 8,
           search: searchText,
           brands: filters.brands?.join(","),
           categories: Array.isArray(filters.categories)
             ? filters.categories
-                .map((cat) => (typeof cat === "string" ? cat : cat._id))
-                .join(",")
+              .map((cat) => (typeof cat === "string" ? cat : cat._id))
+              .join(",")
             : "",
 
           priceMin: filters.minPrice,
@@ -119,22 +119,27 @@ const ProductsClient = () => {
       setTotalPages(Math.ceil(filtered.length / 10)); // Cập nhật lại số trang
     }
     setCurrentPage(1); // Luôn quay về trang đầu tiên khi tìm kiếm
-    fetchProducts(1, {}, searchText);
   };
 
   const handleFilter = (filters) => {
     let filtered = products;
-
+    console.log("Filters:", filters); // ✅ Kiểm tra giá trị của filters
     if (
-      !filters.category &&
+      !filters.categories &&
       (!filters.brands || filters.brands.length === 0) &&
       !filters.minPrice &&
       !filters.maxPrice
     ) {
+
       setFilteredProducts(products);
       return;
     }
-
+    console.log("products:", products); // ✅ Kiểm tra giá trị của products
+    if (filters.categories && filters.categories.length > 0) {
+      filtered = filtered.filter((product) =>
+        filters.categories.includes(product.category)
+      );
+    }
     if (filters.brands && filters.brands.length > 0) {
       filtered = filtered.filter((product) =>
         filters.brands.includes(product.brand)
@@ -155,13 +160,14 @@ const ProductsClient = () => {
 
     // Cập nhật lại danh sách sản phẩm đã lọc
     setFilteredProducts(filtered);
+    console.log("Filtered products by categories:", filteredProducts); // ✅ Kiểm tra giá trị của filtered
+
 
     // Cập nhật lại số trang dựa trên danh sách đã lọc
     setTotalPages(Math.ceil(filtered.length / 10));
 
     // Đặt lại trang hiện tại về 1 để tránh hiển thị trang trống
     setCurrentPage(1);
-    fetchProducts(1, filters); // Gọi lại API với bộ lọc
   };
 
   const handleSort = (sortOrder) => {
@@ -197,7 +203,8 @@ const ProductsClient = () => {
           onFilter={handleFilter}
           onSort={handleSort}
           brands={brands}
-          categories={[{ _id: "", name: "Tất cả" }, ...categories]}
+          // categories={[{ _id: "", name: "Tất cả" }, ...categories]}
+          categories={categories}
         />
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 items-start mt-5">
           {filteredProducts.length > 0 ? (
