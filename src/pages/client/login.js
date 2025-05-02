@@ -60,9 +60,9 @@ const LoginPageUser = () => {
 
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
-      <div className="bg-white shadow-lg rounded-lg flex max-w-4xl w-full">
+      <div className="bg-white shadow-lg rounded-lg  flex max-w-4xl  w-11/12">
         {/* Left Section */}
-        <div className="w-1/2 p-8">
+        <div className=" md:w-1/2 container mx-auto p-8 flex flex-col ">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Chào mừng <span className="wave">👋</span>
           </h1>
@@ -123,14 +123,8 @@ const LoginPageUser = () => {
             </div>
             <div className="text-center text-gray-500 mb-4">Hoặc</div>
             <div className="flex flex-col space-y-2">
+              <GoogleLoginButton />
 
-              <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => console.error("Google Login Failed")}
-                  redirectUri={ `${URL_API}auth/google/callback` }
-                  />
-              </GoogleOAuthProvider>
 
               <button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow flex items-center justify-center">
                 <img
@@ -162,7 +156,7 @@ const LoginPageUser = () => {
         </div>
 
         {/* Right Section */}
-        <div className="w-1/2 relative">
+        <div className="w-1/2 relative hidden md:block">
           <img
             src="https://storage.googleapis.com/a1aa/image/15kDt7v93-7BnU9_EzemqaW9rY4V3vZ2BsfuCXGz8nM.jpg"
             alt="Gym background"

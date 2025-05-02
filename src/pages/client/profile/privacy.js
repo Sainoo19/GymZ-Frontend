@@ -1,12 +1,11 @@
-import SidebarProfile from '../../../components/clients/layouts/SidebarProfile';
+import ProfileLayout from '../../../components/clients/wrapper/ProfileLayout';
 import PasswordChangeContent from '../../../components/clients/users/PasswordChangeContent';
 
 function ChangePasswordPage() {
     return (
-        <div className="flex min-h-screen bg-gray-100">
-            <SidebarProfile />
+        <ProfileLayout>
             <PasswordChangeContent />
-        </div>
+        </ProfileLayout>
     );
 }
 

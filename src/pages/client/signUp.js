@@ -26,7 +26,7 @@ const SignUpPageUser = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
 
   useEffect(() => {
     setProvinces(level1s); // Lấy danh sách tỉnh/thành phố
@@ -62,7 +62,7 @@ const SignUpPageUser = () => {
     } catch (error) {
       setError("Lỗi đăng ký, vui lòng thử lại!");
     }
-};
+  };
 
 
   const handleAddressChange = (e) => {
@@ -111,16 +111,16 @@ const SignUpPageUser = () => {
 
     setAddress((prevAddress) => ({
       ...prevAddress,
-      ward:  ward.name ,
+      ward: ward.name,
     }));
 
   };
 
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
-      <div className="bg-white shadow-lg rounded-lg flex max-w-4xl w-full">
-        {/* Left Section */}
-        <div className="w-1/2 p-8">
+      <div className="bg-white shadow-lg rounded-lg flex flex-col md:flex-row max-w-4xl w-full mt-10 mb-10">
+        {/* Left Section - Form */}
+        <div className="w-full md:w-1/2 p-6 md:p-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Chào mừng <span className="wave">👋</span>
           </h1>
@@ -161,46 +161,46 @@ const SignUpPageUser = () => {
               />
             </div>
             <div className="mb-4 relative">
-  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-    Mật khẩu
-  </label>
-  <input
-    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-    id="password"
-    type={showPassword ? "text" : "password"}
-    placeholder="Mật khẩu"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-  />
-  <button
-    type="button"
-    className="absolute right-3 top-10 text-gray-500"
-    onClick={() => setShowPassword(!showPassword)}
-  >
-  {showPassword ? <ViewLight className="w-5 h-5" /> : <ViewHideLight className="w-5 h-5" />}
-  </button>
-</div>
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+                Mật khẩu
+              </label>
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Mật khẩu"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-10 text-gray-500"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <ViewLight className="w-5 h-5" /> : <ViewHideLight className="w-5 h-5" />}
+              </button>
+            </div>
 
-<div className="mb-4 relative">
-  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmPassword">
-    Nhập lại mật khẩu
-  </label>
-  <input
-    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-    id="confirmPassword"
-    type={showConfirmPassword ? "text" : "password"}
-    placeholder="Nhập lại mật khẩu"
-    value={confirmPassword}
-    onChange={(e) => setConfirmPassword(e.target.value)}
-  />
-  <button
-    type="button"
-    className="absolute right-3 top-10 text-gray-500"
-    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-  >
-  {showConfirmPassword ? <ViewLight className="w-5 h-5" /> : <ViewHideLight className="w-5 h-5" />}
-  </button>
-</div>
+            <div className="mb-4 relative">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmPassword">
+                Nhập lại mật khẩu
+              </label>
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Nhập lại mật khẩu"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-10 text-gray-500"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? <ViewLight className="w-5 h-5" /> : <ViewHideLight className="w-5 h-5" />}
+              </button>
+            </div>
 
             <div className="mb-4">
               <label
@@ -320,7 +320,7 @@ const SignUpPageUser = () => {
         </div>
 
         {/* Right Section */}
-        <div className="w-1/2 relative">
+        <div className="hidden md:block w-1/2 relative">
           <img
             src="https://storage.googleapis.com/a1aa/image/15kDt7v93-7BnU9_EzemqaW9rY4V3vZ2BsfuCXGz8nM.jpg"
             alt="Gym background"

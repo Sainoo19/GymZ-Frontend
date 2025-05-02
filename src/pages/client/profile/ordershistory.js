@@ -1,13 +1,12 @@
 import React from 'react';
-import SidebarProfile from '../../../components/clients/layouts/SidebarProfile';
+import ProfileLayout from '../../../components/clients/wrapper/ProfileLayout';
 import OrdersHistoryContent from '../../../components/clients/users/OrdersHistoryContent';
 
 function OrdersHistoryPage() {
     return (
-        <div className="flex min-h-screen bg-gray-100">
-            <SidebarProfile />
+        <ProfileLayout>
             <OrdersHistoryContent />
-        </div>
+        </ProfileLayout>
     );
 }
 

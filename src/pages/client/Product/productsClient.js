@@ -15,6 +15,49 @@ const ProductsClient = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [initialFilterApplied, setInitialFilterApplied] = useState(false);
+
+  // Initial data loading
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        setLoading(true);
+        await Promise.all([
+          fetchProducts(currentPage),
+          fetchMinMaxPrices(),
+          fetchBrands(),
+          fetchCategories(),
+        ]);
+      } catch (error) {
+        console.error("Error loading initial data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadInitialData();
+  }, [currentPage]);
+
+  // Handle pending category filter from RelatedProducts
+  useEffect(() => {
+    // Only run this once after products and categories are loaded
+    if (!initialFilterApplied && products.length > 0 && categories.length > 0) {
+      const pendingCategoryFilter = sessionStorage.getItem('pendingCategoryFilter');
+
+      if (pendingCategoryFilter) {
+        console.log("Applying pending category filter:", pendingCategoryFilter);
+
+        // Apply the filter
+        handleFilter({ categories: [pendingCategoryFilter] });
+
+        // Remove from sessionStorage to prevent re-filtering
+        sessionStorage.removeItem('pendingCategoryFilter');
+
+        // Mark as applied so we don't do it again
+        setInitialFilterApplied(true);
+      }
+    }
+  }, [products, categories, initialFilterApplied]);
 
   const fetchProducts = async (page, filters = {}, searchText = "") => {
     try {
@@ -29,7 +72,6 @@ const ProductsClient = () => {
               .map((cat) => (typeof cat === "string" ? cat : cat._id))
               .join(",")
             : "",
-
           priceMin: filters.minPrice,
           priceMax: filters.maxPrice,
         },
@@ -40,10 +82,10 @@ const ProductsClient = () => {
         setFilteredProducts(response.data.data.products);
         setTotalPages(response.data.metadata.totalPages);
       }
+      return response.data.data.products;
     } catch (error) {
       console.error("Error fetching products:", error);
-    } finally {
-      setLoading(false);
+      return [];
     }
   };
 
@@ -76,7 +118,7 @@ const ProductsClient = () => {
   const fetchCategories = async () => {
     try {
       const response = await axios.get(`${URL_API}productClient/categories`);
-      console.log("API response:", response.data); // ✅ Kiểm tra dữ liệu trả về
+      console.log("Categories API response:", response.data);
 
       if (Array.isArray(response.data)) {
         setCategories(response.data);
@@ -93,13 +135,6 @@ const ProductsClient = () => {
     }
   };
 
-  useEffect(() => {
-    fetchProducts(currentPage);
-    fetchMinMaxPrices();
-    fetchBrands();
-    fetchCategories();
-  }, [currentPage]); // ✅ Chỉ theo dõi `currentPage`
-
   const handlePageChange = (page) => {
     if (page <= totalPages) {
       setCurrentPage(page);
@@ -108,44 +143,51 @@ const ProductsClient = () => {
 
   const handleSearch = (searchText) => {
     if (searchText.trim() === "") {
-      // Nếu xóa tìm kiếm, gọi lại API để lấy danh sách sản phẩm đầy đủ
+      // If search is cleared, reset to original products
       fetchProducts(currentPage);
     } else {
-      // Nếu có nội dung tìm kiếm, lọc danh sách sản phẩm
+      // If there is search text, filter the product list
       const filtered = products.filter((product) =>
         product.name.toLowerCase().includes(searchText.toLowerCase())
       );
       setFilteredProducts(filtered);
-      setTotalPages(Math.ceil(filtered.length / 10)); // Cập nhật lại số trang
+      setTotalPages(Math.ceil(filtered.length / 10)); // Update page count
     }
-    setCurrentPage(1); // Luôn quay về trang đầu tiên khi tìm kiếm
+    setCurrentPage(1); // Always return to first page when searching
   };
 
   const handleFilter = (filters) => {
-    let filtered = products;
-    console.log("Filters:", filters); // ✅ Kiểm tra giá trị của filters
+    console.log("Applying filters:", filters);
+    let filtered = [...products];
+
+    // If no filters, show all products
     if (
-      !filters.categories &&
+      (!filters.categories || filters.categories.length === 0) &&
       (!filters.brands || filters.brands.length === 0) &&
       !filters.minPrice &&
       !filters.maxPrice
     ) {
-
       setFilteredProducts(products);
       return;
     }
-    console.log("products:", products); // ✅ Kiểm tra giá trị của products
+
+    // Apply category filter if present
     if (filters.categories && filters.categories.length > 0) {
+      console.log("Filtering by categories:", filters.categories);
       filtered = filtered.filter((product) =>
         filters.categories.includes(product.category)
       );
+      console.log("After category filter:", filtered.length, "products");
     }
+
+    // Apply brand filter if present
     if (filters.brands && filters.brands.length > 0) {
       filtered = filtered.filter((product) =>
         filters.brands.includes(product.brand)
       );
     }
 
+    // Apply price filters if present
     if (filters.minPrice) {
       filtered = filtered.filter(
         (product) => minMaxPrices[product._id] >= Number(filters.minPrice)
@@ -158,15 +200,13 @@ const ProductsClient = () => {
       );
     }
 
-    // Cập nhật lại danh sách sản phẩm đã lọc
+    // Update filtered product list
     setFilteredProducts(filtered);
-    console.log("Filtered products by categories:", filteredProducts); // ✅ Kiểm tra giá trị của filtered
 
-
-    // Cập nhật lại số trang dựa trên danh sách đã lọc
+    // Update page count based on filtered list
     setTotalPages(Math.ceil(filtered.length / 10));
 
-    // Đặt lại trang hiện tại về 1 để tránh hiển thị trang trống
+    // Reset to first page to avoid empty pages
     setCurrentPage(1);
   };
 
@@ -191,19 +231,22 @@ const ProductsClient = () => {
   };
 
   if (loading) {
-    return <p>Loading products...</p>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <span className="ml-2">Loading products...</span>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-20  mb-10 ">
-      {/* <div className='flex justify-center items-center'> */}
-      <div className="flex flex-col lg:flex-row justify-around items-start  sm:justify-center gap-4">
+    <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-20 mb-10">
+      <div className="flex flex-col lg:flex-row justify-around items-start sm:justify-center gap-4">
         <Search
           onSearch={handleSearch}
           onFilter={handleFilter}
           onSort={handleSort}
           brands={brands}
-          // categories={[{ _id: "", name: "Tất cả" }, ...categories]}
           categories={categories}
         />
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 items-start mt-5">

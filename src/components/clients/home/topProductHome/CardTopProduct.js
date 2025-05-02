@@ -25,11 +25,11 @@ const CardTopProduct = ({ image, name, price, rating }) => {
 
   return (
     <div className="flex flex-col items-center p-3 border border-gray-200 rounded-lg shadow-md text-center transition-all duration-300 hover:shadow-lg hover:border-secondary transform hover:-translate-y-1">
-      <div className="overflow-hidden rounded-lg w-full mb-3">
+      <div className="overflow-hidden rounded-lg w-full h-[300px] mb-3">
         <img
           src={image}
           alt={name}
-          className="w-full h-[300px] object-cover rounded-lg transition-transform duration-500 hover:scale-105"
+          className="w-full h-full object-contain rounded-lg transition-transform duration-500 hover:scale-105"
         />
       </div>
       <h3 className="mt-2 text-lg font-semibold text-primary line-clamp-1 w-full">{name}</h3>
@@ -37,7 +37,6 @@ const CardTopProduct = ({ image, name, price, rating }) => {
       <div className="mt-2 flex justify-center">
         {renderStars(rating)}
       </div>
-
     </div>
   );
 };

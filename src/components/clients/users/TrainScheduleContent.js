@@ -2,13 +2,23 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { Calendar, momentLocalizer } from 'react-big-calendar';
+import moment from 'moment';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import 'moment/locale/vi'; // Import Vietnamese locale
 import {
     FaCalendarAlt, FaUser, FaClock, FaFilter, FaSpinner,
-    FaPlus, FaCheck, FaTimes, FaEdit, FaExclamationTriangle
+    FaPlus, FaCheck, FaTimes, FaEdit, FaExclamationTriangle,
+    FaListUl, FaCalendarWeek
 } from 'react-icons/fa';
+
+// Set up the localizer for the calendar
+moment.locale('vi');
+const localizer = momentLocalizer(moment);
 
 const TrainScheduleContent = () => {
     const [sessions, setSessions] = useState([]);
+    const [calendarEvents, setCalendarEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -19,6 +29,7 @@ const TrainScheduleContent = () => {
         endDate: ''
     });
     const [showFilters, setShowFilters] = useState(false);
+    const [viewMode, setViewMode] = useState('list'); // 'list' or 'calendar'
     const URL_API = process.env.REACT_APP_API_URL;
 
     // Add new state for update modal
@@ -44,8 +55,6 @@ const TrainScheduleContent = () => {
     const [bookingError, setBookingError] = useState('');
     const [trainers, setTrainers] = useState([]);
 
-
-
     // Status options
     const statusOptions = [
         { value: '', label: 'Tất cả' },
@@ -54,9 +63,33 @@ const TrainScheduleContent = () => {
         { value: 'cancelled', label: 'Đã hủy' }
     ];
 
+    // Get status color for calendar events
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'scheduled':
+                return '#4CAF50'; // Green
+            case 'completed':
+                return '#2196F3'; // Blue
+            case 'cancelled':
+                return '#F44336'; // Red
+            default:
+                return '#9E9E9E'; // Grey
+        }
+    };
+
+    // Helper function to combine date and time
+    const combineDateAndTime = (dateStr, timeStr) => {
+        const date = new Date(dateStr);
+        const [hours, minutes] = timeStr.split(':').map(Number);
+
+        date.setHours(hours);
+        date.setMinutes(minutes);
+        return date;
+    };
+
     useEffect(() => {
         fetchTrainingSessions();
-    }, [currentPage, filters]);
+    }, [currentPage, filters, viewMode]);
 
     const fetchTrainingSessions = async () => {
         try {
@@ -65,7 +98,7 @@ const TrainScheduleContent = () => {
             // Build query params
             const params = {
                 page: currentPage,
-                limit: 10,
+                limit: viewMode === 'calendar' ? 1000 : 10, // Get all sessions for calendar view
                 ...filters
             };
 
@@ -91,6 +124,24 @@ const TrainScheduleContent = () => {
 
                 setSessions(formattedSessions);
                 setTotalPages(response.data.metadata.totalPages);
+
+                // Convert sessions to calendar events
+                const events = formattedSessions.map(session => {
+                    const start = combineDateAndTime(session.date, session.startHour);
+                    const end = combineDateAndTime(session.date, session.endHour);
+
+                    return {
+                        id: session._id,
+                        title: `${session.statusLabel} - ${session.employeeID || 'HLV'}`,
+                        start,
+                        end,
+                        resource: session,
+                        backgroundColor: getStatusColor(session.status),
+                        borderColor: getStatusColor(session.status)
+                    };
+                });
+
+                setCalendarEvents(events);
             } else {
                 setError('Không thể tải danh sách buổi tập.');
             }
@@ -168,6 +219,52 @@ const TrainScheduleContent = () => {
     const toggleFilters = () => {
         setShowFilters(!showFilters);
     };
+
+    // Toggle view mode
+    const toggleViewMode = (mode) => {
+        setViewMode(mode);
+    };
+
+    // Calendar event style getter
+    const eventStyleGetter = (event) => {
+        const status = event.resource.status;
+        return {
+            style: {
+                backgroundColor: getStatusColor(status),
+                borderRadius: '5px',
+                opacity: 0.8,
+                color: 'white',
+                border: '0px',
+                display: 'block'
+            }
+        };
+    };
+
+    // Handle calendar event selection
+    const handleSelectEvent = (event) => {
+        const session = sessions.find(s => s._id === event.id);
+        if (session && session.status === 'scheduled') {
+            openUpdateModal(session);
+        }
+    };
+
+    // Calendar toolbar customization
+    const CustomToolbar = ({ label, onNavigate, onView }) => (
+        <div className="rbc-toolbar">
+            <span className="rbc-btn-group">
+                <button onClick={() => onNavigate('PREV')}>Trước</button>
+                <button onClick={() => onNavigate('TODAY')}>Hôm nay</button>
+                <button onClick={() => onNavigate('NEXT')}>Sau</button>
+            </span>
+            <span className="rbc-toolbar-label">{label}</span>
+            <span className="rbc-btn-group">
+                <button onClick={() => onView('month')}>Tháng</button>
+                <button onClick={() => onView('week')}>Tuần</button>
+                <button onClick={() => onView('day')}>Ngày</button>
+                <button onClick={() => onView('agenda')}>Lịch biểu</button>
+            </span>
+        </div>
+    );
 
     // Fetch trainers for booking modal
     const fetchTrainers = async () => {
@@ -435,6 +532,22 @@ const TrainScheduleContent = () => {
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold">Lịch Tập Của Tôi</h1>
                 <div className="flex space-x-2">
+                    {/* Toggle view buttons */}
+                    <div className="flex border rounded overflow-hidden mr-2">
+                        <button
+                            className={`flex items-center px-3 py-2 ${viewMode === 'list' ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}
+                            onClick={() => toggleViewMode('list')}
+                        >
+                            <FaListUl className="mr-1" /> Danh sách
+                        </button>
+                        <button
+                            className={`flex items-center px-3 py-2 ${viewMode === 'calendar' ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}
+                            onClick={() => toggleViewMode('calendar')}
+                        >
+                            <FaCalendarWeek className="mr-1" /> Lịch
+                        </button>
+                    </div>
+
                     <button
                         onClick={toggleFilters}
                         className="flex items-center px-4 py-2 bg-primary text-white rounded hover:bg-secondary transition-colors"
@@ -506,7 +619,7 @@ const TrainScheduleContent = () => {
                 </div>
             )}
 
-            {/* Sessions list */}
+            {/* Loading state */}
             {loading ? (
                 <div className="flex justify-center items-center py-12">
                     <FaSpinner className="animate-spin text-4xl text-primary" />
@@ -523,101 +636,150 @@ const TrainScheduleContent = () => {
                 </div>
             ) : (
                 <>
-                    {sessions.length > 0 ? (
-                        <div className="space-y-4">
-                            {sessions.map((session) => (
-                                <div key={session._id} className="bg-white rounded-lg shadow-md p-4 border-l-4 border-primary">
-                                    <div className="flex flex-col sm:flex-row justify-between">
-                                        <div className="mb-2 sm:mb-0">
-                                            <h3 className="font-semibold text-lg">Buổi tập #{session._id}</h3>
-                                            <div className="text-sm text-gray-500">
-                                                {session.dayOfWeek && <span className="capitalize">{session.dayOfWeek}</span>}
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${session.statusClass}`}>
-                                                {session.statusLabel}
-                                            </span>
-                                            {session.status === 'scheduled' && (
-                                                <>
-                                                    <button
-                                                        onClick={() => openUpdateModal(session)}
-                                                        className="bg-blue-500 hover:bg-blue-600 text-white rounded p-1"
-                                                        title="Cập nhật lịch tập"
-                                                    >
-                                                        <FaEdit className="text-sm" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleCancelSession(session._id)}
-                                                        className="bg-red-500 hover:bg-red-600 text-white rounded p-1"
-                                                        title="Hủy buổi tập"
-                                                    >
-                                                        <FaTimes className="text-sm" />
-                                                    </button>
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-                                        <div className="flex items-center">
-                                            <FaCalendarAlt className="text-gray-500 mr-2" />
-                                            <div>
-                                                <p className="text-sm text-gray-500">Ngày</p>
-                                                <p className="capitalize">{session.formattedDate}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <FaClock className="text-gray-500 mr-2" />
-                                            <div>
-                                                <p className="text-sm text-gray-500">Thời gian</p>
-                                                <p>{session.formattedTime}</p>
-                                            </div>
-                                        </div>
-                                        {session.trainer && (
-                                            <div className="flex items-center">
-                                                <FaUser className="text-gray-500 mr-2" />
-                                                <div>
-                                                    <p className="text-sm text-gray-500">Huấn luyện viên</p>
-                                                    <p>{session.trainer.name || 'Chưa có thông tin'}</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-
-                            {/* Pagination */}
-                            {totalPages > 1 && (
-                                <div className="flex justify-center mt-6">
-                                    <div className="flex space-x-1">
-                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                                            <button
-                                                key={page}
-                                                onClick={() => handlePageChange(page)}
-                                                className={`px-4 py-2 rounded ${currentPage === page ? 'bg-primary text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
-                                            >
-                                                {page}
-                                            </button>
-                                        ))}
-                                    </div>
+                    {viewMode === 'calendar' ? (
+                        // Calendar View
+                        <div className="bg-white rounded-lg shadow-lg p-4 mb-6">
+                            <div style={{ height: '700px' }}>
+                                <Calendar
+                                    localizer={localizer}
+                                    events={calendarEvents}
+                                    startAccessor="start"
+                                    endAccessor="end"
+                                    style={{ height: '100%' }}
+                                    onSelectEvent={handleSelectEvent}
+                                    eventPropGetter={eventStyleGetter}
+                                    components={{
+                                        toolbar: CustomToolbar
+                                    }}
+                                    formats={{
+                                        dayHeaderFormat: (date) => moment(date).format('dddd DD/MM'),
+                                        dayFormat: (date) => moment(date).format('DD/MM'),
+                                        dayRangeHeaderFormat: ({ start, end }) =>
+                                            `${moment(start).format('DD/MM')} - ${moment(end).format('DD/MM')}`
+                                    }}
+                                    messages={{
+                                        next: "Sau",
+                                        previous: "Trước",
+                                        today: "Hôm nay",
+                                        month: "Tháng",
+                                        week: "Tuần",
+                                        day: "Ngày",
+                                        agenda: "Lịch biểu",
+                                        date: "Ngày",
+                                        time: "Thời gian",
+                                        event: "Sự kiện",
+                                        allDay: "Cả ngày",
+                                        noEventsInRange: "Không có buổi tập nào trong khoảng thời gian này"
+                                    }}
+                                />
+                            </div>
+                            {sessions.length === 0 && (
+                                <div className="mt-4 text-center text-gray-500">
+                                    Bạn chưa có buổi tập nào. Hãy đăng ký lịch tập mới!
                                 </div>
                             )}
                         </div>
                     ) : (
-                        <div className="bg-white rounded-lg shadow-md p-8 text-center">
-                            <div className="text-gray-500 text-lg mb-3">Bạn chưa có buổi tập nào.</div>
-                            <p className="text-gray-600 mb-4">Bạn có thể đăng ký lịch tập mới bằng cách nhấn vào nút "Đăng Ký Lịch Tập".</p>
-                            <button
-                                onClick={openBookingModal}
-                                className="px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors"
-                            >
-                                <FaPlus className="inline mr-2" /> Đăng Ký Ngay
-                            </button>
-                        </div>
+                        // List View
+                        <>
+                            {sessions.length > 0 ? (
+                                <div className="space-y-4">
+                                    {sessions.map((session) => (
+                                        <div key={session._id} className="bg-white rounded-lg shadow-md p-4 border-l-4 border-primary">
+                                            <div className="flex flex-col sm:flex-row justify-between">
+                                                <div className="mb-2 sm:mb-0">
+                                                    <h3 className="font-semibold text-lg">Buổi tập #{session._id}</h3>
+                                                    <div className="text-sm text-gray-500">
+                                                        {session.dayOfWeek && <span className="capitalize">{session.dayOfWeek}</span>}
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${session.statusClass}`}>
+                                                        {session.statusLabel}
+                                                    </span>
+                                                    {session.status === 'scheduled' && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => openUpdateModal(session)}
+                                                                className="bg-blue-500 hover:bg-blue-600 text-white rounded p-1"
+                                                                title="Cập nhật lịch tập"
+                                                            >
+                                                                <FaEdit className="text-sm" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleCancelSession(session._id)}
+                                                                className="bg-red-500 hover:bg-red-600 text-white rounded p-1"
+                                                                title="Hủy buổi tập"
+                                                            >
+                                                                <FaTimes className="text-sm" />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                                                <div className="flex items-center">
+                                                    <FaCalendarAlt className="text-gray-500 mr-2" />
+                                                    <div>
+                                                        <p className="text-sm text-gray-500">Ngày</p>
+                                                        <p className="capitalize">{session.formattedDate}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <FaClock className="text-gray-500 mr-2" />
+                                                    <div>
+                                                        <p className="text-sm text-gray-500">Thời gian</p>
+                                                        <p>{session.formattedTime}</p>
+                                                    </div>
+                                                </div>
+                                                {session.trainer && (
+                                                    <div className="flex items-center">
+                                                        <FaUser className="text-gray-500 mr-2" />
+                                                        <div>
+                                                            <p className="text-sm text-gray-500">Huấn luyện viên</p>
+                                                            <p>{session.trainer.name || 'Chưa có thông tin'}</p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    {/* Pagination */}
+                                    {totalPages > 1 && (
+                                        <div className="flex justify-center mt-6">
+                                            <div className="flex space-x-1">
+                                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                                    <button
+                                                        key={page}
+                                                        onClick={() => handlePageChange(page)}
+                                                        className={`px-4 py-2 rounded ${currentPage === page ? 'bg-primary text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+                                                    >
+                                                        {page}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="bg-white rounded-lg shadow-md p-8 text-center">
+                                    <div className="text-gray-500 text-lg mb-3">Bạn chưa có buổi tập nào.</div>
+                                    <p className="text-gray-600 mb-4">Bạn có thể đăng ký lịch tập mới bằng cách nhấn vào nút "Đăng Ký Lịch Tập".</p>
+                                    <button
+                                        onClick={openBookingModal}
+                                        className="px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors"
+                                    >
+                                        <FaPlus className="inline mr-2" /> Đăng Ký Ngay
+                                    </button>
+                                </div>
+                            )}
+                        </>
                     )}
                 </>
             )}
+
             {/* Update Modal */}
             {showUpdateModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -717,6 +879,7 @@ const TrainScheduleContent = () => {
                     </div>
                 </div>
             )}
+
             {/* Booking Modal */}
             {showBookingModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">

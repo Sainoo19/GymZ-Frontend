@@ -77,7 +77,6 @@ const App = () => {
       navigator.serviceWorker
         .register("/firebase-messaging-sw.js")
         .then((registration) => {
-          console.log("✅ Service Worker đăng ký thành công:", registration);
         })
         .catch((error) => {
           console.error("⚠️ Service Worker đăng ký thất bại:", error);
@@ -85,21 +84,75 @@ const App = () => {
     }
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     axios
       .get(`${URL_API}employees/profile`, {
-        withCredentials: true, // Ensure cookies are sent with the request
+        withCredentials: true,
       })
       .then((response) => {
         const role = response.data.data.role;
-        setUserRole(role);
-        console.log(role);
+        setUserRole(role); // cập nhật state
       })
       .catch((error) => {
         console.error("Error fetching user role:", error);
         setUserRole(null);
       });
   }, []);
+
+  useEffect(() => {
+    console.log("userRole updated: ", userRole); // log khi userRole đã cập nhật
+  }, [userRole]);
+
+  useEffect(() => {
+    console.log("userRole updated: ", userRole);
+
+    const widgetFrame = document.querySelector(".ow-widget-frame");
+    const script = document.querySelector('script[src="https://cdn.openwidget.com/openwidget.js"]');
+
+    const isAdmin =
+      userRole === "admin" ||
+      userRole === "staff" ||
+      userRole === "manager" ||
+      userRole === "PT";
+
+    if (isAdmin) {
+
+      // Ẩn widget nếu nó đang hiển thị
+      if (widgetFrame) {
+        widgetFrame.style.display = "none";
+      }
+
+      // Gỡ bỏ script nếu cần
+      if (script) {
+        script.remove();
+      }
+
+      // Xoá object config nếu đã tồn tại
+      if (window.__ow) {
+        delete window.__ow;
+      }
+    } else {
+      console.log("Đang chạy OpenWidget script");
+
+      if (!script) {
+        window.__ow = {
+          organizationId: "3ca26d52-2187-4652-ad76-22e4e2063550",
+          integration_name: "manual_settings",
+          product_name: "openwidget",
+        };
+
+        const newScript = document.createElement("script");
+        newScript.src = "https://cdn.openwidget.com/openwidget.js";
+        newScript.async = true;
+        document.head.appendChild(newScript);
+      }
+
+      // Hiện lại widget nếu bị ẩn trước đó
+      if (widgetFrame) {
+        widgetFrame.style.display = "block";
+      }
+    }
+  }, [userRole]);
 
   return (
     <BrowserRouter>

@@ -46,7 +46,7 @@ const Payment = () => {
     const toggleExportModal = () => {
         setIsExportModalOpen(!isExportModalOpen);
     };
-    
+
     const handleExportFilterChange = (e) => {
         setExportFilters({
             ...exportFilters,
@@ -142,7 +142,7 @@ const Payment = () => {
                 },
                 withCredentials: true
             });
-    
+
             if (response.data.status === 'success') {
                 const payments = response.data.data.payments.map(payment => ({
                     'PAYMENT ID': payment._id,
@@ -154,24 +154,24 @@ const Payment = () => {
                     'CREATED AT': reformDateTime(payment.createdAt),
                     'UPDATED AT': reformDateTime(payment.updatedAt),
                 }));
-    
+
                 const ws = XLSX.utils.json_to_sheet(payments);
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, 'Payments_Report');
-    
+
                 const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                 const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    
+
                 saveAs(data, 'payments_report.xlsx');
                 alert('Xuất báo cáo thanh toán thành công!');
-                  // Đóng modal và reset filters
-            toggleExportModal(); // Đóng modal
-            setExportFilters({
-                branchId: '',
-                type: '',
-                startDate: '',
-                endDate: ''
-            }); // Reset filters
+                // Đóng modal và reset filters
+                toggleExportModal(); // Đóng modal
+                setExportFilters({
+                    branchId: '',
+                    type: '',
+                    startDate: '',
+                    endDate: ''
+                }); // Reset filters
             } else {
                 alert('Lỗi khi xuất báo cáo: ' + response.data.message);
             }
@@ -180,7 +180,7 @@ const Payment = () => {
             alert('Xuất báo cáo thanh toán thất bại!');
         }
     };
-    
+
     return (
         <div className="mt-4">
             <div className="flex justify-between items-center mb-4">
@@ -199,12 +199,7 @@ const Payment = () => {
                     >
                         <FaFilter className="mr-2" /> Lọc
                     </button>
-                    <button
-                        className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
-                        onClick={() => navigate('/payments/create')}
-                    >
-                        Thêm Hóa Đơn
-                    </button>
+                    {/* Removed "Thêm Hóa Đơn" button */}
                     <button
                         className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-all"
                         onClick={toggleExportModal}
@@ -233,8 +228,8 @@ const Payment = () => {
                                 onChange={handleFilterChange}
                                 className="w-full px-4 py-2 border rounded"
                             >
-                                 <option value="">Tất cả</option>
-                                 <option value="pending">Chờ xử lý</option>
+                                <option value="">Tất cả</option>
+                                <option value="pending">Chờ xử lý</option>
                                 <option value="completed">Hoàn tất</option>
                                 <option value="failed">Thất bại</option>
                             </select>
@@ -248,9 +243,7 @@ const Payment = () => {
                                 className="w-full px-4 py-2 border rounded"
                             >
                                 <option value="">Tất cả</option>
-                                <option value="credit_card">Credit Card</option>
-                                <option value="paypal">PayPal</option>
-                                <option value="cash">Cash</option>
+                                <option value="COD">COD</option>
                                 <option value="MoMo">MoMo</option>
                             </select>
                         </div>
@@ -292,94 +285,93 @@ const Payment = () => {
                 </div>
             )}
             {isExportModalOpen && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div className="bg-white p-6 rounded shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Lọc Dữ Liệu Xuất Báo Cáo Thanh Toán</h2>
-              {/* Bộ lọc tìm kiếm theo Payment ID, Order ID, hoặc User ID */}
-              <div className="mb-4">
-                <label className="block mb-2">Tìm kiếm</label>
-                <input
-                    type="text"
-                    name="search"
-                    value={exportFilters.search}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                    placeholder="Nhập Payment ID, Order ID hoặc User ID"
-                />
-            </div>
-            {/* Bộ lọc Trạng thái thanh toán */}
-            <div className="mb-4">
-                <label className="block mb-2">Trạng Thái Thanh Toán</label>
-                <select
-                    name="status"
-                    value={exportFilters.status}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                >
-                    <option value="">Tất cả</option>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white p-6 rounded shadow-lg">
+                        <h2 className="text-xl font-bold mb-4">Lọc Dữ Liệu Xuất Báo Cáo Thanh Toán</h2>
+                        {/* Bộ lọc tìm kiếm theo Payment ID, Order ID, hoặc User ID */}
+                        <div className="mb-4">
+                            <label className="block mb-2">Tìm kiếm</label>
+                            <input
+                                type="text"
+                                name="search"
+                                value={exportFilters.search}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                                placeholder="Nhập Payment ID, Order ID hoặc User ID"
+                            />
+                        </div>
+                        {/* Bộ lọc Trạng thái thanh toán */}
+                        <div className="mb-4">
+                            <label className="block mb-2">Trạng Thái Thanh Toán</label>
+                            <select
+                                name="status"
+                                value={exportFilters.status}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            >
+                                <option value="">Tất cả</option>
                                 <option value="pending">Chờ xử lý</option>
                                 <option value="completed">Hoàn tất</option>
                                 <option value="failed">Thất bại</option>
-                </select>
-            </div>
+                            </select>
+                        </div>
 
-            {/* Bộ lọc Phương thức thanh toán */}
-            <div className="mb-4">
-                <label className="block mb-2">Phương Thức Thanh Toán</label>
-                <select
-                    name="paymentMethod"
-                    value={exportFilters.paymentMethod}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                >
-                      <option value="">Tất cả</option>
-                                <option value="credit_card">Credit Card</option>
-                                <option value="paypal">PayPal</option>
-                                <option value="cash">Cash</option>
-                </select>
-            </div>
+                        {/* Bộ lọc Phương thức thanh toán */}
+                        <div className="mb-4">
+                            <label className="block mb-2">Phương Thức Thanh Toán</label>
+                            <select
+                                name="paymentMethod"
+                                value={exportFilters.paymentMethod}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            >
+                                <option value="">Tất cả</option>
+                                <option value="COD">COD</option>
+                                <option value="MoMo">MoMo</option>
+                            </select>
+                        </div>
 
-            {/* Bộ lọc theo khoảng thời gian */}
-            <div className="mb-4">
-                <label className="block mb-2">Ngày Bắt Đầu</label>
-                <input
-                    type="date"
-                    name="startDate"
-                    value={exportFilters.startDate}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block mb-2">Ngày Kết Thúc</label>
-                <input
-                    type="date"
-                    name="endDate"
-                    value={exportFilters.endDate}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                />
-            </div>
+                        {/* Bộ lọc theo khoảng thời gian */}
+                        <div className="mb-4">
+                            <label className="block mb-2">Ngày Bắt Đầu</label>
+                            <input
+                                type="date"
+                                name="startDate"
+                                value={exportFilters.startDate}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block mb-2">Ngày Kết Thúc</label>
+                            <input
+                                type="date"
+                                name="endDate"
+                                value={exportFilters.endDate}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            />
+                        </div>
 
-          
 
-            <div className="flex justify-end space-x-2">
-                <button
-                    className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
-                    onClick={toggleExportModal}
-                >
-                    Hủy
-                </button>
-                <button
-                    className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
-                    onClick={handleExportPayments}
-                >
-                    Xuất Báo Cáo
-                </button>
-            </div>
-        </div>
-    </div>
-)}
+
+                        <div className="flex justify-end space-x-2">
+                            <button
+                                className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+                                onClick={toggleExportModal}
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
+                                onClick={handleExportPayments}
+                            >
+                                Xuất Báo Cáo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
     );

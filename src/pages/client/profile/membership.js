@@ -1,13 +1,12 @@
 import React from 'react';
-import SidebarProfile from '../../../components/clients/layouts/SidebarProfile';
+import ProfileLayout from '../../../components/clients/wrapper/ProfileLayout';
 import MembershipContent from '../../../components/clients/users/MembershipContent';
 
 function MembershipPage() {
     return (
-        <div className="flex min-h-screen bg-gray-100">
-            <SidebarProfile />
+        <ProfileLayout>
             <MembershipContent />
-        </div>
+        </ProfileLayout>
     );
 }
 

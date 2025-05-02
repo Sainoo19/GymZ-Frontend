@@ -45,7 +45,7 @@ const Order = () => {
     const toggleExportModal = () => {
         setIsExportModalOpen(!isExportModalOpen);
     };
-    
+
     const handleExportFilterChange = (e) => {
         setExportFilters({
             ...exportFilters,
@@ -94,7 +94,7 @@ const Order = () => {
         try {
             // Gửi yêu cầu xóa đơn hàng
             await axios.delete(`${URL_API}orders/delete/${id}`);
-            
+
             // Cập nhật lại dữ liệu sau khi xóa
             const response = await axios.get(`${URL_API}orders/all`, {
                 params: {
@@ -104,31 +104,31 @@ const Order = () => {
                     ...filters
                 }
             });
-    
+
             if (response.data.status === 'success') {
                 const orders = response.data.data.orders.map(order => ({
                     ...order,
                     createdAt: reformDateTime(order.createdAt),
                     updatedAt: reformDateTime(order.updatedAt)
                 }));
-    
+
                 // Nếu số trang lớn hơn tổng số trang sau khi xóa, điều chỉnh về trang trước đó
                 if (data.length === 1 && currentPage > 1) {
                     setCurrentPage(currentPage - 1);
                 }
-    
+
                 setData(orders);
                 setTotalPages(response.data.metadata.totalPages);
             } else {
                 console.error('API response error:', response.data.message);
             }
-    
+
             setIsDeleteModalOpen(false); // Đóng modal
         } catch (error) {
             console.error('Error deleting order:', error);
         }
     };
-    
+
 
     const openDeleteModal = (id) => {
         setSelectedOrderId(id);
@@ -173,7 +173,7 @@ const Order = () => {
                 },
                 withCredentials: true
             });
-    
+
             if (response.data.status === 'success') {
                 const orders = response.data.data.orders.map(order => ({
                     'ORDER ID': order._id,
@@ -184,24 +184,24 @@ const Order = () => {
                     'UPDATED AT': reformDateTime(order.updatedAt),
                     'PRODUCTS': order.items.map(item => `${item.product_id} (x${item.quantity})`).join(', '),
                 }));
-    
+
                 const ws = XLSX.utils.json_to_sheet(orders);
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, 'Orders_Report');
-    
+
                 const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                 const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    
+
                 saveAs(data, 'orders_report.xlsx');
                 alert('Xuất báo cáo đơn hàng thành công!');
-                  // Đóng modal và reset filters
-            toggleExportModal(); // Đóng modal
-            setExportFilters({
-                branchId: '',
-                type: '',
-                startDate: '',
-                endDate: ''
-            }); // Reset filters
+                // Đóng modal và reset filters
+                toggleExportModal(); // Đóng modal
+                setExportFilters({
+                    branchId: '',
+                    type: '',
+                    startDate: '',
+                    endDate: ''
+                }); // Reset filters
             } else {
                 alert('Lỗi khi xuất báo cáo: ' + response.data.message);
             }
@@ -210,8 +210,8 @@ const Order = () => {
             alert('Xuất báo cáo thất bại!');
         }
     };
-    
-    
+
+
     return (
         <div className="mt-20">
             <div className="flex justify-between items-center mb-4">
@@ -230,16 +230,11 @@ const Order = () => {
                     >
                         <FaFilter className="mr-2" /> Lọc
                     </button>
-                    <button
-                        className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
-                        onClick={() => navigate('/orders/create')}
-                    >
-                        Thêm Đơn Hàng
-                    </button>
+                    {/* Removed "Thêm Đơn Hàng" button */}
                     <button
                         className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-all"
                         onClick={toggleExportModal}
-                        >
+                    >
                         Xuất Báo Cáo
                     </button>
                 </div>
@@ -269,20 +264,6 @@ const Order = () => {
                                 <option value="Đang xử lý">Đang xử lý</option>
                                 <option value="Hoàn thành">Hoàn thành</option>
                                 <option value="Đã hủy">Đã hủy</option>
-                            </select>
-                        </div>
-                        <div className="mb-4">
-                            <label className="block mb-2">Phương Thức Thanh Toán</label>
-                            <select
-                                name="paymentMethod"
-                                value={filters.paymentMethod}
-                                onChange={handleFilterChange}
-                                className="w-full px-4 py-2 border rounded"
-                            >
-                                <option value="">Tất cả</option>
-                                <option value="credit_card">Credit Card</option>
-                                <option value="paypal">PayPal</option>
-                                <option value="cash">Cash</option>
                             </select>
                         </div>
                         <div className="mb-4">
@@ -353,119 +334,119 @@ const Order = () => {
                 </div>
             )}
             {isExportModalOpen && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div className="bg-white p-6 rounded shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Lọc Dữ Liệu Xuất Báo Cáo Đơn Hàng</h2>
-            
-            {/* Trạng thái đơn hàng */}
-            <div className="mb-4">
-                <label className="block mb-2">Trạng Thái Đơn Hàng</label>
-                <select
-                    name="status"
-                    value={exportFilters.status}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                >
-                    <option value="">Tất cả</option>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white p-6 rounded shadow-lg">
+                        <h2 className="text-xl font-bold mb-4">Lọc Dữ Liệu Xuất Báo Cáo Đơn Hàng</h2>
+
+                        {/* Trạng thái đơn hàng */}
+                        <div className="mb-4">
+                            <label className="block mb-2">Trạng Thái Đơn Hàng</label>
+                            <select
+                                name="status"
+                                value={exportFilters.status}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            >
+                                <option value="">Tất cả</option>
                                 <option value="Đang chờ">Đang chờ</option>
                                 <option value="Đang xử lý">Đang xử lý</option>
                                 <option value="Hoàn thành">Hoàn thành</option>
                                 <option value="Đã hủy">Đã hủy</option>
-                </select>
-            </div>
+                            </select>
+                        </div>
 
-            {/* Lọc theo ID người dùng */}
-            <div className="mb-4">
-                <label className="block mb-2">ID Người Dùng</label>
-                <input
-                    type="text"
-                    name="user_id"
-                    value={exportFilters.user_id}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                    placeholder="Nhập ID người dùng"
-                />
-            </div>
+                        {/* Lọc theo ID người dùng */}
+                        <div className="mb-4">
+                            <label className="block mb-2">ID Người Dùng</label>
+                            <input
+                                type="text"
+                                name="user_id"
+                                value={exportFilters.user_id}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                                placeholder="Nhập ID người dùng"
+                            />
+                        </div>
 
-            {/* Tìm kiếm đơn hàng (ID đơn hoặc User ID) */}
-            <div className="mb-4">
-                <label className="block mb-2">Tìm kiếm đơn hàng</label>
-                <input
-                    type="text"
-                    name="search"
-                    value={exportFilters.search}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                    placeholder="Nhập Order ID hoặc User ID"
-                />
-            </div>
+                        {/* Tìm kiếm đơn hàng (ID đơn hoặc User ID) */}
+                        <div className="mb-4">
+                            <label className="block mb-2">Tìm kiếm đơn hàng</label>
+                            <input
+                                type="text"
+                                name="search"
+                                value={exportFilters.search}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                                placeholder="Nhập Order ID hoặc User ID"
+                            />
+                        </div>
 
-            {/* Khoảng giá đơn hàng */}
-            <div className="mb-4 grid grid-cols-2 gap-4">
-                <div>
-                    <label className="block mb-2">Giá Tối Thiểu</label>
-                    <input
-                        type="number"
-                        name="minTotalPrice"
-                        value={exportFilters.minTotalPrice}
-                        onChange={handleExportFilterChange}
-                        className="w-full px-4 py-2 border rounded"
-                        placeholder="Nhập giá thấp nhất"
-                    />
+                        {/* Khoảng giá đơn hàng */}
+                        <div className="mb-4 grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block mb-2">Giá Tối Thiểu</label>
+                                <input
+                                    type="number"
+                                    name="minTotalPrice"
+                                    value={exportFilters.minTotalPrice}
+                                    onChange={handleExportFilterChange}
+                                    className="w-full px-4 py-2 border rounded"
+                                    placeholder="Nhập giá thấp nhất"
+                                />
+                            </div>
+                            <div>
+                                <label className="block mb-2">Giá Tối Đa</label>
+                                <input
+                                    type="number"
+                                    name="maxTotalPrice"
+                                    value={exportFilters.maxTotalPrice}
+                                    onChange={handleExportFilterChange}
+                                    className="w-full px-4 py-2 border rounded"
+                                    placeholder="Nhập giá cao nhất"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Ngày tạo đơn hàng */}
+                        <div className="mb-4">
+                            <label className="block mb-2">Ngày Bắt Đầu</label>
+                            <input
+                                type="date"
+                                name="startDate"
+                                value={exportFilters.startDate}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block mb-2">Ngày Kết Thúc</label>
+                            <input
+                                type="date"
+                                name="endDate"
+                                value={exportFilters.endDate}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            />
+                        </div>
+
+                        {/* Nút Hủy & Xuất Báo Cáo */}
+                        <div className="flex justify-end space-x-2">
+                            <button
+                                className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+                                onClick={toggleExportModal}
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
+                                onClick={handleExportOrders}
+                            >
+                                Xuất Báo Cáo
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label className="block mb-2">Giá Tối Đa</label>
-                    <input
-                        type="number"
-                        name="maxTotalPrice"
-                        value={exportFilters.maxTotalPrice}
-                        onChange={handleExportFilterChange}
-                        className="w-full px-4 py-2 border rounded"
-                        placeholder="Nhập giá cao nhất"
-                    />
-                </div>
-            </div>
-
-            {/* Ngày tạo đơn hàng */}
-            <div className="mb-4">
-                <label className="block mb-2">Ngày Bắt Đầu</label>
-                <input
-                    type="date"
-                    name="startDate"
-                    value={exportFilters.startDate}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block mb-2">Ngày Kết Thúc</label>
-                <input
-                    type="date"
-                    name="endDate"
-                    value={exportFilters.endDate}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                />
-            </div>
-
-            {/* Nút Hủy & Xuất Báo Cáo */}
-            <div className="flex justify-end space-x-2">
-                <button
-                    className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
-                    onClick={toggleExportModal}
-                >
-                    Hủy
-                </button>
-                <button
-                    className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
-                    onClick={handleExportOrders}
-                >
-                    Xuất Báo Cáo
-                </button>
-            </div>
-        </div>
-    </div>
-)}
+            )}
 
         </div>
     );

@@ -70,9 +70,9 @@ const LoginAdminPage = () => {
 
     return (
         <div className="bg-gray-100 flex items-center justify-center min-h-screen">
-            <div className="bg-white shadow-lg rounded-lg flex max-w-4xl w-full">
-                {/* Left Section */}
-                <div className="w-1/2 p-8">
+            <div className="bg-white shadow-lg rounded-lg flex flex-col md:flex-row max-w-4xl w-full">
+                {/* Left Section - Form */}
+                <div className="w-full md:w-1/2 p-6 md:p-8">
                     <h1 className="text-3xl font-bold text-gray-800 mb-2">
                         Admin Login <span className="wave">👋</span>
                     </h1>
@@ -134,7 +134,7 @@ const LoginAdminPage = () => {
                 </div>
 
                 {/* Right Section */}
-                <div className="w-1/2 relative">
+                <div className="hidden md:block w-1/2 relative">
                     <img
                         src="https://storage.googleapis.com/a1aa/image/15kDt7v93-7BnU9_EzemqaW9rY4V3vZ2BsfuCXGz8nM.jpg"
                         alt="Admin background"

@@ -1,12 +1,11 @@
-import SidebarProfile from '../../../components/clients/layouts/SidebarProfile';
+import ProfileLayout from '../../../components/clients/wrapper/ProfileLayout';
 import ProfileContent from '../../../components/clients/users/ProfileContent';
 
 function ProfilePage() {
     return (
-        <div className="flex min-h-screen bg-gray-100">
-            <SidebarProfile />
+        <ProfileLayout>
             <ProfileContent />
-        </div>
+        </ProfileLayout>
     );
 }
 
