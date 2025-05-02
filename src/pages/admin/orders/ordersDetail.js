@@ -98,17 +98,12 @@ const UpdateOrderForm = () => {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Mã Khách Hàng</label>
-                            <select
+                            <input
+                                type="text"
                                 value={order.user_id}
-                                onChange={(e) => setOrder({ ...order, user_id: e.target.value })}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                            >
-                                {users.map(user => (
-                                    <option key={user._id} value={user._id}>
-                                        {user._id}
-                                    </option>
-                                ))}
-                            </select>
+                                readOnly
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
+                            />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Trạng Thái</label>
