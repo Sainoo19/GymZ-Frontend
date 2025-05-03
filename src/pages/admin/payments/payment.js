@@ -85,7 +85,7 @@ const Payment = () => {
     }, [currentPage, search, filters, exportFilters]);
 
     const handleEdit = (id) => {
-        navigate(`/payments/${id}`);
+        navigate(`/admin/payments/${id}`);
     };
 
     const handleDelete = async (id) => {
