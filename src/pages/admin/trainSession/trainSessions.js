@@ -5,7 +5,7 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'moment/locale/vi'; // Import Vietnamese locale if needed
-import { FaFilter } from 'react-icons/fa';
+import { FaFilter, FaCalendarAlt, FaList } from 'react-icons/fa';
 import reformDateTime from '../../../components/utils/reformDateTime';
 import DeleteSessionModal from './trainSessionDelete';
 
@@ -23,12 +23,16 @@ const TrainSessions = () => {
         branchId: '',
         status: '',
         startDate: '',
-        endDate: ''
+        endDate: '',
+        employeeID: '', // Thêm trường này để lọc theo huấn luyện viên
+        userID: '' // Thêm trường này để lọc theo khách hàng
     });
     const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedSessionId, setSelectedSessionId] = useState(null);
     const [viewMode, setViewMode] = useState('calendar'); // 'calendar' or 'list'
+    const [branches, setBranches] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const URL_API = process.env.REACT_APP_API_URL;
 
@@ -65,19 +69,44 @@ const TrainSessions = () => {
         return `${moment(date).format('DD/MM/YYYY')} ${startTime}`;
     };
 
+    // Hàm để loại bỏ các tham số rỗng
+    const cleanFilters = (filters) => {
+        return Object.fromEntries(
+            Object.entries(filters).filter(([_, value]) => value !== '')
+        );
+    };
+
+    // Fetch branch data for dropdowns
+    useEffect(() => {
+        const fetchBranches = async () => {
+            try {
+                const response = await axios.get(`${URL_API}branches/all/nopagination`);
+                if (response.data.status === 'success') {
+                    setBranches(response.data.data);
+                }
+            } catch (error) {
+                console.error("Error fetching branches:", error);
+            }
+        };
+
+        fetchBranches();
+    }, [URL_API]);
+
     useEffect(() => {
         const fetchData = async () => {
+            setIsLoading(true);
             try {
-                // For calendar view, get all sessions without pagination
-                const apiUrl = viewMode === 'calendar'
-                    ? `${URL_API}trainingSession/all?limit=1000`
-                    : `${URL_API}trainingSession/all`;
+                // Xử lý các tham số tùy thuộc vào chế độ xem
+                const cleanedFilters = cleanFilters(filters);
 
-                const params = viewMode === 'calendar'
-                    ? { search, ...filters }
-                    : { page: currentPage, limit: 10, search, ...filters };
+                // Xác định params dựa trên chế độ xem
+                const params = {
+                    ...(viewMode === 'list' ? { page: currentPage, limit: 10 } : { limit: 1000 }),
+                    ...(search ? { search } : {}),
+                    ...cleanedFilters
+                };
 
-                const response = await axios.get(apiUrl, {
+                const response = await axios.get(`${URL_API}trainingSession/all`, {
                     params,
                     withCredentials: true
                 });
@@ -109,12 +138,14 @@ const TrainSessions = () => {
                     });
 
                     setCalendarEvents(events);
-                    setTotalPages(response.data.metadata.totalPages || 1);
+                    setTotalPages(response.data.metadata?.totalPages || 1);
                 } else {
                     console.error('API response error:', response.data.message);
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -167,7 +198,36 @@ const TrainSessions = () => {
         setIsFilterModalOpen(!isFilterModalOpen);
     };
 
+    const changeViewMode = (mode) => {
+        setViewMode(mode);
+        // Reset search và currentPage khi chuyển mode
+        setCurrentPage(1);
+        if (mode === 'calendar') {
+            // Khi chuyển sang chế độ lịch, không cần giữ search
+            setSearch('');
+        }
+    }
+
     const applyFilters = () => {
+        // Kiểm tra nếu cả hai ngày đều được điền hoặc cả hai đều trống
+        if ((filters.startDate && !filters.endDate) || (!filters.startDate && filters.endDate)) {
+            alert('Vui lòng nhập đủ cả ngày bắt đầu và kết thúc');
+            return;
+        }
+
+        setCurrentPage(1);
+        setIsFilterModalOpen(false);
+    };
+
+    const clearFilters = () => {
+        setFilters({
+            branchId: '',
+            status: '',
+            startDate: '',
+            endDate: '',
+            employeeID: '',
+            userID: ''
+        });
         setCurrentPage(1);
         setIsFilterModalOpen(false);
     };
@@ -209,38 +269,71 @@ const TrainSessions = () => {
         </div>
     );
 
+    // Hiển thị pagination nếu đang ở chế độ xem danh sách
+    const renderPagination = () => {
+        if (viewMode !== 'list' || totalPages <= 1) return null;
+
+        return (
+            <div className="flex justify-center mt-4">
+                <div className="flex space-x-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                        <button
+                            key={page}
+                            onClick={() => handlePageChange(page)}
+                            className={`px-3 py-1 rounded ${currentPage === page
+                                ? 'bg-primary text-white'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                }`}
+                        >
+                            {page}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="mt-4">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">Tất Cả Phiên Tập Luyện</h1>
+
                 <div className="flex items-center space-x-2">
-                    <input
-                        type="text"
-                        placeholder="Tìm kiếm theo ID, User ID hoặc tiêu đề..."
-                        value={search}
-                        onChange={handleSearchChange}
-                        className="px-4 py-2 border rounded"
-                    />
-                    <button
-                        className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all flex items-center"
-                        onClick={toggleFilterModal}
-                    >
-                        <FaFilter className="mr-2" /> Lọc
-                    </button>
-                    <div className="flex border rounded">
+                    {/* Hiển thị search và filter chỉ khi ở chế độ danh sách */}
+                    {viewMode === 'list' && (
+                        <>
+                            <input
+                                type="text"
+                                placeholder="Tìm kiếm theo ID, User ID..."
+                                value={search}
+                                onChange={handleSearchChange}
+                                className="px-4 py-2 border rounded"
+                            />
+                            <button
+                                className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all flex items-center"
+                                onClick={toggleFilterModal}
+                            >
+                                <FaFilter className="mr-2" /> Lọc
+                            </button>
+                        </>
+                    )}
+
+                    {/* Toggle giữa chế độ lịch và danh sách */}
+                    <div className="flex border rounded overflow-hidden">
                         <button
-                            className={`px-4 py-2 ${viewMode === 'calendar' ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}
-                            onClick={() => setViewMode('calendar')}
+                            className={`px-4 py-2 flex items-center ${viewMode === 'calendar' ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}
+                            onClick={() => changeViewMode('calendar')}
                         >
-                            Lịch
+                            <FaCalendarAlt className="mr-2" /> Lịch
                         </button>
                         <button
-                            className={`px-4 py-2 ${viewMode === 'list' ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}
-                            onClick={() => setViewMode('list')}
+                            className={`px-4 py-2 flex items-center ${viewMode === 'list' ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}
+                            onClick={() => changeViewMode('list')}
                         >
-                            Danh sách
+                            <FaList className="mr-2" /> Danh sách
                         </button>
                     </div>
+
                     <button
                         className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
                         onClick={() => navigate('/admin/trainingSessions/create')}
@@ -250,7 +343,11 @@ const TrainSessions = () => {
                 </div>
             </div>
 
-            {viewMode === 'calendar' ? (
+            {isLoading ? (
+                <div className="flex justify-center items-center h-64">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+                </div>
+            ) : viewMode === 'calendar' ? (
                 <div style={{ height: '700px' }} className="mb-4 bg-white p-4 rounded shadow">
                     <Calendar
                         localizer={localizer}
@@ -335,6 +432,8 @@ const TrainSessions = () => {
                             Không tìm thấy phiên tập luyện nào
                         </div>
                     )}
+
+                    {renderPagination()}
                 </div>
             )}
 
@@ -347,32 +446,8 @@ const TrainSessions = () => {
 
             {isFilterModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded shadow-lg">
+                    <div className="bg-white p-6 rounded shadow-lg w-96">
                         <h2 className="text-xl font-bold mb-4">Lọc Phiên Tập</h2>
-
-                        <div className="mb-4">
-                            <label className="block mb-2">Huấn luyện viên</label>
-                            <input
-                                type="text"
-                                name="employeeID"
-                                value={filters.employeeID || ''}
-                                onChange={handleFilterChange}
-                                className="w-full px-4 py-2 border rounded"
-                                placeholder="Nhập ID huấn luyện viên"
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <label className="block mb-2">Khách hàng</label>
-                            <input
-                                type="text"
-                                name="userID"
-                                value={filters.userID || ''}
-                                onChange={handleFilterChange}
-                                className="w-full px-4 py-2 border rounded"
-                                placeholder="Nhập ID khách hàng"
-                            />
-                        </div>
 
                         <div className="mb-4">
                             <label className="block mb-2">Trạng Thái</label>
@@ -415,6 +490,12 @@ const TrainSessions = () => {
                         </div>
 
                         <div className="flex justify-end space-x-2">
+                            <button
+                                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                                onClick={clearFilters}
+                            >
+                                Xóa bộ lọc
+                            </button>
                             <button
                                 className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
                                 onClick={toggleFilterModal}

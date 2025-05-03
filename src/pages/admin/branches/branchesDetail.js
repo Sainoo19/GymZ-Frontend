@@ -48,7 +48,7 @@ const UpdateBranchForm = () => {
                 updatedAt: new Date().toISOString(), // Update the updatedAt field
             };
             await axios.put(`${URL_API}branches/update/${id}`, updatedBranch);
-            navigate('/branches'); // Navigate back to the branches list
+            navigate('/admin/branches'); // Navigate back to the branches list
         } catch (error) {
             console.error('Error updating branch:', error);
         }

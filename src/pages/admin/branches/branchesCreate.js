@@ -42,7 +42,7 @@ const CreateBranch = () => {
         e.preventDefault();
         try {
             await axios.post(`${URL_API}branches/create`, branch);
-            navigate('/branches'); // Navigate back to the branches list
+            navigate('/admin/branches'); // Navigate back to the branches list
         } catch (error) {
             console.error('Error creating branch:', error);
         }

@@ -46,13 +46,13 @@ const Branches = () => {
     const cleanFilters = Object.fromEntries(
         Object.entries(exportFilters).filter(([_, v]) => v)
     );
-    
+
 
     const toggleExportModal = () => {
         setIsExportModalOpen(!isExportModalOpen);
-        
+
     };
-    
+
     const handleExportFilterChange = (e) => {
         setExportFilters({
             ...exportFilters,
@@ -92,7 +92,7 @@ const Branches = () => {
     }, [currentPage, search, filters, exportFilters]);
 
     const handleEdit = (id) => {
-        navigate(`/branches/${id}`);
+        navigate(`/admin/branches/${id}`);
     };
 
     const handleDelete = async (id) => {
@@ -148,9 +148,9 @@ const Branches = () => {
                 },
                 withCredentials: true
             });
-            
+
             console.log('API Response:', response.data); // Kiểm tra dữ liệu trả về từ API
-    
+
             if (response.data.status === 'success') {
                 const branches = response.data.data.branches.map(branch => ({
                     'BRANCH ID': branch._id,
@@ -161,18 +161,18 @@ const Branches = () => {
                     'UPDATED AT': reformDateTime(branch.updatedAt)
                 }));
                 console.log('Excel Data:', branches); // Kiểm tra dữ liệu trước khi xuất
-    
+
                 const ws = XLSX.utils.json_to_sheet(branches);
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, 'Branches_Report');
-    
+
                 const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                 const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    
+
                 saveAs(data, 'branches_report.xlsx');
                 alert('Xuất báo cáo thành công!');
-             
-                  // Đóng modal và reset filters
+
+                // Đóng modal và reset filters
                 toggleExportModal(); // Đóng modal
                 setExportFilters({
                     branchId: '',
@@ -188,7 +188,7 @@ const Branches = () => {
             alert('Xuất báo cáo thất bại!');
         }
     };
-    
+
 
     return (
         <div className="mt-4">
@@ -210,7 +210,7 @@ const Branches = () => {
                     </button>
                     <button
                         className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
-                        onClick={() => navigate('/branches/create')}
+                        onClick={() => navigate('/admin/branches/create')}
                     >
                         Thêm Chi Nhánh
                     </button>
@@ -282,74 +282,74 @@ const Branches = () => {
                 </div>
             )}
             {isExportModalOpen && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div className="bg-white p-6 rounded shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Lọc Dữ Liệu Xuất Báo Cáo Chi Nhánh</h2>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white p-6 rounded shadow-lg">
+                        <h2 className="text-xl font-bold mb-4">Lọc Dữ Liệu Xuất Báo Cáo Chi Nhánh</h2>
 
-          {/* Bộ lọc tìm kiếm theo Payment ID, Order ID, hoặc User ID */}
-          <div className="mb-4">
-                <label className="block mb-2">Tìm kiếm</label>
-                <input
-                    type="text"
-                    name="search"
-                    value={exportFilters.search}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                    placeholder="Nhập Brand ID"
-                />
-            </div>
+                        {/* Bộ lọc tìm kiếm theo Payment ID, Order ID, hoặc User ID */}
+                        <div className="mb-4">
+                            <label className="block mb-2">Tìm kiếm</label>
+                            <input
+                                type="text"
+                                name="search"
+                                value={exportFilters.search}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                                placeholder="Nhập Brand ID"
+                            />
+                        </div>
 
-            <div className="mb-4">
-                <label className="block mb-2">Thành Phố</label>
-                <input
-                    type="text"
-                    name="location"
-                    value={exportFilters.location}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                    placeholder="Nhập thành phố"
-                />
-            </div>
+                        <div className="mb-4">
+                            <label className="block mb-2">Thành Phố</label>
+                            <input
+                                type="text"
+                                name="location"
+                                value={exportFilters.location}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                                placeholder="Nhập thành phố"
+                            />
+                        </div>
 
-            <div className="mb-4">
-                <label className="block mb-2">Ngày Bắt Đầu</label>
-                <input
-                    type="date"
-                    name="startDate"
-                    value={exportFilters.startDate}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                />
-            </div>
+                        <div className="mb-4">
+                            <label className="block mb-2">Ngày Bắt Đầu</label>
+                            <input
+                                type="date"
+                                name="startDate"
+                                value={exportFilters.startDate}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            />
+                        </div>
 
-            <div className="mb-4">
-                <label className="block mb-2">Ngày Kết Thúc</label>
-                <input
-                    type="date"
-                    name="endDate"
-                    value={exportFilters.endDate}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                />
-            </div>
+                        <div className="mb-4">
+                            <label className="block mb-2">Ngày Kết Thúc</label>
+                            <input
+                                type="date"
+                                name="endDate"
+                                value={exportFilters.endDate}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            />
+                        </div>
 
-            <div className="flex justify-end space-x-2">
-                <button
-                    className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
-                    onClick={toggleExportModal}
-                >
-                    Hủy
-                </button>
-                <button
-                    className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
-                    onClick={handleExport}
-                >
-                    Xuất Báo Cáo
-                </button>
-            </div>
-        </div>
-    </div>
-)}
+                        <div className="flex justify-end space-x-2">
+                            <button
+                                className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+                                onClick={toggleExportModal}
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
+                                onClick={handleExport}
+                            >
+                                Xuất Báo Cáo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
     );

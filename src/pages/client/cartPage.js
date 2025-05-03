@@ -130,8 +130,8 @@ const CartPage = () => {
           ...prevCart,
           items: prevCart.items.map((item) =>
             item.product_id === productId &&
-            item.category === category &&
-            item.theme === theme
+              item.category === category &&
+              item.theme === theme
               ? { ...item, quantity: newQuantity }
               : item
           ),
@@ -181,14 +181,13 @@ const CartPage = () => {
         data?.usageLimit > 0
       ) {
         setDiscountPercent(data.discountPercent);
-        setMaxDiscountAmount(data.maxDiscountAmount ); 
+        setMaxDiscountAmount(data.maxDiscountAmount);
         setApplicableProducts(new Set(data.applicableProducts || []));
         alert(
-          `Mã giảm giá đã được áp dụng! Giảm ${
-            data.discountPercent
+          `Mã giảm giá đã được áp dụng! Giảm ${data.discountPercent
           }%, giảm tối đa ${formatCurrency(data.maxDiscountAmount)}đ`
         );
-       
+
       } else {
         alert("Mã giảm giá không hợp lệ, đã hết hạn hoặc hết lượt sử dụng.");
       }
@@ -227,48 +226,53 @@ const CartPage = () => {
     },
     0
   );
-  
-  
+
+
 
   let discountAmount = (totalApplicableProductPrice * discountPercent) / 100;
-  console.log("totalApplicableProductPrice",totalApplicableProductPrice)
-  console.log("discountPercent",discountPercent)
-  console.log("discountAmount",discountAmount)
-  console.log("applicableProducts",applicableProducts)
+  console.log("totalApplicableProductPrice", totalApplicableProductPrice)
+  console.log("discountPercent", discountPercent)
+  console.log("discountAmount", discountAmount)
+  console.log("applicableProducts", applicableProducts)
   console.log("--")
 
-// Nếu discountAmount lớn hơn maxDiscountAmount, thì set lại discountAmount
-if (discountAmount > maxDiscountAmount) {
-  discountAmount = maxDiscountAmount;
-}
+  // Nếu discountAmount lớn hơn maxDiscountAmount, thì set lại discountAmount
+  if (discountAmount > maxDiscountAmount) {
+    discountAmount = maxDiscountAmount;
+  }
 
-  console.log("maxDiscountAmount",maxDiscountAmount)
+  console.log("maxDiscountAmount", maxDiscountAmount)
   const discountedTotal = totalAllProdctCartPrice - discountAmount;
   totalPrice = discountedTotal;
+  // Cart page grid layout fix
+
+  // Cart page với sản phẩm to và cao hơn
+
   return (
-    <div className="container mx-auto  w-4/5 ">
-      <h1 className="text-2xl font-bold text-center mt-6 mb-6">
+    <div className="container mx-auto w-4/5">
+      <h1 className="text-2xl font-bold text-center mt-8 mb-8">
         GIỎ HÀNG CỦA TÔI
       </h1>
-      <div className="flex gap-4">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Danh sách sản phẩm */}
-        <div className="w-11/12 border rounded-lg p-4 bg-white">
-          <div className="grid grid-cols-5 text-base font-semibold border-b pb-2">
-            <span>Hình ảnh</span>
-            <span>Sản Phẩm</span>
-            <span>Giá</span>
-            <span>Số Lượng</span>
-            <span>Tổng Tiền</span>
+        <div className="w-full lg:w-8/12 border rounded-lg p-6 bg-white shadow-sm">
+          <div className="grid grid-cols-12 text-base font-bold border-b pb-4 mb-2">
+            <div className="col-span-5">Sản Phẩm</div>
+            <div className="col-span-2 text-center">Giá</div>
+            <div className="col-span-2 text-center">Số Lượng</div>
+            <div className="col-span-2 text-center">Tổng Tiền</div>
+            <div className="col-span-1 text-center"></div>
           </div>
           {cart.items.map((item, index) => (
             <div
               key={index}
-              className="grid grid-cols-5 items-center py-4 border-b"
+              className="grid grid-cols-12 items-center py-6 border-b"
             >
-              <div className="flex items-center gap-4">
+              {/* Sản phẩm (hình ảnh + thông tin) */}
+              <div className="col-span-5 flex items-center gap-4">
                 <input
                   type="checkbox"
-                  className="w-5 h-5"
+                  className="w-6 h-6"
                   checked={selectedItems.has(
                     `${item.product_id}-${item.category}-${item.theme || ""}`
                   )}
@@ -280,88 +284,116 @@ if (discountAmount > maxDiscountAmount) {
                     )
                   }
                 />
-
                 <img
                   src={item.productAvatar}
                   alt={item.productName}
-                  className="w-16 h-16"
+                  className="w-24 h-24 object-contain"
                 />
                 <div>
-                  <h2 className="font-semibold text-sm">{item.productName}</h2>
-                  <p className="text-sm">Phân Loại: {item.category}</p>
-                  <p className="text-sm">Loại: {item.theme}</p>
+                  <h2 className="font-semibold text-base mb-1 line-clamp-2">{item.productName}</h2>
+                  <p className="text-sm text-gray-600 mb-1">Phân Loại: {item.category}</p>
+                  <p className="text-sm text-gray-600">Loại: {item.theme}</p>
                 </div>
               </div>
-              <span>{formatCurrency(item.price)}₫ </span>
-              <div className="flex items-center gap-2">
+
+              {/* Giá */}
+              <div className="col-span-2 text-center font-medium">
+                {formatCurrency(item.price)}₫
+              </div>
+
+              {/* Số lượng */}
+              <div className="col-span-2">
+                <div className="flex items-center justify-center border rounded-md w-32 h-10 mx-auto">
+                  <button
+                    className="px-3 py-2 border-r text-lg font-medium"
+                    onClick={() => decrease(item)}
+                    disabled={item.quantity <= 1}
+                  >
+                    -
+                  </button>
+                  <input
+                    type="text"
+                    value={item.quantity}
+                    onChange={handleChangeQuantity}
+                    className="w-14 h-full text-center focus:outline-none font-medium"
+                  />
+                  <button
+                    className="px-3 py-2 border-l text-lg font-medium"
+                    onClick={() => increase(item)}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* Tổng tiền */}
+              <div className="col-span-2 font-medium text-center text-base">
+                {formatCurrency(item.price * item.quantity)}₫
+              </div>
+
+              {/* Nút xóa */}
+              <div className="col-span-1 text-center">
                 <button
-                  className="font-medium text-xl"
-                  onClick={() => decrease(item)}
+                  onClick={() =>
+                    handleRemoveItem(item.product_id, item.category, item.theme)
+                  }
+                  className="text-red-500 hover:text-red-700 p-2"
                 >
-                  -
-                </button>
-                <input
-                  type="text"
-                  value={item.quantity}
-                  onChange={handleChangeQuantity}
-                  className="font-medium text-base w-1/4 bg-transparent text-center focus:outline-none"
-                />
-                <button
-                  className="font-medium text-xl"
-                  onClick={() => increase(item)}
-                >
-                  +
+                  <span aria-label="Xóa" className="text-xl">🗑️</span>
                 </button>
               </div>
-              <span>{formatCurrency(item.price * item.quantity)}₫</span>
-              <button
-                onClick={() =>
-                  handleRemoveItem(item.product_id, item.category, item.theme)
-                }
-                className="text-red-500 text-xl"
-              >
-                🗑️
-              </button>
             </div>
           ))}
+
+          {cart.items.length === 0 && (
+            <div className="text-center py-12 text-gray-500 text-lg">
+              Giỏ hàng của bạn đang trống
+            </div>
+          )}
         </div>
+
         {/* Thanh toán */}
-        <div className="w-1/3 border rounded-lg p-4 bg-white">
-          <h2 className="text-lg font-semibold mb-2">Mã Khuyến Mãi</h2>
-          <div className="flex mb-4">
+        <div className="w-full lg:w-4/12 border rounded-lg p-6 bg-white shadow-sm h-fit">
+          <h2 className="text-xl font-bold mb-4">Mã Khuyến Mãi</h2>
+          <div className="flex mb-6">
             <input
               type="text"
-              className="border w-full text-base p-2 flex-1"
+              className="border w-full text-base p-3 flex-1 rounded-l"
               placeholder="Nhập mã"
               value={discountCode}
               onChange={(e) => setDiscountCode(e.target.value)}
             />
             <button
-              className="bg-black text-white px-4"
+              className="bg-black text-white px-5 py-3 rounded-r font-medium"
               onClick={applyDiscount}
             >
-              Nhập
+              Áp dụng
             </button>
           </div>
-          <div className=" pt-4">
+          <div className="pt-4 space-y-3">
+            <p className="flex justify-between border-b pb-3 text-base">
+              <span>Tạm tính:</span>
+              <span>{formatCurrency(totalAllProdctCartPrice)}₫</span>
+            </p>
+
             {discountPercent > 0 && (
-              <p className="text-sm  mt-2">
-                Khuyến Mãi: 
-                <span className="float-right">
-                  - {formatCurrency(discountAmount)}₫
-                </span>
+              <p className="flex justify-between text-green-600 text-base pb-2">
+                <span>Khuyến Mãi ({discountPercent}%):</span>
+                <span>- {formatCurrency(discountAmount)}₫</span>
               </p>
             )}
-            <p className="font-semibold  mt-2 text-lg border-t pt-2">
-              Tạm tính:{" "}
-              <span className="float-right">{formatCurrency(totalPrice)}₫</span>
+
+            <p className="flex justify-between text-xl font-bold pt-3 border-t mt-2">
+              <span>Tổng cộng:</span>
+              <span>{formatCurrency(totalPrice)}₫</span>
             </p>
           </div>
           <button
-            className="w-full bg-black text-white py-2 mt-4"
+            className="w-full bg-black text-white py-4 mt-6 rounded-md hover:bg-gray-800 transition-colors disabled:bg-gray-400 text-lg font-medium"
             onClick={handleCheckOutClick}
+            disabled={selectedItems.size === 0}
           >
-            Mua hàng
+            Mua hàng ({selectedItems.size})
           </button>
         </div>
       </div>

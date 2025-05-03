@@ -33,7 +33,7 @@ const Discounts = () => {
     const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedDiscountId, setSelectedDiscountId] = useState(null);
-    
+
     const navigate = useNavigate();
     const URL_API = process.env.REACT_APP_API_URL;
 
@@ -46,7 +46,7 @@ const Discounts = () => {
     const toggleExportModal = () => {
         setIsExportModalOpen(!isExportModalOpen);
     };
-    
+
     const handleExportFilterChange = (e) => {
         setExportFilters({
             ...exportFilters,
@@ -87,7 +87,7 @@ const Discounts = () => {
     }, [currentPage, search, filters, exportFilters]);
 
     const handleEdit = (id) => {
-        navigate(`/discounts/${id}`);
+        navigate(`/admin/discounts/${id}`);
     };
 
     const handleDelete = async (id) => {
@@ -142,7 +142,7 @@ const Discounts = () => {
                 },
                 withCredentials: true
             });
-    
+
             if (response.data.status === 'success') {
                 const discounts = response.data.data.discounts.map(discount => ({
                     'DISCOUNT ID': discount._id,
@@ -153,17 +153,17 @@ const Discounts = () => {
                     'CREATED AT': reformDateTime(discount.createdAt),
                     'UPDATED AT': reformDateTime(discount.updatedAt)
                 }));
-    
+
                 const ws = XLSX.utils.json_to_sheet(discounts);
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, 'Discounts_Report');
-    
+
                 const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                 const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    
+
                 saveAs(data, 'discounts_report.xlsx');
                 alert('Xuất báo cáo thành công!');
-                
+
                 // Đóng modal và reset filters
                 toggleExportModal(); // Đóng modal
                 setExportFilters({
@@ -180,7 +180,7 @@ const Discounts = () => {
             alert('Xuất báo cáo thất bại!');
         }
     };
-    
+
     return (
         <div className="mt-4">
             <div className="flex justify-between items-center mb-4">
@@ -201,7 +201,7 @@ const Discounts = () => {
                     </button>
                     <button
                         className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
-                        onClick={() => navigate('/discounts/create')}
+                        onClick={() => navigate('/admin/discounts/create')}
                     >
                         Thêm Khuyến Mãi
                     </button>
@@ -277,78 +277,78 @@ const Discounts = () => {
                 </div>
             )}
             {isExportModalOpen && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div className="bg-white p-6 rounded shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Lọc Dữ Liệu Xuất Báo Cáo</h2>
-            {/* Bộ lọc Status của Discount */}
-            <div className="mb-4">
-                <label className="block mb-2">Trạng Thái Discount</label>
-                <select
-                    name="status"
-                    value={exportFilters.status}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                >
-                    <option value="">Tất cả</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
-            </div>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white p-6 rounded shadow-lg">
+                        <h2 className="text-xl font-bold mb-4">Lọc Dữ Liệu Xuất Báo Cáo</h2>
+                        {/* Bộ lọc Status của Discount */}
+                        <div className="mb-4">
+                            <label className="block mb-2">Trạng Thái Discount</label>
+                            <select
+                                name="status"
+                                value={exportFilters.status}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            >
+                                <option value="">Tất cả</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
 
-            {/* Tìm kiếm theo mã Discount hoặc ID */}
-            <div className="mb-4">
-                <label className="block mb-2">Tìm kiếm Discount ID hoặc Mã Discount</label>
-                <input
-                    type="text"
-                    name="search"
-                    value={exportFilters.search}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                    placeholder="Nhập Discount ID hoặc Mã Discount"
-                />
-            </div>
+                        {/* Tìm kiếm theo mã Discount hoặc ID */}
+                        <div className="mb-4">
+                            <label className="block mb-2">Tìm kiếm Discount ID hoặc Mã Discount</label>
+                            <input
+                                type="text"
+                                name="search"
+                                value={exportFilters.search}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                                placeholder="Nhập Discount ID hoặc Mã Discount"
+                            />
+                        </div>
 
-            {/* Ngày bắt đầu của Discount */}
-            <div className="mb-4">
-                <label className="block mb-2">Ngày Bắt Đầu</label>
-                <input
-                    type="date"
-                    name="validFrom"
-                    value={exportFilters.validFrom}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                />
-            </div>
+                        {/* Ngày bắt đầu của Discount */}
+                        <div className="mb-4">
+                            <label className="block mb-2">Ngày Bắt Đầu</label>
+                            <input
+                                type="date"
+                                name="validFrom"
+                                value={exportFilters.validFrom}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            />
+                        </div>
 
-            {/* Ngày kết thúc của Discount */}
-            <div className="mb-4">
-                <label className="block mb-2">Ngày Kết Thúc</label>
-                <input
-                    type="date"
-                    name="validUntil"
-                    value={exportFilters.validUntil}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                />
-            </div>
+                        {/* Ngày kết thúc của Discount */}
+                        <div className="mb-4">
+                            <label className="block mb-2">Ngày Kết Thúc</label>
+                            <input
+                                type="date"
+                                name="validUntil"
+                                value={exportFilters.validUntil}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            />
+                        </div>
 
-            <div className="flex justify-end space-x-2">
-                <button
-                    className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
-                    onClick={toggleExportModal}
-                >
-                    Hủy
-                </button>
-                <button
-                    className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
-                    onClick={handleExport}
-                >
-                    Xuất Báo Cáo
-                </button>
-            </div>
-        </div>
-    </div>
-)}
+                        <div className="flex justify-end space-x-2">
+                            <button
+                                className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+                                onClick={toggleExportModal}
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
+                                onClick={handleExport}
+                            >
+                                Xuất Báo Cáo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
     );

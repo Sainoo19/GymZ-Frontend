@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FileDropUser } from './FileDropUser';
+import { level1s, findById } from "dvhcvn";
 
 const UpdateUserForm = () => {
     const { id } = useParams(); // Lấy id từ URL
@@ -14,7 +15,12 @@ const UpdateUserForm = () => {
         password: '',
         status: '',
         role: '',
-        address: { street: '', city: '', country: '' },
+        address: {
+            province: '',
+            district: '',
+            ward: '',
+            street: ''
+        },
         createdAt: '',
         updatedAt: ''
     });
@@ -26,17 +32,59 @@ const UpdateUserForm = () => {
     const role = ['User', 'Silver', 'Gold'];
     const [newFileName, setNewFileName] = useState("");
 
+    // State cho địa chỉ
+    const [provinces, setProvinces] = useState([]);
+    const [districts, setDistricts] = useState([]);
+    const [wards, setWards] = useState([]);
+    const [selectedProvince, setSelectedProvince] = useState("");
+    const [selectedDistrict, setSelectedDistrict] = useState("");
+    const [selectedWard, setSelectedWard] = useState("");
+
+    // Load danh sách tỉnh/thành
+    useEffect(() => {
+        setProvinces(level1s);
+    }, []);
+
     useEffect(() => {
         const fetchUser = async () => {
             try {
                 const response = await axios.get(`${URL_API}users/${id}`);
                 const userData = response.data.data;
-                console.log(userData);
+
                 setUser({
                     ...userData,
                     createdAt: new Date(userData.createdAt).toISOString(),
                     updatedAt: new Date(userData.updatedAt).toISOString()
                 });
+
+                // Nếu có dữ liệu địa chỉ, tìm ID tỉnh/thành phù hợp
+                if (userData.address) {
+                    // Tìm ID tỉnh từ tên
+                    const provinceObj = level1s.find(p => p.name === userData.address.province);
+                    if (provinceObj) {
+                        setSelectedProvince(provinceObj.id);
+
+                        // Load danh sách quận/huyện
+                        const districtsOfProvince = provinceObj.children || [];
+                        setDistricts(districtsOfProvince);
+
+                        // Tìm ID quận/huyện từ tên
+                        const districtObj = districtsOfProvince.find(d => d.name === userData.address.district);
+                        if (districtObj) {
+                            setSelectedDistrict(districtObj.id);
+
+                            // Load danh sách phường/xã
+                            const wardsOfDistrict = districtObj.children || [];
+                            setWards(wardsOfDistrict);
+
+                            // Tìm ID phường/xã từ tên
+                            const wardObj = wardsOfDistrict.find(w => w.name === userData.address.ward);
+                            if (wardObj) {
+                                setSelectedWard(wardObj.id);
+                            }
+                        }
+                    }
+                }
             } catch (error) {
                 console.error('Lỗi khi lấy dữ liệu user:', error);
             }
@@ -66,6 +114,71 @@ const UpdateUserForm = () => {
         }));
     };
 
+    // Xử lý khi chọn tỉnh/thành
+    const handleProvinceChange = (e) => {
+        const provinceId = e.target.value;
+        const province = findById(provinceId);
+
+        setSelectedProvince(provinceId);
+        setSelectedDistrict("");
+        setSelectedWard("");
+
+        if (province) {
+            setDistricts(province.children || []);
+            setWards([]);
+
+            setUser(prevUser => ({
+                ...prevUser,
+                address: {
+                    ...prevUser.address,
+                    province: province.name,
+                    district: '',
+                    ward: ''
+                }
+            }));
+        }
+    };
+
+    // Xử lý khi chọn quận/huyện
+    const handleDistrictChange = (e) => {
+        const districtId = e.target.value;
+        const district = findById(districtId);
+
+        setSelectedDistrict(districtId);
+        setSelectedWard("");
+
+        if (district) {
+            setWards(district.children || []);
+
+            setUser(prevUser => ({
+                ...prevUser,
+                address: {
+                    ...prevUser.address,
+                    district: district.name,
+                    ward: ''
+                }
+            }));
+        }
+    };
+
+    // Xử lý khi chọn phường/xã
+    const handleWardChange = (e) => {
+        const wardId = e.target.value;
+        const ward = findById(wardId);
+
+        setSelectedWard(wardId);
+
+        if (ward) {
+            setUser(prevUser => ({
+                ...prevUser,
+                address: {
+                    ...prevUser.address,
+                    ward: ward.name
+                }
+            }));
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -75,14 +188,14 @@ const UpdateUserForm = () => {
                 updatedAt: new Date().toISOString(),
             };
             await axios.put(`${URL_API}users/update/${id}`, updatedUser);
-            navigate('/users');
+            navigate('/admin/users');
         } catch (error) {
             console.error('Error updating user:', error);
         }
     };
 
     const handleCancel = () => {
-        navigate('/users'); // Quay lại trang danh sách
+        navigate('/admin/users'); // Quay lại trang danh sách
     };
 
     return (
@@ -203,34 +316,80 @@ const UpdateUserForm = () => {
                                 </select>
                             </div>
 
+                            {/* Địa chỉ với tỉnh/thành, quận/huyện, phường/xã */}
                             <div className='mb-4'>
-                                <label className='block font-semibold text-base'>
+                                <label className='block font-semibold text-base mb-2'>
                                     Địa chỉ
                                 </label>
-                                <input
-                                    type='text'
-                                    name='street'
-                                    value={user.address.street}
-                                    onChange={handleAddressChange}
-                                    placeholder='Số nhà, đường'
-                                    className='mt-2 w-11/12 px-3 py-2 border rounded'
-                                />
-                                <input
-                                    type='text'
-                                    name='city'
-                                    value={user.address.city}
-                                    onChange={handleAddressChange}
-                                    placeholder='Thành phố'
-                                    className='mt-2 w-11/12 px-3 py-2 border rounded'
-                                />
-                                <input
-                                    type='text'
-                                    name='country'
-                                    value={user.address.country}
-                                    onChange={handleAddressChange}
-                                    placeholder='Quốc gia'
-                                    className='mt-2 w-11/12 px-3 py-2 border rounded'
-                                />
+                                <div className="mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Tỉnh/Thành phố:
+                                    </label>
+                                    <select
+                                        className="border p-2 w-11/12 rounded-md"
+                                        value={selectedProvince}
+                                        onChange={handleProvinceChange}
+                                    >
+                                        <option value="">Chọn tỉnh/thành</option>
+                                        {provinces.map((p) => (
+                                            <option key={p.id} value={p.id}>
+                                                {p.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Quận/Huyện:
+                                    </label>
+                                    <select
+                                        className="border p-2 w-11/12 rounded-md"
+                                        value={selectedDistrict}
+                                        onChange={handleDistrictChange}
+                                        disabled={!selectedProvince}
+                                    >
+                                        <option value="">Chọn quận/huyện</option>
+                                        {districts.map((d) => (
+                                            <option key={d.id} value={d.id}>
+                                                {d.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Phường/Xã:
+                                    </label>
+                                    <select
+                                        className="border p-2 w-11/12 rounded-md"
+                                        value={selectedWard}
+                                        onChange={handleWardChange}
+                                        disabled={!selectedDistrict}
+                                    >
+                                        <option value="">Chọn phường/xã</option>
+                                        {wards.map((w) => (
+                                            <option key={w.id} value={w.id}>
+                                                {w.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Số nhà, đường:
+                                    </label>
+                                    <input
+                                        type='text'
+                                        name='street'
+                                        value={user.address?.street || ''}
+                                        onChange={handleAddressChange}
+                                        placeholder='Số nhà, đường'
+                                        className='w-11/12 px-3 py-2 border rounded'
+                                    />
+                                </div>
                             </div>
                         </div>
 

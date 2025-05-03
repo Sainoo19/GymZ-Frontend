@@ -16,7 +16,6 @@ const Payment = () => {
         { field: 'user_id', label: 'USER ID' },
         { field: 'amount', label: 'AMOUNT' },
         { field: 'paymentMethod', label: 'PAYMENT METHOD' },
-        { field: 'status', label: 'STATUS' },
         { field: 'createdAt', label: 'CREATED AT' },
         { field: 'updatedAt', label: 'UPDATED AT' },
     ]);

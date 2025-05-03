@@ -262,7 +262,7 @@ const Order = () => {
                                 <option value="">Tất cả</option>
                                 <option value="Đang chờ">Đang chờ</option>
                                 <option value="Đang xử lý">Đang xử lý</option>
-                                <option value="Hoàn thành">Hoàn thành</option>
+                                <option value="Đặt Hàng Thành Công">Đặt Hàng Thành Công</option>
                                 <option value="Đã hủy">Đã hủy</option>
                             </select>
                         </div>
@@ -350,7 +350,7 @@ const Order = () => {
                                 <option value="">Tất cả</option>
                                 <option value="Đang chờ">Đang chờ</option>
                                 <option value="Đang xử lý">Đang xử lý</option>
-                                <option value="Hoàn thành">Hoàn thành</option>
+                                <option value="Đặt Hàng Thành Công">Đặt Hàng Thành Công</option>
                                 <option value="Đã hủy">Đã hủy</option>
                             </select>
                         </div>

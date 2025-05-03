@@ -42,20 +42,29 @@ const Employee = () => {
 
     const [exportFilters, setExportFilters] = useState({
         branchId: '',
-        type: '',
+        role: '',
         startDate: '',
         endDate: ''
     });
+
+    // Lọc bỏ các giá trị rỗng trong object filters
+    const cleanFilters = (filters) => {
+        return Object.fromEntries(
+            Object.entries(filters).filter(([_, value]) => value !== '')
+        );
+    };
+
     const toggleExportModal = () => {
         setIsExportModalOpen(!isExportModalOpen);
     };
-    
+
     const handleExportFilterChange = (e) => {
         setExportFilters({
             ...exportFilters,
             [e.target.name]: e.target.value
         });
     };
+
     const URL_API = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
@@ -66,7 +75,6 @@ const Employee = () => {
                 });
                 const role = response.data.data.role;
                 setUserRole(role);
-                console.log(role);
             } catch (error) {
                 console.error('Error fetching user role:', error);
                 setUserRole(null);
@@ -79,13 +87,15 @@ const Employee = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                // Áp dụng cleanFilters trước khi gửi request
+                const cleanedFilters = cleanFilters(filters);
+
                 const response = await axios.get(`${URL_API}employees/all`, {
                     params: {
                         page: currentPage,
                         limit: 10,
                         search,
-                        ...filters,
-                        ...exportFilters
+                        ...cleanedFilters
                     },
                     withCredentials: true // Ensure cookies are sent with the request
                 });
@@ -116,7 +126,7 @@ const Employee = () => {
 
         fetchBranches();
         fetchData();
-    }, [currentPage, search, filters, exportFilters]);
+    }, [currentPage, search, filters]);
 
     const handleEdit = (id) => {
         if (userRole === 'admin' || userRole === 'manager') {
@@ -200,14 +210,17 @@ const Employee = () => {
 
     const handleExport = async () => {
         try {
+            // Áp dụng cleanFilters trước khi gửi request
+            const cleanedExportFilters = cleanFilters(exportFilters);
+
             const response = await axios.get(`${URL_API}employees/all`, {
                 params: {
-                    ...exportFilters, // Giữ lại các filter hiện tại
+                    ...cleanedExportFilters,
                     limit: 1000 // Giới hạn dữ liệu xuất
                 },
                 withCredentials: true
             });
-    
+
             if (response.data.status === 'success') {
                 const employees = response.data.data.employees.map(employee => ({
                     'EMPLOYEE ID': employee._id,
@@ -218,17 +231,17 @@ const Employee = () => {
                     'CREATED AT': reformDateTime(employee.createdAt),
                     'UPDATED AT': reformDateTime(employee.updatedAt)
                 }));
-    
+
                 const ws = XLSX.utils.json_to_sheet(employees);
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, 'Employees_Report');
-    
+
                 const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                 const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    
+
                 saveAs(data, 'employees_report.xlsx');
                 alert('Xuất báo cáo thành công!');
-                
+
                 // Đóng modal và reset filters
                 toggleExportModal(); // Đóng modal
                 setExportFilters({
@@ -245,8 +258,8 @@ const Employee = () => {
             alert('Xuất báo cáo thất bại!');
         }
     };
-    
-    
+
+
     return (
         <div className="mt-4">
             <div className="flex justify-between items-center mb-4">
@@ -273,9 +286,9 @@ const Employee = () => {
                             Thêm Nhân Viên
                         </button>
 
-                        
+
                     )}
-                     <button
+                    <button
                         className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-all"
                         onClick={toggleExportModal}
                     >
@@ -369,72 +382,77 @@ const Employee = () => {
                 </div>
             )}
 
-{isExportModalOpen && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div className="bg-white p-6 rounded shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Lọc Dữ Liệu Xuất Báo Cáo Nhân Viên</h2>
-            <div className="mb-4">
-                <label className="block mb-2">Chức Vụ</label>
-                <select
-                    name="role"
-                    value={exportFilters.role}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                >
-                    <option value="">Tất cả</option>
-                    <option value="admin">Admin</option>
-                    <option value="manager">Manager</option>
-                    <option value="staff">Staff</option>
-                </select>
-            </div>
-            <div className="mb-4">
-                <label className="block mb-2">Chi Nhánh</label>
-                <input
-                    type="text"
-                    name="branchId"
-                    value={exportFilters.branchId}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                    placeholder="Nhập ID chi nhánh"
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block mb-2">Ngày Bắt Đầu</label>
-                <input
-                    type="date"
-                    name="startDate"
-                    value={exportFilters.startDate}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block mb-2">Ngày Kết Thúc</label>
-                <input
-                    type="date"
-                    name="endDate"
-                    value={exportFilters.endDate}
-                    onChange={handleExportFilterChange}
-                    className="w-full px-4 py-2 border rounded"
-                />
-            </div>
-            <div className="flex justify-end space-x-2">
-                <button
-                    className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
-                    onClick={toggleExportModal}
-                >
-                    Hủy
-                </button>
-                <button
-                    className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
-                    onClick={handleExport}
-                >
-                    Xuất Báo Cáo
-                </button>
-            </div>
-        </div>
-    </div>
-)}
+            {isExportModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white p-6 rounded shadow-lg">
+                        <h2 className="text-xl font-bold mb-4">Lọc Dữ Liệu Xuất Báo Cáo Nhân Viên</h2>
+                        <div className="mb-4">
+                            <label className="block mb-2">Chức Vụ</label>
+                            <select
+                                name="role"
+                                value={exportFilters.role}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            >
+                                <option value="">Tất cả</option>
+                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
+                                <option value="staff">Staff</option>
+                            </select>
+                        </div>
+                        <div className="mb-4">
+                            <label className="block mb-2">Chi Nhánh</label>
+                            <select
+                                name="branchId"
+                                value={exportFilters.branchId}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            >
+                                <option value="">Tất cả</option>
+                                {branches.map((branch) => (
+                                    <option key={branch._id} value={branch._id}>
+                                        {branch._id}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="mb-4">
+                            <label className="block mb-2">Ngày Bắt Đầu</label>
+                            <input
+                                type="date"
+                                name="startDate"
+                                value={exportFilters.startDate}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block mb-2">Ngày Kết Thúc</label>
+                            <input
+                                type="date"
+                                name="endDate"
+                                value={exportFilters.endDate}
+                                onChange={handleExportFilterChange}
+                                className="w-full px-4 py-2 border rounded"
+                            />
+                        </div>
+                        <div className="flex justify-end space-x-2">
+                            <button
+                                className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+                                onClick={toggleExportModal}
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition-all"
+                                onClick={handleExport}
+                            >
+                                Xuất Báo Cáo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
     );

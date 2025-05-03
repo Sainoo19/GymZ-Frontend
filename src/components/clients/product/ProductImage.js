@@ -43,18 +43,18 @@ const ProductImage = ({
 
   const validCategories = variations
     ? Array.from(
-        new Set(variations.filter((v) => v.theme).map((v) => v.category))
-      )
+      new Set(variations.filter((v) => v.theme).map((v) => v.category))
+    )
     : [];
 
   const filteredThemes = selectedCategory
     ? Array.from(
-        new Set(
-          variations
-            .filter((v) => v.category === selectedCategory)
-            .map((v) => v.theme)
-        )
+      new Set(
+        variations
+          .filter((v) => v.category === selectedCategory)
+          .map((v) => v.theme)
       )
+    )
     : allThemes;
 
   const hasThemes = allThemes.length > 0; // Kiểm tra xem sản phẩm có theme hay không
@@ -91,9 +91,9 @@ const ProductImage = ({
       setPercentDiscount(
         foundVariation.originalPrice !== foundVariation.salePrice
           ? roundNumber(
-              100 -
-                (foundVariation.salePrice / foundVariation.originalPrice) * 100
-            )
+            100 -
+            (foundVariation.salePrice / foundVariation.originalPrice) * 100
+          )
           : 0
       );
     } else {
@@ -150,20 +150,20 @@ const ProductImage = ({
       <div className="flex flex-col md:flex-row justify-around  items-start w-11/12 lg:w-3/4 mx-auto px-4">
         {/* <div className="w-1/2 lg:w-3/5 md:w-4/5 2xl:border-pink-800  xl:border-blue-500 lg:border-green-600 md:border-red-700 sm:border-yellow-700 xs:border-purple-800 md:border"> */}
         <div className="w-full md:w-3/4 mb-4 md:mb-0 mx-auto text-center">
-        <Zoom>
-          <img src={avatar} className="mx-auto w-full max-w-xs" alt={name} />
+          <Zoom>
+            <img src={avatar} className="mx-auto w-full max-w-xs" alt={name} />
 
-        </Zoom>
+          </Zoom>
           <div className="flex items-center mt-4 justify-center flex-wrap gap-2">
-          {images && images.length > 0 ? (
-  images.map((img, index) => (
-    <Zoom key={index}>
-      <img src={img} className="w-20 h-20 object-cover" alt="" />
-    </Zoom>
-  ))
-) : (
-  <p>No image</p>
-)}
+            {images && images.length > 0 ? (
+              images.map((img, index) => (
+                <Zoom key={index}>
+                  <img src={img} className="w-20 h-20 object-cover" alt="" />
+                </Zoom>
+              ))
+            ) : (
+              <p>No image</p>
+            )}
 
           </div>
         </div>
@@ -175,8 +175,8 @@ const ProductImage = ({
               {selectedSalePrice !== null
                 ? formatCurrency(selectedSalePrice)
                 : minPrice === maxPrice
-                ? formatCurrency(minPrice)
-                : `${formatCurrency(minPrice)} - ${formatCurrency(
+                  ? formatCurrency(minPrice)
+                  : `${formatCurrency(minPrice)} - ${formatCurrency(
                     maxPrice
                   )}`}{" "}
               VND
@@ -211,11 +211,10 @@ const ProductImage = ({
                 {validCategories.map((category, index) => (
                   <button
                     key={index}
-                    className={`rounded-3xl py-1 px-5 mr-4 transition-all duration-200 ${
-                      selectedCategory === category
+                    className={`rounded-3xl py-1 px-5 mr-4 transition-all duration-200 ${selectedCategory === category
                         ? "bg-primary text-white"
                         : "bg-gray-200"
-                    }`}
+                      }`}
                     onClick={() => setSelectedCategory(category)}
                   >
                     {category}
@@ -233,11 +232,10 @@ const ProductImage = ({
                 {filteredThemes.map((theme, index) => (
                   <button
                     key={index}
-                    className={`rounded-3xl py-1 px-5 mr-4 transition-all duration-200 ${
-                      selectedTheme === theme
+                    className={`rounded-3xl py-1 px-5 mr-4 transition-all duration-200 ${selectedTheme === theme
                         ? "bg-primary text-white"
                         : "bg-gray-200"
-                    }`}
+                      }`}
                     onClick={() => setSelectedTheme(theme)}
                   >
                     {theme}
@@ -250,39 +248,38 @@ const ProductImage = ({
           <div className="border-b border-gray-300 my-3 rounded-lg"></div>
 
           <div className="flex flex-row items-center my-7 w-full md:w-11/12 justify-start gap-3">
-  <div className="flex px-3 bg-gray-200 h-9 rounded-2xl items-center">
-    <button
-      className="font-medium px-3 border text-2xl"
-      onClick={decrease}
-    >
-      -
-    </button>
-    <input
-      type="text"
-      value={quantity}
-      onChange={handleChangeQuantity}
-      className="font-medium text-base w-16 border bg-transparent text-center focus:outline-none"
-    />
-    <button
-      className="font-medium px-3 border text-xl"
-      onClick={increase}
-    >
-      +
-    </button>
-  </div>
+            <div className="flex px-3 bg-gray-200 h-9 rounded-2xl items-center">
+              <button
+                className="font-medium px-3 border text-2xl"
+                onClick={decrease}
+              >
+                -
+              </button>
+              <input
+                type="text"
+                value={quantity}
+                onChange={handleChangeQuantity}
+                className="font-medium text-base w-16 border bg-transparent text-center focus:outline-none"
+              />
+              <button
+                className="font-medium px-3 border text-xl"
+                onClick={increase}
+              >
+                +
+              </button>
+            </div>
 
-  <button
-    className={`rounded-2xl w-full md:w-1/2 text-sm h-9 ${
-      isDisabled
-        ? "bg-gray-300 cursor-not-allowed"
-        : "bg-primary text-white"
-    }`}
-    disabled={isDisabled}
-    onClick={handleAddToCart}
-  >
-    Thêm vào giỏ hàng
-  </button>
-</div>
+            <button
+              className={`rounded-2xl w-full md:w-1/2 text-sm h-9 ${isDisabled
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-primary text-white"
+                }`}
+              disabled={isDisabled}
+              onClick={handleAddToCart}
+            >
+              Thêm vào giỏ hàng
+            </button>
+          </div>
 
         </div>
       </div>

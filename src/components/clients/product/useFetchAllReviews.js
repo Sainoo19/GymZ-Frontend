@@ -8,8 +8,6 @@ const useFetchAllReviews = (ProductId) => {
   const [reviewsAll, setReviewsAll] = useState([]);
   const URL_API = process.env.REACT_APP_API_URL;
 
-
-
   const calculateRatings = (reviews) => {
     const totalReviews = reviews.length;
     const ratingCounts = [0, 0, 0, 0, 0];
@@ -53,26 +51,19 @@ const useFetchAllReviews = (ProductId) => {
         } else {
           setAvgStar(0);
         }
-
-        // setTotalPages(reviewData.totalPages);
-        // setCurrentPage(currentPage);
-        // console.log(reviewData);
       } else {
         console.error("Lỗi khi lấy tất cả đánh giá:", response.data.message);
       }
-
-
     } catch (error) {
       console.error("Lỗi khi lấy danh sách tất cả review:", error);
     }
   };
 
-
   useEffect(() => {
     fetchAllReviews();
   }, [ProductId]);
 
-  return { reviewsAll, avgStar, totalReviews, ratings};
+  return { reviewsAll, avgStar, totalReviews, ratings, fetchAllReviews };
 };
 
 export default useFetchAllReviews;

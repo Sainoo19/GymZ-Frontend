@@ -1,74 +1,100 @@
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useState, useEffect, useContext, useMemo } from "react";
 import axios from "axios";
-//check login để post các dữ liệu cần thiết( vd check login trc khi gửi Review)
+
 const AuthContext = createContext();
+
+// Tạo instance axios để tái sử dụng
+const axiosInstance = axios.create({
+  withCredentials: true,
+});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true); // Thêm trạng thái loading
+  const [loading, setLoading] = useState(true);
   const URL_API = process.env.REACT_APP_API_URL;
 
-
-  // Kiểm tra trạng thái đăng nhập khi ứng dụng khởi động
   useEffect(() => {
+    let isMounted = true; // Giải quyết vấn đề memory leak
+
     const checkLoginStatus = async () => {
       try {
-        // Kiểm tra thông tin người dùng từ API 1 (users/profile)
-        const responseUser = await axios.get(`${URL_API}users/profile`, {
-          withCredentials: true,
-        });
+        // Kiểm tra thông tin người dùng từ API users/profile
+        const responseUser = await axiosInstance.get(`${URL_API}users/profile`);
 
-        // Nếu API 1 trả về dữ liệu và là user
-        if (responseUser.data.data) {
-          if (responseUser.data.data.role === "user") {
-            setUser(responseUser.data.data);
-            setIsLoggedIn(true);
-            console.log("Đăng nhập với vai trò user");
-          } else {
-            console.log("Không phải user, kiểm tra tiếp qua API 2...");
-          }
+        // Kiểm tra nếu component đã unmount thì dừng thực thi
+        if (!isMounted) return;
+
+        if (responseUser.data.data && responseUser.data.data.role === "user") {
+          setUser(responseUser.data.data);
+          setIsLoggedIn(true);
         } else {
-          console.log("Không có dữ liệu người dùng từ API 1");
-        }
-      } catch (error) {
-        console.error("Lỗi khi kiểm tra thông tin người dùng từ API 1:", error);
+          // Nếu không phải user, kiểm tra tiếp admin
+          const adminResponse = await axiosInstance.get(`${URL_API}employees/profile`);
 
-        // Nếu gặp lỗi từ API 1, kiểm tra API 2
-        try {
-          const adminResponse = await axios.get(`${URL_API}employees/profile`, {
-            withCredentials: true,
-          });
+          if (!isMounted) return;
 
-          if (adminResponse.data.data.role === "admin") {
+          if (adminResponse.data.data && adminResponse.data.data.role === "admin") {
             setUser(adminResponse.data.data);
             setIsLoggedIn(true);
-            console.log("Đăng nhập với vai trò admin");
           } else {
-            console.log("Không phải user và không phải admin");
-            setIsLoggedIn(false); // Nếu không phải admin, xem như chưa đăng nhập
+            setIsLoggedIn(false);
+          }
+        }
+      } catch (error) {
+        if (!isMounted) return;
+
+        // Nếu API 1 lỗi, kiểm tra API 2
+        try {
+          const adminResponse = await axiosInstance.get(`${URL_API}employees/profile`);
+
+          if (!isMounted) return;
+
+          if (adminResponse.data.data && adminResponse.data.data.role === "admin") {
+            setUser(adminResponse.data.data);
+            setIsLoggedIn(true);
+          } else {
+            setIsLoggedIn(false);
           }
         } catch (adminError) {
-          console.error("Lỗi khi kiểm tra admin:", adminError);
-          setIsLoggedIn(false); // Nếu không phải admin, xem như chưa đăng nhập
+          if (!isMounted) return;
+          setIsLoggedIn(false);
         }
       } finally {
-        setLoading(false); // Đã kiểm tra xong
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     checkLoginStatus();
-  }, []); // Chạy một lần khi component mount
 
+    // Cleanup function để tránh memory leak
+    return () => {
+      isMounted = false;
+    };
+  }, [URL_API]);
+
+  // Tối ưu re-renders bằng useMemo
+  const contextValue = useMemo(() => {
+    return { user, isLoggedIn, loading };
+  }, [user, isLoggedIn, loading]);
+
+  if (loading) {
+    // Sử dụng loading component nhẹ hơn thay vì text
+    return <div className="flex justify-center items-center h-screen">
+      <div className="w-10 h-10 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
+    </div>;
+  }
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn, loading }}>
-      {loading ? <p>Đang kiểm tra trạng thái đăng nhập...</p> : children}
+    <AuthContext.Provider value={contextValue}>
+      {children}
     </AuthContext.Provider>
   );
 };
 
-// Hook để sử dụng AuthContext dễ dàng
+// Custom hook để sử dụng context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
