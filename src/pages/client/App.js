@@ -58,18 +58,19 @@ import CreateProductCategory from "../admin/ProductCategory/addProductCategory";
 import UpdateProductCategory from "../admin/ProductCategory/productCategoryDetail";
 import ProductFeedbackReview from "../admin/products/productFeedback";
 import OrdersHistoryPage from "./profile/ordershistory";
-// import PurchaseOrder from "../../components/clients/users/Purchase History/PurchaseOrder";
 import { getFCMToken } from "../../firebase";
 import { CartProvider } from "../../components/clients/contexts/CartContext";
-import ProfileEmployeeContent from "../../components/admin/employee/ProfileEmployeeContent"; // điều chỉnh path đúng
+import ProfileEmployeeContent from "../../components/admin/employee/ProfileEmployeeContent";
 
 import axios from "axios";
 
 const App = () => {
-  const [userRole, setUserRole] = React.useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [isSidebarHidden, setIsSidebarHidden] = useState(true);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const URL_API = process.env.REACT_APP_API_URL;
 
+  // Khởi tạo Firebase Cloud Messaging và Service Worker
   useEffect(() => {
     getFCMToken();
 
@@ -77,6 +78,7 @@ const App = () => {
       navigator.serviceWorker
         .register("/firebase-messaging-sw.js")
         .then((registration) => {
+          console.log("Service Worker đăng ký thành công:", registration.scope);
         })
         .catch((error) => {
           console.error("⚠️ Service Worker đăng ký thất bại:", error);
@@ -84,30 +86,58 @@ const App = () => {
     }
   }, []);
 
+  // Lấy thông tin vai trò người dùng
   useEffect(() => {
+    setIsAuthLoading(true);
     axios
       .get(`${URL_API}employees/profile`, {
         withCredentials: true,
       })
       .then((response) => {
         const role = response.data.data.role;
-        setUserRole(role); // cập nhật state
+        setUserRole(role);
       })
       .catch((error) => {
         console.error("Error fetching user role:", error);
         setUserRole(null);
+      })
+      .finally(() => {
+        setIsAuthLoading(false);
       });
-  }, []);
+  }, [URL_API]);
 
+  // Quản lý OpenWidget chat dựa theo vai trò người dùng
   useEffect(() => {
-    console.log("userRole updated: ", userRole); // log khi userRole đã cập nhật
-  }, [userRole]);
+    // Không thực hiện gì nếu đang tải thông tin xác thực
+    if (isAuthLoading) return;
 
-  useEffect(() => {
-    console.log("userRole updated: ", userRole);
+    console.log("userRole updated:", userRole);
 
-    const widgetFrame = document.querySelector(".ow-widget-frame");
-    const script = document.querySelector('script[src="https://cdn.openwidget.com/openwidget.js"]');
+    // Hàm xóa hoàn toàn widget chat đang tồn tại
+    const removeExistingWidgets = () => {
+      // 1. Xóa tất cả widget frames đang tồn tại
+      document.querySelectorAll('.ow-widget-frame').forEach(frame => {
+        frame.remove();
+      });
+
+      // 2. Xóa tất cả scripts OpenWidget
+      document.querySelectorAll('script[src*="openwidget.js"]').forEach(script => {
+        script.remove();
+      });
+
+      // 3. Xóa object config
+      if (window.__ow) {
+        delete window.__ow;
+      }
+
+      // 4. Xóa cả đối tượng OpenWidget
+      if (window.OpenWidget) {
+        delete window.OpenWidget;
+      }
+    };
+
+    // Luôn xóa widget hiện có trước khi quyết định có khởi tạo lại hay không
+    removeExistingWidgets();
 
     const isAdmin =
       userRole === "admin" ||
@@ -115,44 +145,29 @@ const App = () => {
       userRole === "manager" ||
       userRole === "PT";
 
-    if (isAdmin) {
+    // Chỉ khởi tạo widget chat cho khách hàng, không phải admin
+    if (!isAdmin) {
+      console.log("Khởi tạo OpenWidget cho client");
 
-      // Ẩn widget nếu nó đang hiển thị
-      if (widgetFrame) {
-        widgetFrame.style.display = "none";
-      }
+      // Tạo cấu hình mới cho widget chat
+      window.__ow = {
+        organizationId: "3ca26d52-2187-4652-ad76-22e4e2063550",
+        integration_name: "manual_settings",
+        product_name: "openwidget"
+      };
 
-      // Gỡ bỏ script nếu cần
-      if (script) {
-        script.remove();
-      }
-
-      // Xoá object config nếu đã tồn tại
-      if (window.__ow) {
-        delete window.__ow;
-      }
-    } else {
-      console.log("Đang chạy OpenWidget script");
-
-      if (!script) {
-        window.__ow = {
-          organizationId: "3ca26d52-2187-4652-ad76-22e4e2063550",
-          integration_name: "manual_settings",
-          product_name: "openwidget",
-        };
-
-        const newScript = document.createElement("script");
-        newScript.src = "https://cdn.openwidget.com/openwidget.js";
-        newScript.async = true;
-        document.head.appendChild(newScript);
-      }
-
-      // Hiện lại widget nếu bị ẩn trước đó
-      if (widgetFrame) {
-        widgetFrame.style.display = "block";
-      }
+      // Tạo và thêm script mới
+      const newScript = document.createElement("script");
+      newScript.src = "https://cdn.openwidget.com/openwidget.js";
+      newScript.async = true;
+      document.head.appendChild(newScript);
     }
-  }, [userRole]);
+
+    // Cleanup khi component unmount
+    return () => {
+      removeExistingWidgets();
+    };
+  }, [userRole, isAuthLoading]);
 
   return (
     <BrowserRouter>
@@ -250,7 +265,6 @@ const App = () => {
                     path="admin/feedbackReview/:productId"
                     element={<ProductFeedbackReview />}
                   />
-                  {/* <Route path="/test" element={<ProductDetailTest />} /> */}
                   <Route
                     path="admin/employees/create"
                     element={<CreateEmployee />}
@@ -299,8 +313,6 @@ const App = () => {
                     path="admin/change-password-admin"
                     element={<ChangePasswordAdminPage />}
                   />
-                  {/* Add this route */}
-                  {/* Add more routes as needed */}
                 </Routes>
               </div>
             </div>
@@ -343,8 +355,6 @@ const App = () => {
                     path="/forgot-password"
                     element={<ForgotPasswordPage />}
                   />
-                  {/* <Route path="/my-orders" element={<PurchaseOrder />} /> */}
-                  {/* Add more routes as needed */}
                 </Routes>
               </main>
               <FooterClient />
