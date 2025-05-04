@@ -132,6 +132,9 @@ const ProductImage = ({
       alert("Thêm vào giỏ hàng thành công!");
 
       addToCart(quantity);
+
+      // Reload the page immediately
+      window.location.reload();
     } catch (error) {
       const token = Cookies.get("accessToken");
       console.log("accessToken:", token);
@@ -145,6 +148,7 @@ const ProductImage = ({
       }
     }
   };
+
   return (
     <div>
       <div className="flex flex-col md:flex-row justify-around  items-start w-11/12 lg:w-3/4 mx-auto px-4">
@@ -212,8 +216,8 @@ const ProductImage = ({
                   <button
                     key={index}
                     className={`rounded-3xl py-1 px-5 mr-4 transition-all duration-200 ${selectedCategory === category
-                        ? "bg-primary text-white"
-                        : "bg-gray-200"
+                      ? "bg-primary text-white"
+                      : "bg-gray-200"
                       }`}
                     onClick={() => setSelectedCategory(category)}
                   >
@@ -233,8 +237,8 @@ const ProductImage = ({
                   <button
                     key={index}
                     className={`rounded-3xl py-1 px-5 mr-4 transition-all duration-200 ${selectedTheme === theme
-                        ? "bg-primary text-white"
-                        : "bg-gray-200"
+                      ? "bg-primary text-white"
+                      : "bg-gray-200"
                       }`}
                     onClick={() => setSelectedTheme(theme)}
                   >
@@ -271,8 +275,8 @@ const ProductImage = ({
 
             <button
               className={`rounded-2xl w-full md:w-1/2 text-sm h-9 ${isDisabled
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : "bg-primary text-white"
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-primary text-white"
                 }`}
               disabled={isDisabled}
               onClick={handleAddToCart}

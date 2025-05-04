@@ -319,7 +319,7 @@ const Employee = () => {
                                 <option value="">Tất cả</option>
                                 {branches.map((branch) => (
                                     <option key={branch._id} value={branch._id}>
-                                        {branch._id}
+                                        {branch.name}
                                     </option>
                                 ))}
                             </select>
@@ -336,6 +336,7 @@ const Employee = () => {
                                 <option value="Quản trị viên">Quản trị viên</option>
                                 <option value="Quản lý">Quản lý</option>
                                 <option value="Nhân viên">Nhân viên</option>
+                                <option value="pt">PT</option>
                             </select>
                         </div>
                         <div className="mb-4">
@@ -395,9 +396,10 @@ const Employee = () => {
                                 className="w-full px-4 py-2 border rounded"
                             >
                                 <option value="">Tất cả</option>
-                                <option value="admin">Admin</option>
-                                <option value="manager">Manager</option>
-                                <option value="staff">Staff</option>
+                                <option value="Quản trị viên">Quản trị viên</option>
+                                <option value="Quản lý">Quản lý</option>
+                                <option value="Nhân viên">Nhân viên</option>
+                                <option value="pt">PT</option>
                             </select>
                         </div>
                         <div className="mb-4">
@@ -411,7 +413,7 @@ const Employee = () => {
                                 <option value="">Tất cả</option>
                                 {branches.map((branch) => (
                                     <option key={branch._id} value={branch._id}>
-                                        {branch._id}
+                                        {branch.name}
                                     </option>
                                 ))}
                             </select>

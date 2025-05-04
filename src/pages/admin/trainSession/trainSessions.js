@@ -158,7 +158,7 @@ const TrainSessions = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${URL_API}trainingSessions/delete/${id}`, {
+            await axios.delete(`${URL_API}trainingSession/delete/${id}`, {
                 withCredentials: true
             });
             setSessions(sessions.filter(session => session._id !== id));
