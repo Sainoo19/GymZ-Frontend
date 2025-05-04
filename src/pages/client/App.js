@@ -61,6 +61,7 @@ import OrdersHistoryPage from "./profile/ordershistory";
 import { getFCMToken } from "../../firebase";
 import { CartProvider } from "../../components/clients/contexts/CartContext";
 import ProfileEmployeeContent from "../../components/admin/employee/ProfileEmployeeContent";
+import NewsPage from "../../pages/client/News/newsPage";
 
 import axios from "axios";
 
@@ -330,6 +331,7 @@ const App = () => {
                   <Route path="/productsclient" element={<ProductsClient />} />
                   <Route path="/about-us" element={<AboutUs />} />
                   <Route path="/branches" element={<BranchesClient />} />
+                  <Route path="/news" element={<NewsPage />} />
                   <Route
                     path="/productsclient/:productId"
                     element={<ProductDetailClient />}
