@@ -237,7 +237,7 @@ const OrderProgressPage = () => {
                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                     <div className="flex justify-between mb-2">
                       <span className="text-gray-600">Tổng tiền hàng:</span>
-                      <span>{formatCurrency(orderDetails.totalPrice - (orderDetails.shippingFee || 0))}</span>
+                      <span>{formatCurrency(orderDetails.totalPrice)}</span>
                     </div>
                     <div className="flex justify-between mb-2">
                       <span className="text-gray-600">Phí vận chuyển:</span>
@@ -245,7 +245,7 @@ const OrderProgressPage = () => {
                     </div>
                     <div className="flex justify-between font-semibold text-lg pt-2 border-t mt-2">
                       <span>Tổng thanh toán:</span>
-                      <span className="text-primary">{formatCurrency(orderDetails.totalPrice)}</span>
+                      <span className="text-primary">{formatCurrency(orderDetails.totalPrice + (orderDetails.shippingFee || 0))}</span>
                     </div>
                     <div className="mt-3 pt-2 border-t">
                       <span className="font-medium">Phương thức thanh toán:</span>
@@ -282,7 +282,7 @@ const OrderProgressPage = () => {
                     </div>
                     <div>
                       <p className="mb-2"><span className="font-medium">Phương thức:</span> {paymentMethod === 'momo' ? 'Ví MoMo' : 'Thanh toán khi nhận hàng (COD)'}</p>
-                      <p className="mb-2"><span className="font-medium">Số tiền:</span> {formatCurrency(paymentDetails.amount || orderDetails?.totalPrice)}</p>
+                      <p className="mb-2"><span className="font-medium">Số tiền:</span> {formatCurrency(paymentDetails.amount)}</p>
                       {paymentDetails.transactionId && (
                         <p><span className="font-medium">Mã giao dịch:</span> {paymentDetails.transactionId}</p>
                       )}

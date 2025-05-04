@@ -365,7 +365,7 @@ const OrdersHistoryContent = () => {
                                             <div className="bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-300">
                                                 <div className="flex justify-between mb-1">
                                                     <span className="text-gray-500">Tổng tiền hàng:</span>
-                                                    <span>{formatCurrency(order.totalPrice - (order.shippingFee || 0))}</span>
+                                                    <span>{formatCurrency(order.totalPrice)}</span>
                                                 </div>
                                                 <div className="flex justify-between mb-1">
                                                     <span className="text-gray-500">Phí vận chuyển:</span>
@@ -373,7 +373,7 @@ const OrdersHistoryContent = () => {
                                                 </div>
                                                 <div className="flex justify-between font-semibold">
                                                     <span>Tổng thanh toán:</span>
-                                                    <span className="text-primary">{formatCurrency(order.totalPrice)}</span>
+                                                    <span className="text-primary">{formatCurrency(order.totalPrice + (order.shippingFee || 0))}</span>
                                                 </div>
                                             </div>
                                         </div>
