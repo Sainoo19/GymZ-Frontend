@@ -249,7 +249,7 @@ const OrderProgressPage = () => {
                     </div>
                     <div className="mt-3 pt-2 border-t">
                       <span className="font-medium">Phương thức thanh toán:</span>
-                      {paymentMethod === 'momo' ? 'Ví MoMo' : 'Thanh toán khi nhận hàng (COD)'}
+                      {paymentMethod === 'MoMo' ? 'Ví MoMo' : 'Thanh toán khi nhận hàng (COD)'}
                     </div>
                     <div className="mt-2">
                       <span className="font-medium">Thời gian đặt hàng:</span> {formatDate(orderDetails.createdAt)}
@@ -275,13 +275,13 @@ const OrderProgressPage = () => {
                       <p className="mb-2">
                         <span className="font-medium">Trạng thái:</span>
                         <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                          {paymentMethod === 'cod' ? 'Chờ thanh toán khi nhận hàng' : 'Đã thanh toán'}
+                          {paymentMethod === 'COD' ? 'Chờ thanh toán khi nhận hàng' : 'Đã thanh toán'}
                         </span>
                       </p>
                       <p className="mb-2"><span className="font-medium">Thời gian:</span> {formatDate(paymentDetails.createdAt)}</p>
                     </div>
                     <div>
-                      <p className="mb-2"><span className="font-medium">Phương thức:</span> {paymentMethod === 'momo' ? 'Ví MoMo' : 'Thanh toán khi nhận hàng (COD)'}</p>
+                      <p className="mb-2"><span className="font-medium">Phương thức:</span> {paymentMethod === 'MoMo' ? 'Ví MoMo' : 'Thanh toán khi nhận hàng (COD)'}</p>
                       <p className="mb-2"><span className="font-medium">Số tiền:</span> {formatCurrency(paymentDetails.amount)}</p>
                       {paymentDetails.transactionId && (
                         <p><span className="font-medium">Mã giao dịch:</span> {paymentDetails.transactionId}</p>
