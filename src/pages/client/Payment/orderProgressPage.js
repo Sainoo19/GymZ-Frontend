@@ -15,12 +15,11 @@ const OrderProgressPage = () => {
   const [orderDetails, setOrderDetails] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState(null);
 
-  // 🔥 Dùng useRef để đảm bảo createPayment chỉ gọi 1 lần
+  //  Dùng useRef để đảm bảo createPayment chỉ gọi 1 lần
   const isPaymentCreated = useRef(false);
 
   useEffect(() => {
     if (orderId && !isProcessing) {
-      console.log("🚀 Running processOrder() once..."); // Debug log
       setSuccessMessage("🎉 Đặt hàng thành công! Đơn hàng của bạn đang được xử lý.");
       setIsProcessing(true);
       processOrder();
@@ -30,7 +29,7 @@ const OrderProgressPage = () => {
 
   const processOrder = async () => {
     if (!isPaymentCreated.current) {
-      isPaymentCreated.current = true; // ✅ Đánh dấu để ngăn gọi API nhiều lần
+      isPaymentCreated.current = true; 
       await createPayment();
     }
 
@@ -67,8 +66,12 @@ const OrderProgressPage = () => {
 
   const createPayment = async () => {
     try {
-      await axios.post(`${URL_API}paymentClient/create`, { orderId, paymentMethod });
-      console.log("✅ Payment created successfully!");
+      if(paymentMethod === "momo") {return;}
+      else{
+        await axios.post(`${URL_API}paymentClient/create`, { orderId, paymentMethod });
+        console.log("✅ Payment created successfully!");
+      }
+   
     } catch (error) {
       console.error("Lỗi tạo payment:", error);
     }

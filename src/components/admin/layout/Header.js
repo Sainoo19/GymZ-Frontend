@@ -25,7 +25,9 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
   const notificationRef = useRef(null); // Tham chiếu đến vùng thông báo
   const bellButtonRef = useRef(null);
   const [showNotifications, setShowNotifications] = useState(false);
-
+  const [orderNotifications, setOrderNotifications] = useState([]);
+  const [paymentNotifications, setPaymentNotifications] = useState([]);
+  const [activeTab, setActiveTab] = useState("orders");
   useEffect(() => {
     // Kiểm tra xem người dùng đã đăng nhập chưa
     axios
@@ -42,26 +44,29 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
   }, []);
 
   useEffect(() => {
-    if (!employee?._id) return; // Kiểm tra nếu employee chưa load xong
-
+    if (!employee?._id) return;
+  
     const q = query(
       collection(db, "notifications"),
       where("employee_id", "==", employee._id),
       orderBy("timestamp", "desc")
     );
-
+  
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const notiList = snapshot.docs.map((doc) => ({
+      const all = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setNotifications(notiList.filter(noti => !noti.isHandled));
-      setNewOrders(notiList.length);
+      console.log("🔥 All notis:", all);
+      const orders = all.filter((noti) => noti.type === "order" && !noti.isHandled);
+      const payments = all.filter((noti) => noti.type === "payment"  && !noti.isHandled);
+      setOrderNotifications(orders);
+      setPaymentNotifications(payments);
+      setNewOrders(orders.length + payments.length);
     });
-
+  
     return () => unsubscribe();
   }, [employee]);
-
   useEffect(() => {
     const unsubscribeFCM = onMessage(messaging, (payload) => {
       console.log("📩 Nhận thông báo từ Firebase:", payload);
@@ -145,30 +150,59 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
             )}
           </button>
           {showNotifications && (
-            <div               ref={notificationRef}
-            className="absolute right-0 mt-2 w-72 bg-white text-black shadow-lg rounded-lg p-2">
-              <h3 className="text-lg font-semibold border-b pb-2">
-                Đơn hàng mới
-              </h3>
-              {notifications.length > 0 ? (
-                <ul className="max-h-60 overflow-y-auto">
-                  {notifications.map((order, index) => (
-                    <li
-                      key={index}
-                      className="p-2 hover:bg-gray-100 rounded"
-                      onClick={() => navigate(`/admin/orders/${order.orderId}`)} // Điều hướng khi click
-                    >
-                      <strong>{order.title}</strong>: {order.message}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-gray-500 p-2">
-                  Không có đơn hàng mới
-                </p>
-              )}
-            </div>
-          )}
+  <div
+    ref={notificationRef}
+    className="absolute right-0 mt-2 w-80 bg-white text-black shadow-lg rounded-lg p-2 z-50"
+  >
+    {/* Tabs */}
+    <div className="flex border-b mb-2">
+      <button
+        className={`flex-1 p-2 text-sm font-semibold ${activeTab === 'orders' ? 'border-b-2 border-blue-500' : 'text-gray-500'}`}
+        onClick={() => setActiveTab('orders')}
+      >
+        Đơn hàng mới
+      </button>
+      <button
+        className={`flex-1 p-2 text-sm font-semibold ${activeTab === 'payments' ? 'border-b-2 border-blue-500' : 'text-gray-500'}`}
+        onClick={() => setActiveTab('payments')}
+      >
+        Thông báo thanh toán
+      </button>
+    </div>
+
+    {/* Danh sách thông báo */}
+    <div className="max-h-60 overflow-y-auto">
+      {activeTab === 'orders' ? (
+        orderNotifications.length > 0 ? (
+          <ul>
+            {orderNotifications.map((order, index) => (
+              <li
+                key={index}
+                className="p-2 hover:bg-gray-100 rounded cursor-pointer"
+                onClick={() => navigate(`/admin/orders/${order.orderId}`)}
+              >
+                <strong>{order.title}</strong>: {order.message}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-gray-500 p-2">Không có đơn hàng mới</p>
+        )
+      ) : paymentNotifications.length > 0 ? (
+        <ul>
+          {paymentNotifications.map((noti, index) => (
+            <li key={index} className="p-2 hover:bg-gray-100 rounded">
+              <strong>{noti.title}</strong>: {noti.message}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-sm text-gray-500 p-2">Không có thông báo thanh toán</p>
+      )}
+    </div>
+  </div>
+)}
+
         </div>
 
         <div className="relative">
