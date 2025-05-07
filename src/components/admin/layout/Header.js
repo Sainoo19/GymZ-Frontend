@@ -152,7 +152,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
           {showNotifications && (
   <div
     ref={notificationRef}
-    className="absolute right-0 mt-2 w-80 bg-white text-black shadow-lg rounded-lg p-2 z-50"
+    className="absolute right-0 mt-2 w-96 bg-white text-black shadow-lg rounded-lg p-2  z-50"
   >
     {/* Tabs */}
     <div className="flex border-b mb-2">
@@ -171,7 +171,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
     </div>
 
     {/* Danh sách thông báo */}
-    <div className="max-h-60 overflow-y-auto">
+    <div className="max-h-96 overflow-y-auto">
       {activeTab === 'orders' ? (
         orderNotifications.length > 0 ? (
           <ul>
