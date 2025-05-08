@@ -22,12 +22,19 @@ const OrderProgressPage = () => {
     const hasReloaded = sessionStorage.getItem("orderPageReloaded");
 
     if (!hasReloaded) {
+      // Đánh dấu đã reload trang
       sessionStorage.setItem("orderPageReloaded", "true");
-      window.location.reload();
+      
+      // Sử dụng setTimeout để delay reload, tránh reload ngay lập tức
+      setTimeout(() => {
+        window.location.reload();
+      }, 0);  // Bạn có thể thay đổi thời gian delay nếu cần
     } else {
+      // Xóa flag để chuẩn bị cho lần sau
       sessionStorage.removeItem("orderPageReloaded");
     }
   }, []);
+
 
 
   useEffect(() => {
