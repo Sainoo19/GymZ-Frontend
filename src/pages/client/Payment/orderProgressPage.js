@@ -14,6 +14,7 @@ const OrderProgressPage = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState(null);
+  const [reloadCount, setReloadCount] = useState(0);
 
   //  Dùng useRef để đảm bảo createPayment chỉ gọi 1 lần
   const isPaymentCreated = useRef(false);
@@ -26,7 +27,15 @@ const OrderProgressPage = () => {
       fetchOrderDetails();
     }
   }, [orderId]);
+  useEffect(() => {
+    // Check if reloadCount is greater than 1 to avoid infinite reloads
+    if (reloadCount > 1) return;
 
+    // If it's the first reload, increment the count and reload the page
+    setReloadCount((prev) => prev + 1);
+    window.location.reload();
+  }, [reloadCount]);
+  
   const processOrder = async () => {
     if (!isPaymentCreated.current) {
       isPaymentCreated.current = true; 
