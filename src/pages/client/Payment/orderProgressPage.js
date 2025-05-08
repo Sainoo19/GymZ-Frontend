@@ -19,6 +19,18 @@ const OrderProgressPage = () => {
   const isPaymentCreated = useRef(false);
 
   useEffect(() => {
+    const hasReloaded = sessionStorage.getItem("orderPageReloaded");
+
+    if (!hasReloaded) {
+      sessionStorage.setItem("orderPageReloaded", "true");
+      window.location.reload();
+    } else {
+      sessionStorage.removeItem("orderPageReloaded");
+    }
+  }, []);
+
+
+  useEffect(() => {
     if (orderId && !isProcessing) {
       setSuccessMessage("🎉 Đặt hàng thành công! Đơn hàng của bạn đang được xử lý.");
       setIsProcessing(true);
