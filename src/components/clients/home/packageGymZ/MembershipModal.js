@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { X, Loader } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
     const [branches, setBranches] = useState([]);
@@ -13,6 +15,8 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
         employeeID: "",
     });
     const URL_API = process.env.REACT_APP_API_URL;
+    const navigate = useNavigate();
+    const location = useLocation();
 
     // Fetch branches when modal opens
     useEffect(() => {
@@ -80,6 +84,17 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
             return;
         }
 
+        // Check if user is logged in before proceeding
+        const token = Cookies.get("accessToken");
+        if (!token) {
+            setError("Vui lòng đăng nhập trước khi đăng ký gói hội viên");
+            setTimeout(() => {
+                onClose();
+                navigate("/login-user", { state: { from: location } });
+            }, 1500);
+            return;
+        }
+
         try {
             setLoading(true);
             setError(null);
@@ -96,7 +111,7 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
             }
 
             const response = await axios.post(
-               `${URL_API}membership/register-membership`,
+                `${URL_API}membership/register-membership`,
                 registrationData,
                 { withCredentials: true }
             );
@@ -113,7 +128,17 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
             }, 3000);
         } catch (err) {
             console.error("Error registering membership:", err);
-            setError(err.response?.data?.message || "Đăng ký không thành công. Vui lòng thử lại sau.");
+
+            // Kiểm tra lỗi authentication
+            if (err.response?.status === 401) {
+                setError("Vui lòng đăng nhập trước khi đăng ký gói hội viên");
+                setTimeout(() => {
+                    onClose();
+                    navigate("/login-user", { state: { from: location } });
+                }, 1500);
+            } else {
+                setError(err.response?.data?.message || "Đăng ký không thành công. Vui lòng thử lại sau.");
+            }
             setLoading(false);
         }
     };

@@ -11,7 +11,9 @@ import {
     FaMoneyBillWave,
     FaSearch,
     FaFilter,
-    FaSpinner
+    FaSpinner,
+    FaTimes,
+    FaExclamationTriangle
 } from 'react-icons/fa';
 import Pagination from '../../admin/layout/Pagination';
 
@@ -26,6 +28,10 @@ const OrdersHistoryContent = () => {
         endDate: ''
     });
     const [showFilters, setShowFilters] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [selectedOrderId, setSelectedOrderId] = useState(null);
+    const [cancelLoading, setCancelLoading] = useState(false);
+    const [cancelMessage, setCancelMessage] = useState({ text: '', type: '' });
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
@@ -129,6 +135,70 @@ const OrdersHistoryContent = () => {
         });
     };
 
+    // Xử lý hiển thị modal xác nhận hủy đơn hàng
+    const openCancelModal = (orderId) => {
+        setSelectedOrderId(orderId);
+        setShowConfirmModal(true);
+        setCancelMessage({ text: '', type: '' });
+    };
+
+    // Đóng modal xác nhận
+    const closeCancelModal = () => {
+        setShowConfirmModal(false);
+        setSelectedOrderId(null);
+    };
+
+    // Xử lý hủy đơn hàng
+    const handleCancelOrder = async () => {
+        if (!selectedOrderId) return;
+
+        try {
+            setCancelLoading(true);
+            const response = await axios.patch(
+                `${URL_API}orderClient/cancel/${selectedOrderId}`,
+                {},
+                { withCredentials: true }
+            );
+
+            if (response.data.status === 'success') {
+                setCancelMessage({
+                    text: 'Đơn hàng đã được hủy thành công!',
+                    type: 'success'
+                });
+
+                // Cập nhật trạng thái đơn hàng trong state
+                setOrders(orders.map(order =>
+                    order._id === selectedOrderId
+                        ? { ...order, status: 'Đã hủy' }
+                        : order
+                ));
+
+                // Đóng modal sau 1.5 giây
+                setTimeout(() => {
+                    closeCancelModal();
+                }, 1500);
+            } else {
+                setCancelMessage({
+                    text: 'Không thể hủy đơn hàng. Vui lòng thử lại sau.',
+                    type: 'error'
+                });
+            }
+        } catch (error) {
+            console.error('Lỗi khi hủy đơn hàng:', error);
+            setCancelMessage({
+                text: error.response?.data?.message || 'Đã xảy ra lỗi. Vui lòng thử lại sau.',
+                type: 'error'
+            });
+        } finally {
+            setCancelLoading(false);
+        }
+    };
+
+    // Kiểm tra xem đơn hàng có thể hủy không
+    const canCancelOrder = (status) => {
+        return status !== 'Đã nhận hàng' && status !== 'Đã hủy';
+    };
+
     // Xử lý chuyển trang
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
@@ -174,6 +244,63 @@ const OrdersHistoryContent = () => {
 
     return (
         <div className="flex-1 p-6">
+            {/* Modal xác nhận hủy đơn hàng */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 transform transition-all">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-medium text-gray-900">Xác nhận hủy đơn hàng</h3>
+                            <button
+                                onClick={closeCancelModal}
+                                className="text-gray-400 hover:text-gray-500 transition-colors"
+                            >
+                                <FaTimes size={20} />
+                            </button>
+                        </div>
+
+                        {cancelMessage.text ? (
+                            <div className={`mb-4 p-3 rounded-md ${cancelMessage.type === 'success'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                                }`}>
+                                <p>{cancelMessage.text}</p>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="mb-5 text-center">
+                                    <FaExclamationTriangle className="mx-auto text-yellow-400 text-4xl mb-2" />
+                                    <p className="text-gray-700">Bạn có chắc chắn muốn hủy đơn hàng này không?</p>
+                                    <p className="text-gray-500 text-sm mt-1">Hành động này không thể hoàn tác</p>
+                                </div>
+                                <div className="flex justify-end space-x-3">
+                                    <button
+                                        onClick={closeCancelModal}
+                                        className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+                                        disabled={cancelLoading}
+                                    >
+                                        Quay lại
+                                    </button>
+                                    <button
+                                        onClick={handleCancelOrder}
+                                        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors flex items-center"
+                                        disabled={cancelLoading}
+                                    >
+                                        {cancelLoading ? (
+                                            <>
+                                                <FaSpinner className="animate-spin mr-2" />
+                                                Đang xử lý...
+                                            </>
+                                        ) : (
+                                            'Xác nhận hủy'
+                                        )}
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
+
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold">Lịch Sử Đơn Hàng</h1>
                 <button
@@ -375,6 +502,18 @@ const OrdersHistoryContent = () => {
                                                     <span>Tổng thanh toán:</span>
                                                     <span className="text-primary">{formatCurrency(order.totalPrice + (order.shippingFee || 0))}</span>
                                                 </div>
+
+                                                {/* Thêm nút hủy đơn hàng */}
+                                                {canCancelOrder(order.status) && (
+                                                    <div className="mt-3 pt-2 border-t text-right">
+                                                        <button
+                                                            onClick={() => openCancelModal(order._id)}
+                                                            className="mt-2 px-4 py-2 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
+                                                        >
+                                                            Hủy đơn hàng
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

@@ -83,7 +83,7 @@ const UpdatePaymentForm = () => {
                 updatedAt: new Date().toISOString(), // Update the updatedAt field
             };
             await axios.put(`${URL_API}payments/update/${id}`, updatedPayment);
-            navigate('/payments'); // Navigate back to the payments list
+            navigate('/admin/payments'); // Navigate back to the payments list
         } catch (error) {
             console.error('Error updating payment:', error);
         }
@@ -142,10 +142,9 @@ const UpdatePaymentForm = () => {
                         onChange={(e) => setPayment({ ...payment, paymentMethod: e.target.value })}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     >
-                        <option value="Credit Card">Credit Card</option>
-                        <option value="VNPay">VNPay</option>
+
                         <option value="MoMo">MoMo</option>
-                        <option value="Cash">Cash</option>
+                        <option value="COD">COD</option>
                     </select>
                 </div>
                 <div>
@@ -155,10 +154,9 @@ const UpdatePaymentForm = () => {
                         onChange={(e) => setPayment({ ...payment, status: e.target.value })}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     >
-                        <option value="pending">Đang chờ</option>
-                        <option value="processing">Đang xử lý</option>
-                        <option value="completed">Hoàn thành</option>
-                        <option value="cancelled">Đã hủy</option>
+                        <option value="Đã hủy">Đã hủy</option>
+                        <option value="Đã thanh toán">Đã thanh toán</option>
+                        <option value="Đang xử lý">Đang xử lý</option>
                     </select>
                 </div>
                 <div>
