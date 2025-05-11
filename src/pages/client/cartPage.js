@@ -253,7 +253,7 @@ const CartPage = () => {
       <h1 className="text-2xl font-bold text-center mt-8 mb-8">
         GIỎ HÀNG CỦA TÔI
       </h1>
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-col lg:flex-row gap-6 mb-8">
         {/* Danh sách sản phẩm */}
         <div className="w-full lg:w-8/12 border rounded-lg p-6 bg-white shadow-sm">
           <div className="grid grid-cols-12 text-base font-bold border-b pb-4 mb-2">

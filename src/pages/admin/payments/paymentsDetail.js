@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
 
 const UpdatePaymentForm = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [payment, setPayment] = useState({
-        _id: '',
-        orderId: '',
-        user_id: '',
-        userName: '',
-        amount: '',
-        paymentMethod: 'Credit Card', // Default to "Credit Card"
-        status: 'pending',
-        createdAt: '',
-        updatedAt: '',
+        _id: "",
+        orderId: "",
+        user_id: "",
+        userName: "",
+        amount: "",
+        paymentMethod: "Credit Card", // Default to "Credit Card"
+        status: "pending",
+        createdAt: "",
+        updatedAt: "",
     });
     const [orders, setOrders] = useState([]);
     const URL_API = process.env.REACT_APP_API_URL;
@@ -24,22 +24,24 @@ const UpdatePaymentForm = () => {
             try {
                 const response = await axios.get(`${URL_API}payments/${id}`);
                 const paymentData = response.data.data;
-                setPayment(prevPayment => ({
+                setPayment((prevPayment) => ({
                     ...prevPayment,
                     ...paymentData,
                 }));
 
                 // Fetch user details based on user_id from payment data
                 if (paymentData.user_id) {
-                    const userResponse = await axios.get(`${URL_API}users/${paymentData.user_id}`);
+                    const userResponse = await axios.get(
+                        `${URL_API}users/${paymentData.user_id}`
+                    );
                     const user = userResponse.data.data;
-                    setPayment(prevPayment => ({
+                    setPayment((prevPayment) => ({
                         ...prevPayment,
                         userName: user.name,
                     }));
                 }
             } catch (error) {
-                console.error('Error fetching payment:', error);
+                console.error("Error fetching payment:", error);
             }
         };
 
@@ -48,7 +50,7 @@ const UpdatePaymentForm = () => {
                 const response = await axios.get(`${URL_API}orders/all/nopagination`);
                 setOrders(response.data.data);
             } catch (error) {
-                console.error('Error fetching orders:', error);
+                console.error("Error fetching orders:", error);
             }
         };
 
@@ -57,10 +59,12 @@ const UpdatePaymentForm = () => {
     }, [id]);
 
     const handleOrderChange = async (e) => {
-        const selectedOrder = orders.find(order => order._id === e.target.value);
+        const selectedOrder = orders.find((order) => order._id === e.target.value);
         if (selectedOrder) {
             try {
-                const userResponse = await axios.get(`${URL_API}users/${selectedOrder.user_id}`);
+                const userResponse = await axios.get(
+                    `${URL_API}users/${selectedOrder.user_id}`
+                );
                 const user = userResponse.data.data;
                 setPayment({
                     ...payment,
@@ -70,7 +74,7 @@ const UpdatePaymentForm = () => {
                     amount: selectedOrder.totalPrice,
                 });
             } catch (error) {
-                console.error('Error fetching user:', error);
+                console.error("Error fetching user:", error);
             }
         }
     };
@@ -83,9 +87,14 @@ const UpdatePaymentForm = () => {
                 updatedAt: new Date().toISOString(), // Update the updatedAt field
             };
             await axios.put(`${URL_API}payments/update/${id}`, updatedPayment);
-            navigate('/admin/payments'); // Navigate back to the payments list
+            navigate("/payments"); // Navigate back to the payments list
         } catch (error) {
-            console.error('Error updating payment:', error);
+            console.error("Error updating payment:", error);
+        }
+    };
+    const handleViewOrder = () => {
+        if (payment.orderId) {
+            navigate(`/admin/orders/${payment.orderId}`);
         }
     };
 
@@ -103,14 +112,16 @@ const UpdatePaymentForm = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Order ID</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                        Order ID
+                    </label>
                     <select
                         value={payment.orderId}
                         onChange={handleOrderChange}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     >
                         <option value="">Chọn Order ID</option>
-                        {orders.map(order => (
+                        {orders.map((order) => (
                             <option key={order._id} value={order._id}>
                                 {order._id}
                             </option>
@@ -118,7 +129,9 @@ const UpdatePaymentForm = () => {
                     </select>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">User Name</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                        User Name
+                    </label>
                     <input
                         type="text"
                         value={payment.userName}
@@ -127,7 +140,9 @@ const UpdatePaymentForm = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Số Tiền</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                        Số Tiền
+                    </label>
                     <input
                         type="number"
                         value={payment.amount}
@@ -136,31 +151,41 @@ const UpdatePaymentForm = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Phương Thức Thanh Toán</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                        Phương Thức Thanh Toán
+                    </label>
                     <select
                         value={payment.paymentMethod}
-                        onChange={(e) => setPayment({ ...payment, paymentMethod: e.target.value })}
+                        onChange={(e) =>
+                            setPayment({ ...payment, paymentMethod: e.target.value })
+                        }
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     >
-
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="VNPay">VNPay</option>
                         <option value="MoMo">MoMo</option>
-                        <option value="COD">COD</option>
+                        <option value="Cash">Cash</option>
                     </select>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Trạng Thái</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                        Trạng Thái
+                    </label>
                     <select
                         value={payment.status}
                         onChange={(e) => setPayment({ ...payment, status: e.target.value })}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                     >
-                        <option value="Đã hủy">Đã hủy</option>
-                        <option value="Đã thanh toán">Đã thanh toán</option>
-                        <option value="Đang xử lý">Đang xử lý</option>
+                        <option value="pending">Đang chờ</option>
+                        <option value="processing">Đang xử lý</option>
+                        <option value="completed">Hoàn thành</option>
+                        <option value="cancelled">Đã hủy</option>
                     </select>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Ngày Tạo</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                        Ngày Tạo
+                    </label>
                     <input
                         type="text"
                         value={payment.createdAt}
@@ -169,7 +194,9 @@ const UpdatePaymentForm = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Ngày Cập Nhật</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                        Ngày Cập Nhật
+                    </label>
                     <input
                         type="text"
                         value={payment.updatedAt}
@@ -180,10 +207,23 @@ const UpdatePaymentForm = () => {
                 <div>
                     <button
                         type="submit"
-                        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className="inline-flex justify-center py-2 px-4 
+            border border-transparent shadow-sm text-sm font-medium 
+            rounded-md text-white bg-primary hover:bg-secondary hover:text-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
                         Cập Nhật Hóa Đơn
                     </button>
+                    {payment.orderId && (
+                        <button
+                            type="button"
+                            onClick={handleViewOrder}
+                            className="inline-flex items-center py-2 px-4 border ml-4
+               border-primary text-primary text-sm font-medium 
+               rounded-md hover:bg-indigo-50"
+                        >
+                            Xem đơn hàng
+                        </button>
+                    )}
                 </div>
             </form>
         </div>

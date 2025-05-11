@@ -23,7 +23,7 @@ const Dashboard = () => {
         <div className='mt-20 w-11/12 mx-auto '>
             <h2 className="text-lg text-right font-semibold text-gray-700"> {currentDate}</h2>
             <AnalysisCard />
-           <div className="flex mx-auto border justify-between mt-5">
+           <div className="flex mx-auto justify-between mt-5">
            {/* <Chart /> */}
            <InventoryList/>
            <TopProduct/>
