@@ -49,6 +49,7 @@ const HeaderClient = () => {
   }, [isLoggedIn, URL_API]);
 
   const handleLoginClick = () => {
+    setMobileMenuOpen(false); // Đóng menu mobile trước khi điều hướng
     navigate("/login-user");
   };
 

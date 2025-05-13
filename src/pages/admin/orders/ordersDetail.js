@@ -112,9 +112,10 @@ const UpdateOrderForm = () => {
                                 onChange={(e) => setOrder({ ...order, status: e.target.value })}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                             >
-                                <option value="Đặt hàng thành công">Đặt hàng thành công</option>
-                                <option value="Đã gửi hàng">Đã gửi hàng</option>
-                                <option value="Đã nhận">Đã nhận</option>
+                                <option value="Đặt hàng thành công">Đặt Hàng Thành Công</option>
+                                <option value="Đã hủy">Đã Huỷ</option>
+                                <option value="Đã gửi hàng">Đã Gửi Hàng</option>
+                                <option value="Đã nhận">Đã Nhận</option>
                             </select>
                         </div>
                     </div>

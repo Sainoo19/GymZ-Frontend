@@ -1,15 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { auth, provider, signInWithPopup, signOut } from "../../firebase"; // Import Firebase
 import GoogleLoginButton from "../../components/clients/login/GoogleLoginButton";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { delay } from "framer-motion";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const LoginPageUser = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
@@ -38,7 +41,9 @@ const LoginPageUser = () => {
       setError("Invalid email or password");
     }
   };
-
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const response = await axios.post(`${URL_API}auth/google/token`, {
@@ -57,7 +62,23 @@ const LoginPageUser = () => {
       setError("Đăng nhập Google thất bại");
     }
   };
-
+  useEffect(() => {
+    axios
+      .get(`${URL_API}users/profile`, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        // Nếu API trả về thành công, người dùng đã đăng nhập
+        // Chuyển hướng người dùng đến trang chủ hoặc trang trước đó
+        const from = location.state?.from?.pathname || "/";
+        navigate(from);
+      })
+      .catch((error) => {
+        // Nếu có lỗi, người dùng chưa đăng nhập, hiển thị form đăng nhập
+        console.log("User not logged in, showing login form");
+        setIsLoading(false);
+      });
+  }, [URL_API, navigate, location]);
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
       <div className="bg-white shadow-lg rounded-lg  flex max-w-4xl  w-11/12">
@@ -93,14 +114,27 @@ const LoginPageUser = () => {
               >
                 Mật khẩu
               </label>
-              <input
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                id="password"
-                type="password"
-                placeholder="Mật khẩu"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div className="relative">
+                <input
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-10"
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Mật khẩu"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="absolute top-1/2 transform -translate-y-1/2 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? (
+                    <FaEyeSlash size={18} />
+                  ) : (
+                    <FaEye size={18} />
+                  )}
+                </button>
+              </div>
             </div>
             {error && (
               <p className="text-red-500 text-xs italic mb-4">{error}</p>

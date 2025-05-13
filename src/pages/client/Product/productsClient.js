@@ -3,7 +3,7 @@ import axios from "axios";
 import ProductCard from "../../../components/clients/product/ProductCard";
 import Search from "../../../components/clients/product/Search";
 import Pagination from "../../../components/admin/layout/Pagination";
-// import Banner from "../../components/clients/product/Banner"
+import Banner from "../../../components/clients/product/Banner"; // Uncommented Banner import
 
 const ProductsClient = () => {
   const URL_API = process.env.REACT_APP_API_URL;
@@ -40,20 +40,12 @@ const ProductsClient = () => {
 
   // Handle pending category filter from RelatedProducts
   useEffect(() => {
-    // Only run this once after products and categories are loaded
     if (!initialFilterApplied && products.length > 0 && categories.length > 0) {
       const pendingCategoryFilter = sessionStorage.getItem('pendingCategoryFilter');
-
       if (pendingCategoryFilter) {
         console.log("Applying pending category filter:", pendingCategoryFilter);
-
-        // Apply the filter
         handleFilter({ categories: [pendingCategoryFilter] });
-
-        // Remove from sessionStorage to prevent re-filtering
         sessionStorage.removeItem('pendingCategoryFilter');
-
-        // Mark as applied so we don't do it again
         setInitialFilterApplied(true);
       }
     }
@@ -143,24 +135,21 @@ const ProductsClient = () => {
 
   const handleSearch = (searchText) => {
     if (searchText.trim() === "") {
-      // If search is cleared, reset to original products
       fetchProducts(currentPage);
     } else {
-      // If there is search text, filter the product list
       const filtered = products.filter((product) =>
         product.name.toLowerCase().includes(searchText.toLowerCase())
       );
       setFilteredProducts(filtered);
-      setTotalPages(Math.ceil(filtered.length / 10)); // Update page count
+      setTotalPages(Math.ceil(filtered.length / 8));
     }
-    setCurrentPage(1); // Always return to first page when searching
+    setCurrentPage(1);
   };
 
   const handleFilter = (filters) => {
     console.log("Applying filters:", filters);
     let filtered = [...products];
 
-    // If no filters, show all products
     if (
       (!filters.categories || filters.categories.length === 0) &&
       (!filters.brands || filters.brands.length === 0) &&
@@ -171,7 +160,6 @@ const ProductsClient = () => {
       return;
     }
 
-    // Apply category filter if present
     if (filters.categories && filters.categories.length > 0) {
       console.log("Filtering by categories:", filters.categories);
       filtered = filtered.filter((product) =>
@@ -180,14 +168,12 @@ const ProductsClient = () => {
       console.log("After category filter:", filtered.length, "products");
     }
 
-    // Apply brand filter if present
     if (filters.brands && filters.brands.length > 0) {
       filtered = filtered.filter((product) =>
         filters.brands.includes(product.brand)
       );
     }
 
-    // Apply price filters if present
     if (filters.minPrice) {
       filtered = filtered.filter(
         (product) => minMaxPrices[product._id] >= Number(filters.minPrice)
@@ -200,13 +186,8 @@ const ProductsClient = () => {
       );
     }
 
-    // Update filtered product list
     setFilteredProducts(filtered);
-
-    // Update page count based on filtered list
-    setTotalPages(Math.ceil(filtered.length / 10));
-
-    // Reset to first page to avoid empty pages
+    setTotalPages(Math.ceil(filtered.length / 8));
     setCurrentPage(1);
   };
 
@@ -224,7 +205,7 @@ const ProductsClient = () => {
     } else if (sortOrder === "asc") {
       sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortOrder === "desc") {
-      sortedProducts.sort((a, b) => b.name.localeCompare(a.name));
+      sortedProducts.sort((a, b) => b.name.localeCompare(b.name));
     }
 
     setFilteredProducts(sortedProducts);
@@ -241,6 +222,10 @@ const ProductsClient = () => {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-20 mb-10">
+      <div className="mt-8">
+        <Banner /> {/* Add Banner component here */}
+        <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Tất Cả Sản Phẩm</h1>
+      </div>
       <div className="flex flex-col lg:flex-row justify-around items-start sm:justify-center gap-4">
         <Search
           onSearch={handleSearch}

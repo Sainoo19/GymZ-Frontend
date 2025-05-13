@@ -1,14 +1,20 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const LoginAdminPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const API_URL = process.env.REACT_APP_API_URL;
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -95,18 +101,33 @@ const LoginAdminPage = () => {
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-                                Password
+                            <label
+                                className="block text-gray-700 text-sm font-bold mb-2"
+                                htmlFor="password"
+                            >
+                                Mật khẩu
                             </label>
-                            <input
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                                id="password"
-                                type="password"
-                                placeholder="Password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
+                            <div className="relative">
+                                <input
+                                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-10"
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Mật khẩu"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                                <button
+                                    type="button"
+                                    className="absolute top-1/2 transform -translate-y-1/2 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                                    onClick={togglePasswordVisibility}
+                                >
+                                    {showPassword ? (
+                                        <FaEyeSlash size={18} />
+                                    ) : (
+                                        <FaEye size={18} />
+                                    )}
+                                </button>
+                            </div>
                         </div>
                         {error && (
                             <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 mb-4 rounded">
