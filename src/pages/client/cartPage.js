@@ -180,14 +180,28 @@ const CartPage = () => {
         data?.discountPercent > 0 &&
         data?.usageLimit > 0
       ) {
-        setDiscountPercent(data.discountPercent);
-        setMaxDiscountAmount(data.maxDiscountAmount);
-        setApplicableProducts(new Set(data.applicableProducts || []));
-        alert(
-          `Mã giảm giá đã được áp dụng! Giảm ${data.discountPercent
-          }%, giảm tối đa ${formatCurrency(data.maxDiscountAmount)}đ`
+        // Get all selected product IDs
+        const selectedProductIds = Array.from(selectedItems).map(key => {
+          const [productId] = key.split("-");
+          return productId;
+        });
+
+        // Check if any selected product is eligible for discount
+        const hasApplicableProduct = selectedProductIds.some(productId =>
+          data.applicableProducts && data.applicableProducts.includes(productId)
         );
 
+        if (hasApplicableProduct || selectedProductIds.length === 0) {
+          setDiscountPercent(data.discountPercent);
+          setMaxDiscountAmount(data.maxDiscountAmount);
+          setApplicableProducts(new Set(data.applicableProducts || []));
+          alert(
+            `Mã giảm giá đã được áp dụng! Giảm ${data.discountPercent
+            }%, giảm tối đa ${formatCurrency(data.maxDiscountAmount)}đ`
+          );
+        } else {
+          alert("Mã giảm giá không áp dụng cho các sản phẩm bạn đã chọn.");
+        }
       } else {
         alert("Mã giảm giá không hợp lệ, đã hết hạn hoặc hết lượt sử dụng.");
       }

@@ -253,7 +253,6 @@ const App = () => {
                     path="admin/inventory/top-product-page"
                     element={<TopProductPage />}
                   />
-
                   <Route
                     path="admin/revenueAnalysis"
                     element={<RevenueAnalysis />}
@@ -265,10 +264,6 @@ const App = () => {
                   <Route
                     path="admin/feedbackReview/:productId"
                     element={<ProductFeedbackReview />}
-                  />
-                  <Route
-                    path="admin/employees/create"
-                    element={<CreateEmployee />}
                   />
                   <Route
                     path="admin/employees/create"

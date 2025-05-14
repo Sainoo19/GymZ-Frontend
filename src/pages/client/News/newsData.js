@@ -638,7 +638,7 @@ export const newsArticles = [
         slug: "cai-thien-giac-ngu-de-tap-luyen-hieu-qua",
         title: "Cải thiện giấc ngủ để tập luyện hiệu quả",
         short_description: "Giấc ngủ ảnh hưởng lớn đến hiệu suất tập luyện. Tìm hiểu cách cải thiện chất lượng giấc ngủ để tối ưu hóa kết quả.",
-        image: "https://images.unsplash.com/photo-1512207702400-4b7dcbe667c6?auto=format&fit=crop&w=1470&q=80",
+        image: "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?auto=format&fit=crop&w=1470&q=80",
         date: "2023-12-01",
         author: "Minh Đức",
         category: "lifestyle",
