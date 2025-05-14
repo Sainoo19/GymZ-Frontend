@@ -228,8 +228,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
                               }
                             }}
                           >
-                            
-                            <p className="font-semibold">{order.title}:</p> 
+                            <p className="font-semibold">{order.title}:</p>
                             <p>{order.message}</p>
                           </div>
 
@@ -237,7 +236,6 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
                           {order.title === "Đã huỷ" && (
                             <button
                               onClick={async (e) => {
-
                                 e.stopPropagation(); // ngăn click lan sang navigate
                                 try {
                                   await deleteDoc(
@@ -255,11 +253,11 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
                               }}
                               className="text-red-600 hover:text-red-800 ml-2 text-sm"
                             >
-                               <img
-                              src={close_ring}
-                              alt="close"
-                              className={`w-4 h-4 text-red-500`}
-                            />
+                              <img
+                                src={close_ring}
+                                alt="close"
+                                className={`w-4 h-4 text-red-500`}
+                              />
                             </button>
                           )}
                         </li>
@@ -307,16 +305,32 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
                             }
                           }}
                         >
-                          <div className="flex items-center">
-                            <div>
-                              <strong>{noti.title} :</strong>
-                              <p className="text-sm">{noti.message}</p>
+                          <div className="flex items-start justify-between w-full">
+                            <div className="flex-1">
+                              <strong
+                                className={`${
+                                  noti.title?.includes("huỷ")
+                                    ? "text-red-500"
+                                    : ""
+                                }`}
+                              >
+                                {noti.title} :
+                              </strong>
+                              <p
+                                className={`text-sm ${
+                                  noti.title?.includes("huỷ")
+                                    ? "text-red-500"
+                                    : ""
+                                }`}
+                              >
+                                {noti.message}
+                              </p>
                             </div>
 
                             <img
                               src={close_ring}
                               alt="close"
-                              className={`w-4 h-4  ${
+                              className={`w-4 h-4 ml-2 ${
                                 noti.isRead ? "block" : "hidden"
                               }`}
                               onClick={() => setConfirmDeleteId(noti.id)}
