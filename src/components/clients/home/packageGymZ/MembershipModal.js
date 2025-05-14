@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { X, Loader } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+// Vẫn giữ lại Cookies để tương thích với phần còn lại của ứng dụng nếu cần
 import Cookies from "js-cookie";
 
 const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
@@ -14,26 +15,53 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
         branchID: "",
         employeeID: "",
     });
+    const [isAuthenticated, setIsAuthenticated] = useState(false); // Thêm state kiểm tra đăng nhập
+    const [countdownValue, setCountdownValue] = useState(3); // Thêm đếm ngược
     const URL_API = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Fetch branches when modal opens
+    // Fetch branches và kiểm tra đăng nhập khi modal mở
     useEffect(() => {
         if (isOpen) {
             fetchBranches();
+            checkAuthStatus();
         }
+
+        // Reset states khi modal đóng/mở
+        return () => {
+            setError(null);
+            setSuccess(null);
+            setCountdownValue(3);
+        };
     }, [isOpen]);
+
+    // Hàm kiểm tra trạng thái đăng nhập qua API
+    const checkAuthStatus = async () => {
+        try {
+            const response = await axios.get(`${URL_API}users/profile`, {
+                withCredentials: true
+            });
+
+            setIsAuthenticated(response.data && response.data.status === "success");
+            console.log("Trạng thái đăng nhập:", response.data && response.data.status === "success" ? "Đã đăng nhập" : "Chưa đăng nhập");
+        } catch (err) {
+            console.log("Người dùng chưa đăng nhập:", err);
+            setIsAuthenticated(false);
+        }
+    };
 
     // Fetch branches from API
     const fetchBranches = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${URL_API}home/all/home`);
+            const response = await axios.get(`${URL_API}home/all/home`, {
+                withCredentials: true
+            });
             if (response.data && response.data.data) {
                 setBranches(response.data.data);
-                setLoading(false);
             }
+            setLoading(false);
         } catch (err) {
             console.error("Error fetching branches:", err);
             setError("Không thể tải thông tin chi nhánh");
@@ -47,7 +75,9 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
 
         try {
             setLoading(true);
-            const response = await axios.get(`${URL_API}home/${branchId}/employees`);
+            const response = await axios.get(`${URL_API}home/${branchId}/employees`, {
+                withCredentials: true
+            });
             if (response.data && response.data.data) {
                 setEmployees(response.data.data);
             }
@@ -75,6 +105,25 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
         setFormData({ ...formData, employeeID: e.target.value });
     };
 
+    // Hàm chuyển hướng với đếm ngược
+    const redirectWithCountdown = () => {
+        setError(`Vui lòng đăng nhập trước khi đăng ký gói hội viên. Chuyển hướng sau ${countdownValue} giây...`);
+
+        const countdownInterval = setInterval(() => {
+            setCountdownValue((prev) => {
+                if (prev <= 1) {
+                    clearInterval(countdownInterval);
+                    onClose();
+                    navigate("/login-user", { state: { from: location.pathname } });
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(countdownInterval);
+    };
+
     // Handle registration form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -84,14 +133,9 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
             return;
         }
 
-        // Check if user is logged in before proceeding
-        const token = Cookies.get("accessToken");
-        if (!token) {
-            setError("Vui lòng đăng nhập trước khi đăng ký gói hội viên");
-            setTimeout(() => {
-                onClose();
-                navigate("/login-user", { state: { from: location } });
-            }, 1500);
+        // Kiểm tra đăng nhập bằng state thay vì cookie
+        if (!isAuthenticated) {
+            redirectWithCountdown();
             return;
         }
 
@@ -118,8 +162,6 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
 
             // Show success message from API response
             setSuccess(response.data.message || "Đăng ký gói hội viên thành công!");
-
-            // Keep the success message visible and disable form
             setLoading(false);
 
             // Optional: Close the modal automatically after a few seconds
@@ -131,10 +173,10 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
 
             // Kiểm tra lỗi authentication
             if (err.response?.status === 401) {
-                setError("Vui lòng đăng nhập trước khi đăng ký gói hội viên");
+                setError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
                 setTimeout(() => {
                     onClose();
-                    navigate("/login-user", { state: { from: location } });
+                    navigate("/login-user", { state: { from: location.pathname } });
                 }, 1500);
             } else {
                 setError(err.response?.data?.message || "Đăng ký không thành công. Vui lòng thử lại sau.");
@@ -174,6 +216,22 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
                     </div>
                 )}
 
+                {/* Thông báo nếu chưa đăng nhập */}
+                {!isAuthenticated && !loading && !error && (
+                    <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                        Bạn cần đăng nhập trước khi đăng ký gói hội viên.
+                        <button
+                            onClick={() => {
+                                onClose();
+                                navigate("/login-user", { state: { from: location.pathname } });
+                            }}
+                            className="ml-2 underline font-medium hover:text-yellow-800"
+                        >
+                            Đăng nhập ngay
+                        </button>
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit}>
                     <div className="mb-6">
                         <div className="flex flex-col mb-4">
@@ -193,7 +251,7 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
                                 className="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
                                 value={formData.branchID}
                                 onChange={handleBranchChange}
-                                disabled={loading}
+                                disabled={loading || !isAuthenticated}
                                 required
                             >
                                 <option value="">-- Chọn chi nhánh --</option>
@@ -214,7 +272,7 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
                                     className="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
                                     value={formData.employeeID}
                                     onChange={handleEmployeeChange}
-                                    disabled={loading || !formData.branchID}
+                                    disabled={loading || !formData.branchID || !isAuthenticated}
                                 >
                                     <option value="">-- Chọn huấn luyện viên (tùy chọn) --</option>
                                     {employees.map((employee) => (
@@ -239,7 +297,7 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
                         <button
                             type="submit"
                             className="bg-secondary hover:bg-secondary-dark text-white font-bold py-2 px-4 rounded"
-                            disabled={loading}
+                            disabled={loading || !isAuthenticated}
                         >
                             {loading ? "Đang xử lý..." : "Xác nhận đăng ký"}
                         </button>
