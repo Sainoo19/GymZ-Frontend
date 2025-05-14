@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { onMessage } from "firebase/messaging";
 import { messaging } from "../../../firebase";
 import { db } from "../../../firebase"; // Import Firestore
-import { doc, updateDoc, deleteDoc  } from "firebase/firestore";
+import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import close_ring from "../../../assets/icons/close_ring.svg";
 import {
   collection,
@@ -184,7 +184,6 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
                   onClick={() => setActiveTab("payments")}
                 >
                   Thông báo thanh toán
-                  
                 </button>
               </div>
 
@@ -196,26 +195,67 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
                       {orderNotifications.map((order, index) => (
                         <li
                           key={index}
-                          className={`p-2 hover:bg-gray-100 rounded cursor-pointer ${
-                            !order.isRead ? "font-medium" : "text-gray-500"
-                          }`}                          
-                          onClick={async () => {
-                            try {
-                              navigate(`/admin/orders/${order.orderId}`);
-                              await updateDoc(doc(db, "notifications", order.id), { isRead: true });
-                          
-                              setOrderNotifications((prev) =>
-                                prev.map((item) =>
-                                  item.id === order.id ? { ...item, isRead: true } : item
-                                )
-                              );
-                            } catch (err) {
-                              console.error("Lỗi cập nhật isRead cho order:", err);
-                            }
-                          }}
-                          
+                          className={`p-2 hover:bg-gray-100 rounded cursor-pointer flex justify-between items-start ${
+                            order.status === "Đã huỷ"
+                              ? "text-red-500 font-semibold"
+                              : !order.isRead
+                              ? "font-medium"
+                              : "text-gray-500"
+                          }`}
                         >
-                          <strong>{order.title}</strong>: {order.message}
+                          <div
+                            className="flex-1"
+                            onClick={async () => {
+                              try {
+                                navigate(`/admin/orders/${order.orderId}`);
+                                await updateDoc(
+                                  doc(db, "notifications", order.id),
+                                  { isRead: true }
+                                );
+
+                                setOrderNotifications((prev) =>
+                                  prev.map((item) =>
+                                    item.id === order.id
+                                      ? { ...item, isRead: true }
+                                      : item
+                                  )
+                                );
+                              } catch (err) {
+                                console.error(
+                                  "Lỗi cập nhật isRead cho order:",
+                                  err
+                                );
+                              }
+                            }}
+                          >
+                            <strong>{order.title}</strong>: {order.message}
+                          </div>
+
+                          {/* Nếu đơn hàng bị huỷ thì hiện nút xoá */}
+                          {order.title === "Đã huỷ" && (
+                            <button
+                              onClick={async (e) => {
+
+                                e.stopPropagation(); // ngăn click lan sang navigate
+                                try {
+                                  await deleteDoc(
+                                    doc(db, "notifications", order.id)
+                                  );
+                                  setOrderNotifications((prev) =>
+                                    prev.filter((item) => item.id !== order.id)
+                                  );
+                                } catch (error) {
+                                  console.error(
+                                    "Lỗi khi xoá thông báo:",
+                                    error
+                                  );
+                                }
+                              }}
+                              className="text-red-600 hover:text-red-800 ml-2 text-sm"
+                            >
+                              Xoá
+                            </button>
+                          )}
                         </li>
                       ))}
                     </ul>
@@ -273,9 +313,7 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
                               className={`w-4 h-4  ${
                                 noti.isRead ? "block" : "hidden"
                               }`}
-                                onClick={() => setConfirmDeleteId(noti.id)}
-
-                              
+                              onClick={() => setConfirmDeleteId(noti.id)}
                             />
                           </div>
                         </div>
