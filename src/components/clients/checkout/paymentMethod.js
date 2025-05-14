@@ -34,26 +34,70 @@ const PaymentMethods = ({
     setSelectedMethod(method);
   };
 
-  const handlePurchase = async () => {
-    if (!selectedMethod) {
-      alert("Vui lòng chọn phương thức thanh toán!");
-      return;
-    }
+const handlePurchase = async () => {
+  if (!selectedMethod) {
+    alert("Vui lòng chọn phương thức thanh toán!");
+    return;
+  }
 
-    if (
-      !userInfo ||
-      totalAmount === 0 ||
-      !Array.isArray(selectedItems) ||
-      selectedItems.length === 0
-    ) {
-      alert("Thông tin đơn hàng không hợp lệ!");
-      return;
-    }
-    let localFee = totalAmount - shippingFee.fee.fee;
-    setLoading(true);
-    try {
-      console.log("Gửi yêu cầu tạo đơn hàng...");
+  if (
+    !userInfo ||
+    totalAmount === 0 ||
+    !Array.isArray(selectedItems) ||
+    selectedItems.length === 0
+  ) {
+    alert("Thông tin đơn hàng không hợp lệ!");
+    return;
+  }
 
+  let localFee = totalAmount - shippingFee.fee.fee;
+  setLoading(true);
+
+  try {
+    if (selectedMethod === "MoMo") {
+      // 1. Gửi yêu cầu lấy URL thanh toán MoMo trước
+      const momoResponse = await axios.post(
+        `${URL_API}payment/momopayment`,
+        { amount: totalAmount, selectedMethod },
+        { withCredentials: true }
+      );
+
+      if (momoResponse.data?.resultCode === 0) {
+        // 2. Nếu Momo phản hồi thành công, tạo đơn hàng
+        const orderResponse = await axios.post(
+          `${URL_API}orderClient/create`,
+          {
+            user_id: userInfo._id,
+            totalPrice: localFee,
+            status: "Đặt hàng thành công",
+            paymentMethod: selectedMethod,
+            deliveryAddress: {
+              name: deliveryAddress.name,
+              phone: deliveryAddress.phone,
+              street: deliveryAddress.street || "",
+              wardName: deliveryAddress.ward || "",
+              districtName: deliveryAddress.district || "",
+              provinceName: deliveryAddress.province || "",
+            },
+            items: selectedItems,
+            shippingFee: shippingFee.fee.fee,
+          },
+          { withCredentials: true }
+        );
+
+        if (orderResponse.data.order) {
+          const orderId = orderResponse.data.order._id;
+
+          // 3. Điều hướng sang trang thanh toán MoMo
+          window.location.href = momoResponse.data.payUrl;
+        } else {
+          alert("Không thể tạo đơn hàng sau khi tạo thanh toán MoMo!");
+        }
+      } else {
+        alert("Không thể tạo thanh toán MoMo, vui lòng thử lại!");
+      }
+    } else {
+      // COD: Tạo đơn hàng ngay
       const orderResponse = await axios.post(
         `${URL_API}orderClient/create`,
         {
@@ -77,44 +121,28 @@ const PaymentMethods = ({
 
       if (orderResponse.data.order) {
         const orderId = orderResponse.data.order._id;
-        onSelectPayment(selectedMethod, totalAmount);
 
-        if (selectedMethod === "MoMo") {
-          const momoResponse = await axios.post(
-            `${URL_API}payment/momopayment`,
-            { amount: totalAmount, orderId: orderId, selectedMethod },
-            { withCredentials: true }
-          );
+        await axios.put(`${URL_API}orderClient/update-status`, {
+          orderId,
+          status: "Đặt hàng thành công",
+        });
 
-          if (momoResponse.data?.resultCode === 0) {
-            window.location.href = momoResponse.data.payUrl;
-          } else {
-            alert("Không thể tạo thanh toán MoMo, vui lòng thử lại!");
-          }
-        } else {
-          await axios.put(`${URL_API}orderClient/update-status`, {
-            orderId,
-            status: "Đặt hàng thành công",
-          });
-
-          alert(
-            "Đơn hàng đã được tạo thành công! Vui lòng thanh toán khi nhận hàng."
-          );
-          navigate(`/order-progress?orderId=${orderId}&paymentMethod=${selectedMethod}`);
-        }
+        alert(
+          "Đơn hàng đã được tạo thành công! Vui lòng thanh toán khi nhận hàng."
+        );
+        navigate(`/order-progress?orderId=${orderId}&paymentMethod=${selectedMethod}`);
       } else {
         alert("Không thể tạo đơn hàng!");
       }
-    } catch (error) {
-      console.error(
-        "Lỗi khi tạo đơn hàng:",
-        error?.response?.data || error.message
-      );
-      alert("Lỗi khi tạo đơn hàng! Vui lòng thử lại.");
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error("Lỗi khi xử lý đơn hàng:", error?.response?.data || error.message);
+    alert("Lỗi khi xử lý đơn hàng! Vui lòng thử lại.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="p-4 border  mt-3 rounded-lg bg-white">

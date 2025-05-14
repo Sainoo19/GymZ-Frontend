@@ -195,16 +195,16 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
                       {orderNotifications.map((order, index) => (
                         <li
                           key={index}
-                          className={`p-2 hover:bg-gray-100 rounded cursor-pointer flex justify-between items-start ${
-                            order.status === "Đã huỷ"
-                              ? "text-red-500 font-semibold"
+                          className={`p-2 items-center hover:bg-gray-100 rounded cursor-pointer flex justify-between ${
+                            order.title === "Đã huỷ"
+                              ? "text-red-500 "
                               : !order.isRead
                               ? "font-medium"
                               : "text-gray-500"
                           }`}
                         >
                           <div
-                            className="flex-1"
+                            className=" "
                             onClick={async () => {
                               try {
                                 navigate(`/admin/orders/${order.orderId}`);
@@ -228,7 +228,9 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
                               }
                             }}
                           >
-                            <strong>{order.title}</strong>: {order.message}
+                            
+                            <p className="font-semibold">{order.title}:</p> 
+                            <p>{order.message}</p>
                           </div>
 
                           {/* Nếu đơn hàng bị huỷ thì hiện nút xoá */}
@@ -253,7 +255,11 @@ const Header = ({ setIsSidebarHidden, isSidebarHidden }) => {
                               }}
                               className="text-red-600 hover:text-red-800 ml-2 text-sm"
                             >
-                              Xoá
+                               <img
+                              src={close_ring}
+                              alt="close"
+                              className={`w-4 h-4 text-red-500`}
+                            />
                             </button>
                           )}
                         </li>
