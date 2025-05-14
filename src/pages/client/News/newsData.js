@@ -410,7 +410,7 @@ export const newsArticles = [
         slug: "su-kien-marathon-2023-hanh-trinh-chinh-phuc",
         title: "Sự kiện Marathon 2023: Hành trình chinh phục",
         short_description: "Tham gia Marathon 2023 để thử thách bản thân và trải nghiệm tinh thần thể thao. Tìm hiểu thông tin chi tiết về sự kiện.",
-        image: "https://images.unsplash.com/photo-1594882645126-140497817331?auto=format&fit=crop&w=1470&q=80",
+        image: "https://images.unsplash.com/photo-1596727362302-b8d891c42ab8?q=80&w=1385&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         date: "2023-08-10",
         author: "Mai Anh",
         category: "events",

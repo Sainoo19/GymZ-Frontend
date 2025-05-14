@@ -3,7 +3,7 @@ import React, { useState } from "react";
 const BranchesVideo = () => {
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const videoId = "CiCTr7CO_8k";
+  const videoId = "tUykoP30Gb0";
   const urlVideo ="";
   // Chuyển trạng thái khi bấm vào thumbnail
   const handlePlayClick = () => {
