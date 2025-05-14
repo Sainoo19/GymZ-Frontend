@@ -16,6 +16,7 @@ const CartPage = () => {
   const [discountPercent, setDiscountPercent] = useState(0);
   const [maxDiscountAmount, setMaxDiscountAmount] = useState(0);
   const [applicableProducts, setApplicableProducts] = useState(new Set());
+const [discountItems, setDiscountItems] = useState([]);
 
   const taxPercent = 5;
   var totalPrice = 0;
@@ -35,21 +36,32 @@ const CartPage = () => {
   if (loading) return <p>Đang tải giỏ hàng...</p>;
   if (!cart || !cart.items) return <p>Không có dữ liệu giỏ hàng.</p>;
 
-  const handleCheckBoxChange = (productId, category, theme) => {
-    setSelectedItems((prevSelected) => {
-      const newSelected = new Set(prevSelected);
-      const itemKey = `${productId}-${category}-${theme || ""}`; // Tạo key duy nhất
+ const handleCheckBoxChange = (productId, category, theme) => {
+  setSelectedItems((prevSelected) => {
+    const newSelected = new Set(prevSelected);
+    const itemKey = `${productId}-${category}-${theme || ""}`; // Tạo key duy nhất
 
-      if (newSelected.has(itemKey)) {
-        newSelected.delete(itemKey); // Bỏ chọn
-      } else {
-        newSelected.add(itemKey); // Chọn sản phẩm chính xác
-      }
+    if (newSelected.has(itemKey)) {
+      newSelected.delete(itemKey); // Bỏ chọn
+    } else {
+      newSelected.add(itemKey); // Chọn sản phẩm chính xác
+    }
 
-      return newSelected;
-    });
-  };
+    return newSelected;
+  });
 
+  // ✅ Reset mã giảm giá khi thay đổi sản phẩm
+  setDiscountCode('');
+  setDiscountPercent(null);
+};
+
+  
+const getSelectedProductIds = () => {
+  return Array.from(selectedItems).map((itemKey) => {
+    const [productId] = itemKey.split("-");
+    return productId;
+  });
+};
   const handleChangeQuantity = (e) => {
     const value = e.target.value;
     if (!isNaN(value) && Number(value) >= 1) {
@@ -160,45 +172,65 @@ const CartPage = () => {
       item.quantity - 1
     );
 
-  const applyDiscount = async () => {
-    const trimmedCode = discountCode.trim();
+const applyDiscount = async () => {
+  const trimmedCode = discountCode.trim();
 
-    if (!trimmedCode) {
-      alert("Vui lòng nhập mã giảm giá!");
-      return;
+  if (!trimmedCode) {
+    alert("Vui lòng nhập mã giảm giá!");
+    return;
+  }
+
+  const selectedProductIds = getSelectedProductIds();
+
+  if (selectedProductIds.length === 0) {
+    alert("Vui lòng chọn sản phẩm muốn áp dụng mã giảm giá!");
+    return;
+  }
+
+  // Đảm bảo rằng selectedProductIds là mảng
+  const productIdsArray = Array.isArray(selectedProductIds)
+    ? selectedProductIds
+    : selectedProductIds.split(',').map(id => id.trim());
+
+  console.log("Product IDs array:", productIdsArray);  // Kiểm tra mảng ID sản phẩm
+  console.log("Product IDs type:", typeof selectedProductIds); // Kiểm tra kiểu dữ liệu
+
+  try {
+    const response = await axios.get(`${URL_API}discounts/getVoucher`, {
+      params: {
+        code: trimmedCode,
+        productIds: productIdsArray, // gửi danh sách sản phẩm dưới dạng mảng
+      },
+      paramsSerializer: params => {
+        return new URLSearchParams(params).toString(); // serialize array thành chuỗi query string
+      },
+    });
+
+    const { status, data } = response.data;
+
+    if (
+      status === "success" &&
+      data?.discountPercent > 0 &&
+      data?.usageLimit > 0
+    ) {
+      setDiscountPercent(data.discountPercent);
+      setMaxDiscountAmount(data.maxDiscountAmount);
+      setApplicableProducts(new Set(data.applicableProducts || []));
+      alert(
+        `Mã giảm giá đã được áp dụng! Giảm ${data.discountPercent
+        }%, tối đa ${formatCurrency(data.maxDiscountAmount)}đ`
+      );
+    } else {
+      alert("Mã giảm giá không hợp lệ, đã hết hạn hoặc hết lượt sử dụng.");
     }
+  } catch (error) {
+    console.error("Lỗi khi lấy mã giảm giá:", error);
+    const errorMessage =
+      error.response?.data?.message || "Lỗi hệ thống, vui lòng thử lại!";
+    alert(errorMessage);
+  }
+};
 
-    try {
-      const response = await axios.get(`${URL_API}discounts/getVoucher`, {
-        params: { code: trimmedCode },
-      });
-
-      const { status, data } = response.data;
-
-      if (
-        status === "success" &&
-        data?.discountPercent > 0 &&
-        data?.usageLimit > 0
-      ) {
-        setDiscountPercent(data.discountPercent);
-        setMaxDiscountAmount(data.maxDiscountAmount);
-        setApplicableProducts(new Set(data.applicableProducts || []));
-        alert(
-          `Mã giảm giá đã được áp dụng! Giảm ${data.discountPercent
-          }%, giảm tối đa ${formatCurrency(data.maxDiscountAmount)}đ`
-        );
-
-      } else {
-        alert("Mã giảm giá không hợp lệ, đã hết hạn hoặc hết lượt sử dụng.");
-      }
-    } catch (error) {
-      console.error("Lỗi khi lấy mã giảm giá:", error);
-
-      const errorMessage =
-        error.response?.data?.message || "Lỗi hệ thống, vui lòng thử lại!";
-      alert(errorMessage);
-    }
-  };
 
   const totalAllProdctCartPrice = Array.from(selectedItems).reduce(
     (sum, key) => {
@@ -272,7 +304,7 @@ const CartPage = () => {
               <div className="col-span-5 flex items-center gap-4">
                 <input
                   type="checkbox"
-                  className="w-6 h-6"
+  className="w-4 h-4 accent-black"
                   checked={selectedItems.has(
                     `${item.product_id}-${item.category}-${item.theme || ""}`
                   )}
@@ -287,7 +319,7 @@ const CartPage = () => {
                 <img
                   src={item.productAvatar}
                   alt={item.productName}
-                  className="w-24 h-24 object-contain"
+                  className="w-20 h-20 object-cover "
                 />
                 <div>
                   <h2 className="font-semibold text-base mb-1 line-clamp-2">{item.productName}</h2>
@@ -376,7 +408,7 @@ const CartPage = () => {
               <span>{formatCurrency(totalAllProdctCartPrice)}₫</span>
             </p>
 
-            {discountPercent > 0 && (
+            {discountPercent > 0 && discountAmount >0 &&  (
               <p className="flex justify-between text-green-600 text-base pb-2">
                 <span>Khuyến Mãi ({discountPercent}%):</span>
                 <span>- {formatCurrency(discountAmount)}₫</span>
