@@ -17,7 +17,7 @@ const HomeBanner = () => {
   const images = [banner1, banner2, banner3, banner4, banner5];
 
   return (
-    <div className="w-full block h-[690px] xs:hidden lg:block">
+    <div className="w-full hidden h-[690px] md:block">
       <Swiper
         style={{ height: '690px' }}
         modules={[Autoplay, Pagination, Navigation]}

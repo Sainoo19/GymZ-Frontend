@@ -34,7 +34,7 @@ const PaymentMethods = ({
     setSelectedMethod(method);
   };
 
-  const handlePurchase = async () => {
+const handlePurchase = async () => {
     if (!selectedMethod) {
       alert("Vui lòng chọn phương thức thanh toán!");
       return;
@@ -115,6 +115,8 @@ const PaymentMethods = ({
       setLoading(false);
     }
   };
+
+
 
   return (
     <div className="p-4 border  mt-3 rounded-lg bg-white">
