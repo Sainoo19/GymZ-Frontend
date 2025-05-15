@@ -18,7 +18,7 @@ const navItems = [
     { to: "#", label: "Những Thiết Lập Riêng Tư", icon: FaLock, textColor: "text-black" },
     { to: "/my-orders", label: "Lịch Sử Đơn Hàng", icon: FaShoppingBag, textColor: "text-black" },
     { to: "/my-membership", label: "Hội Viên", icon: FaDumbbell, textColor: "text-black" },
-    { to: "/gymz-coin", label: "Shopee Xu", icon: FaCoins, textColor: "text-black" }
+    { to: "/gymz-coin", label: "GymZ Xu", icon: FaCoins, textColor: "text-black" }
 ];
 
 function SidebarProfile({ isMobileOpen, toggleMobileSidebar }) {

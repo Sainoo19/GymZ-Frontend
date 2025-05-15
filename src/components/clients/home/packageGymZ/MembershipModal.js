@@ -167,7 +167,7 @@ const MembershipModal = ({ isOpen, onClose, packageInfo }) => {
             // Optional: Close the modal automatically after a few seconds
             setTimeout(() => {
                 onClose();
-            }, 3000);
+            }, 1000);
         } catch (err) {
             console.error("Error registering membership:", err);
 
